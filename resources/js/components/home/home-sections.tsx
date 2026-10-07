@@ -16,6 +16,7 @@ import {
     Image,
     Inline,
     Link,
+    Reveal,
     Section,
     Stack,
     StatList,
@@ -42,9 +43,9 @@ type HomeSectionsProps = {
 /**
  * Enabled home page sections in the order sent by the server. Each section
  * carries its fixed anchor (`App.Enums.HomeSectionAnchor`) as `id`, the
- * contract navigation links rely on: on its own `Section` where the page
- * renders one, otherwise on a wrapping element (hero, contact, CTA render
- * their `Section` inside the primitive, which takes no `id`).
+ * contract navigation links rely on, on a wrapping element: the hero's
+ * plain wrapper, every other section's `Reveal`, which fades it in when it
+ * is scrolled into view.
  */
 export function HomeSections({
     sections,
@@ -62,13 +63,20 @@ export function HomeSections({
                     </Heading>
                 </Section>
             )}
-            {sections.map((section) => (
-                <HomeSectionContent
-                    key={section.id}
-                    section={section}
-                    contactForm={contactForm}
-                />
-            ))}
+            {sections.map((section) =>
+                section.type === 'hero' ? (
+                    <div key={section.id} id={section.anchor}>
+                        <HeroSection content={section.content} />
+                    </div>
+                ) : (
+                    <Reveal key={section.id} id={section.anchor}>
+                        <HomeSectionContent
+                            section={section}
+                            contactForm={contactForm}
+                        />
+                    </Reveal>
+                ),
+            )}
         </>
     );
 }
@@ -77,48 +85,34 @@ function HomeSectionContent({
     section,
     contactForm,
 }: {
-    section: HomeSection;
+    section: Exclude<HomeSection, { type: 'hero' }>;
     contactForm: App.Data.Contact.ContactFormData;
 }) {
-    const id = section.anchor;
-
     switch (section.type) {
-        case 'hero':
-            return (
-                <div id={id}>
-                    <HeroSection content={section.content} />
-                </div>
-            );
         case 'features':
-            return <FeaturesSection id={id} content={section.content} />;
+            return <FeaturesSection content={section.content} />;
         case 'faq':
-            return <FaqSection id={id} content={section.content} />;
+            return <FaqSection content={section.content} />;
         case 'testimonials':
-            return <TestimonialsSection id={id} content={section.content} />;
+            return <TestimonialsSection content={section.content} />;
         case 'latest_articles':
-            return <LatestArticlesSection id={id} content={section.content} />;
+            return <LatestArticlesSection content={section.content} />;
         case 'contact':
             return (
-                <div id={id}>
-                    <ContactForm
-                        contactForm={contactForm}
-                        title={section.content.title}
-                        description={section.content.description}
-                    />
-                </div>
+                <ContactForm
+                    contactForm={contactForm}
+                    title={section.content.title}
+                    description={section.content.description}
+                />
             );
         case 'cta':
-            return (
-                <div id={id}>
-                    <CtaSection content={section.content} />
-                </div>
-            );
+            return <CtaSection content={section.content} />;
         case 'portfolio':
-            return <PortfolioSection id={id} content={section.content} />;
+            return <PortfolioSection content={section.content} />;
         case 'team':
-            return <TeamSection id={id} content={section.content} />;
+            return <TeamSection content={section.content} />;
         case 'pricing':
-            return <PricingSection id={id} content={section.content} />;
+            return <PricingSection content={section.content} />;
         default:
             return assertNever(section);
     }
@@ -219,14 +213,12 @@ function HeroSection({ content }: { content: App.Data.Home.HomeHeroData }) {
 }
 
 function FeaturesSection({
-    id,
     content,
 }: {
-    id: string;
     content: App.Data.Home.FeaturesContentData;
 }) {
     return (
-        <Section id={id} spacing="relaxed" tone="subtle" container="wide">
+        <Section spacing="relaxed" tone="subtle" container="wide">
             <FeatureGrid
                 title={content.title ?? undefined}
                 description={content.description ?? undefined}
@@ -269,17 +261,11 @@ function SectionHeading({
     );
 }
 
-function FaqSection({
-    id,
-    content,
-}: {
-    id: string;
-    content: App.Data.Home.HomeFaqData;
-}) {
+function FaqSection({ content }: { content: App.Data.Home.HomeFaqData }) {
     const { t } = useTranslation();
 
     return (
-        <Section id={id} spacing="default" container="reading">
+        <Section spacing="default" container="reading">
             <Stack gap="relaxed">
                 <SectionHeading
                     title={content.title}
@@ -303,14 +289,12 @@ function FaqSection({
 }
 
 function TestimonialsSection({
-    id,
     content,
 }: {
-    id: string;
     content: App.Data.Home.TestimonialsContentData;
 }) {
     return (
-        <Section id={id} spacing="relaxed" tone="subtle" container="wide">
+        <Section spacing="relaxed" tone="subtle" container="wide">
             <Stack gap="relaxed">
                 <SectionHeading title={content.title} />
                 <Grid layout="cards">
@@ -345,16 +329,14 @@ function TestimonialsSection({
 }
 
 function LatestArticlesSection({
-    id,
     content,
 }: {
-    id: string;
     content: App.Data.Home.HomeLatestArticlesData;
 }) {
     const { t, formatDate } = useTranslation();
 
     return (
-        <Section id={id} spacing="default" container="wide">
+        <Section spacing="default" container="wide">
             <Stack gap="relaxed">
                 <SectionHeading
                     title={content.title ?? t('home.latestArticlesTitle')}
@@ -424,16 +406,14 @@ function LatestArticlesSection({
 }
 
 function PortfolioSection({
-    id,
     content,
 }: {
-    id: string;
     content: App.Data.Home.HomePortfolioData;
 }) {
     const { t } = useTranslation();
 
     return (
-        <Section id={id} spacing="relaxed" container="wide">
+        <Section spacing="relaxed" container="wide">
             <Stack gap="relaxed">
                 <SectionHeading
                     title={content.title}
@@ -497,15 +477,9 @@ function PortfolioSection({
     );
 }
 
-function TeamSection({
-    id,
-    content,
-}: {
-    id: string;
-    content: App.Data.Home.HomeTeamData;
-}) {
+function TeamSection({ content }: { content: App.Data.Home.HomeTeamData }) {
     return (
-        <Section id={id} spacing="relaxed" tone="subtle" container="wide">
+        <Section spacing="relaxed" tone="subtle" container="wide">
             <Stack gap="relaxed">
                 <SectionHeading
                     title={content.title}
@@ -567,10 +541,8 @@ function TeamSection({
 }
 
 function PricingSection({
-    id,
     content,
 }: {
-    id: string;
     content: App.Data.Home.HomePricingData;
 }) {
     const { t, formatNumber } = useTranslation();
@@ -591,7 +563,7 @@ function PricingSection({
     }
 
     return (
-        <Section id={id} spacing="relaxed" container="wide">
+        <Section spacing="relaxed" container="wide">
             <Stack gap="relaxed">
                 <SectionHeading
                     title={content.title}
