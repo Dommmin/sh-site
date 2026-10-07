@@ -105,5 +105,6 @@ return [
         'allArticles' => 'All articles',
         'readMore' => 'Read article: :title',
         'faqEmpty' => 'No questions have been published yet.',
+        'viewProject' => 'View project: :title',
     ],
 ];

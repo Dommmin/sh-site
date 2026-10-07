@@ -970,6 +970,7 @@ return [
             'latest_articles' => 'Latest articles',
             'contact' => 'Contact form',
             'cta' => 'Call to action',
+            'portfolio' => 'Portfolio',
         ],
         'fields' => [
             'eyebrow' => 'Eyebrow',
@@ -1006,6 +1007,13 @@ return [
             'statValue' => 'Value',
             'statValueHint' => 'Short text, e.g. 300+ or 98%.',
             'statLabel' => 'Label',
+            'projects' => 'Projects',
+            'projectItem' => 'Project :position',
+            'projectAdd' => 'Add project',
+            'category' => 'Category',
+            'thumbnail' => 'Thumbnail',
+            'projectUrl' => 'Project URL',
+            'projectUrlHint' => 'Optional full http(s) address of the delivered site.',
         ],
         'image' => [
             'choose' => 'Choose image',

@@ -972,6 +972,7 @@ return [
             'latest_articles' => 'Najnowsze artykuły',
             'contact' => 'Formularz kontaktowy',
             'cta' => 'Wezwanie do działania',
+            'portfolio' => 'Portfolio',
         ],
         'fields' => [
             'eyebrow' => 'Nadtytuł',
@@ -1008,6 +1009,13 @@ return [
             'statValue' => 'Wartość',
             'statValueHint' => 'Krótki tekst, np. 300+ lub 98%.',
             'statLabel' => 'Opis',
+            'projects' => 'Realizacje',
+            'projectItem' => 'Realizacja :position',
+            'projectAdd' => 'Dodaj realizację',
+            'category' => 'Kategoria',
+            'thumbnail' => 'Miniatura',
+            'projectUrl' => 'Adres projektu',
+            'projectUrlHint' => 'Opcjonalny pełny adres http(s) zrealizowanej strony.',
         ],
         'image' => [
             'choose' => 'Wybierz obraz',

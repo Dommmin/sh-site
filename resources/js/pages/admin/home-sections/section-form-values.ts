@@ -13,6 +13,7 @@ export const MAX_TESTIMONIALS = 6;
 export const MAX_FAQ_LIMIT = 50;
 export const MAX_ARTICLES_LIMIT = 6;
 export const MAX_HERO_STATS = 4;
+export const MAX_PROJECTS = 12;
 
 /**
  * Flat editor state shared by every section type; each type uses a subset.
@@ -142,6 +143,19 @@ export function toFormValues(section: Section): SectionFormValues {
                 title: section.content.title,
                 description: section.content.description ?? '',
             };
+        case 'portfolio':
+            return {
+                ...blank,
+                title: section.content.title ?? '',
+                description: section.content.description ?? '',
+                items: section.content.items.map((item) => ({
+                    imageId: item.imageId === null ? '' : String(item.imageId),
+                    title: item.title,
+                    category: item.category ?? '',
+                    description: item.description ?? '',
+                    url: item.url ?? '',
+                })),
+            };
     }
 }
 
@@ -239,6 +253,18 @@ export function toContent(
             return {
                 title: values.title,
                 description: orNull(values.description),
+            };
+        case 'portfolio':
+            return {
+                title: orNull(values.title),
+                description: orNull(values.description),
+                items: values.items.map((item) => ({
+                    title: item.title ?? '',
+                    category: orNull(item.category ?? ''),
+                    description: orNull(item.description ?? ''),
+                    imageId: intOrNull(item.imageId ?? ''),
+                    url: orNull(item.url ?? ''),
+                })),
             };
     }
 }

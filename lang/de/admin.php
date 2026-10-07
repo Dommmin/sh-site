@@ -970,6 +970,7 @@ return [
             'latest_articles' => 'Neueste Artikel',
             'contact' => 'Kontaktformular',
             'cta' => 'Handlungsaufforderung',
+            'portfolio' => 'Portfolio',
         ],
         'fields' => [
             'eyebrow' => 'Dachzeile',
@@ -1006,6 +1007,13 @@ return [
             'statValue' => 'Wert',
             'statValueHint' => 'Kurzer Text, z. B. 300+ oder 98 %.',
             'statLabel' => 'Beschriftung',
+            'projects' => 'Projekte',
+            'projectItem' => 'Projekt :position',
+            'projectAdd' => 'Projekt hinzufügen',
+            'category' => 'Kategorie',
+            'thumbnail' => 'Vorschaubild',
+            'projectUrl' => 'Projekt-URL',
+            'projectUrlHint' => 'Optionale vollständige http(s)-Adresse der umgesetzten Website.',
         ],
         'image' => [
             'choose' => 'Bild auswählen',

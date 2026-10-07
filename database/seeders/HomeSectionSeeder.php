@@ -11,6 +11,7 @@ use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\HomeActionData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Home\PortfolioContentData;
 use App\Data\Home\TestimonialItemData;
 use App\Data\Home\TestimonialsContentData;
 use App\Enums\HomeIcon;
@@ -54,12 +55,12 @@ class HomeSectionSeeder extends Seeder
      */
     public const array LOCAL_LAYOUT = [
         'en' => [
-            'order' => [HomeSectionType::Hero, HomeSectionType::LatestArticles, HomeSectionType::Features, HomeSectionType::Testimonials, HomeSectionType::Faq, HomeSectionType::Contact, HomeSectionType::Cta],
-            'disabled' => [],
+            'order' => [HomeSectionType::Hero, HomeSectionType::LatestArticles, HomeSectionType::Features, HomeSectionType::Testimonials, HomeSectionType::Faq, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Portfolio],
+            'disabled' => [HomeSectionType::Portfolio],
         ],
         'de' => [
-            'order' => [HomeSectionType::Hero, HomeSectionType::Features, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles],
-            'disabled' => [HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles],
+            'order' => [HomeSectionType::Hero, HomeSectionType::Features, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles, HomeSectionType::Portfolio],
+            'disabled' => [HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles, HomeSectionType::Portfolio],
         ],
     ];
 
@@ -256,6 +257,7 @@ class HomeSectionSeeder extends Seeder
                 description: $t('public.landing.ctaBottomDescription'),
                 primaryAction: new HomeActionData(label: $t('public.landing.ctaPrimaryGuest'), target: HomeLinkTarget::Contact),
             ),
+            HomeSectionType::Portfolio => new PortfolioContentData,
         };
     }
 

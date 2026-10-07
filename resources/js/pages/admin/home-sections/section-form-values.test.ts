@@ -101,4 +101,47 @@ describe('home section form values', () => {
             conflict: 'Conflict',
         });
     });
+
+    it('round-trips portfolio projects with optional fields as null', () => {
+        const values = toFormValues({
+            ...hero,
+            type: 'portfolio',
+            content: {
+                title: 'Work',
+                description: null,
+                items: [
+                    {
+                        title: 'Shop',
+                        category: null,
+                        description: null,
+                        imageId: 3,
+                        url: null,
+                    },
+                ],
+            },
+        });
+
+        expect(values.items).toEqual([
+            {
+                imageId: '3',
+                title: 'Shop',
+                category: '',
+                description: '',
+                url: '',
+            },
+        ]);
+        expect(toContent('portfolio', values)).toEqual({
+            title: 'Work',
+            description: null,
+            items: [
+                {
+                    title: 'Shop',
+                    category: null,
+                    description: null,
+                    imageId: 3,
+                    url: null,
+                },
+            ],
+        });
+    });
 });

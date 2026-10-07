@@ -6,6 +6,7 @@ use App\Data\Home\FaqContentData;
 use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Home\PortfolioContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Enums\HomeIcon;
 use App\Enums\HomeLinkTarget;
@@ -84,6 +85,18 @@ final class HomeSectionContentRules
                 'content' => ['required', 'array:title,limit'],
                 'content.title' => $this->text(120),
                 'content.limit' => ['required', 'integer', 'min:1', 'max:'.LatestArticlesContentData::MAX_LIMIT],
+            ],
+            HomeSectionType::Portfolio => [
+                'content' => ['required', 'array:title,description,items'],
+                'content.title' => $this->text(120),
+                'content.description' => $this->text(500),
+                'content.items' => ['present', 'array', 'list', 'max:'.PortfolioContentData::MAX_ITEMS],
+                'content.items.*' => ['required', 'array:title,category,description,imageId,url'],
+                'content.items.*.title' => $this->text(80, required: true),
+                'content.items.*.category' => $this->text(40),
+                'content.items.*.description' => $this->text(300),
+                'content.items.*.imageId' => $this->image(),
+                'content.items.*.url' => ['nullable', 'string', 'max:255', 'url:http,https'],
             ],
             HomeSectionType::Contact => [
                 'content' => ['required', 'array:title,description'],

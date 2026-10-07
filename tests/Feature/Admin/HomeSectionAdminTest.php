@@ -2,6 +2,7 @@
 
 use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
+use App\Data\Home\PortfolioContentData;
 use App\Enums\AuditAction;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
@@ -263,6 +264,52 @@ test('the hero rejects an image that is not a usable DAM image', function () {
         ->and(AuditLog::query()->count())->toBe(0);
 });
 
+test('portfolio projects are stored with their thumbnails and links', function () {
+    $editor = User::factory()->editor()->create();
+    $portfolio = HomeSection::factory()->ofType(HomeSectionType::Portfolio)->create();
+    $image = MediaAsset::factory()->withVariants()->create();
+
+    $this->actingAs($editor)->put(route('admin.home-sections.update', $portfolio), [
+        'updated_at' => $portfolio->updated_at?->toIso8601String(),
+        'content' => [
+            'title' => 'Our work',
+            'description' => null,
+            'items' => [
+                ['title' => 'Shop', 'category' => 'E-commerce', 'description' => null, 'imageId' => $image->id, 'url' => 'https://shop.example.com'],
+                ['title' => 'Logo', 'category' => null, 'description' => 'Brand mark', 'imageId' => null, 'url' => null],
+            ],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $content = $portfolio->fresh()?->content;
+    expect($content)->toBeInstanceOf(PortfolioContentData::class)
+        ->and($content?->items)->toHaveCount(2)
+        ->and($content?->items[0]->imageId)->toBe($image->id)
+        ->and($content?->items[0]->url)->toBe('https://shop.example.com');
+});
+
+test('portfolio links and thumbnails are restricted', function (array $item, string $error) {
+    $editor = User::factory()->editor()->create();
+    $portfolio = HomeSection::factory()->ofType(HomeSectionType::Portfolio)->create();
+
+    $this->actingAs($editor)->putJson(route('admin.home-sections.update', $portfolio), [
+        'updated_at' => $portfolio->updated_at?->toIso8601String(),
+        'content' => [
+            'title' => null,
+            'description' => null,
+            'items' => [['title' => 'Shop', 'category' => null, 'description' => null, 'imageId' => null, 'url' => null, ...$item]],
+        ],
+    ])->assertUnprocessable()->assertJsonValidationErrors($error);
+
+    expect($portfolio->fresh()?->content->items)->toBe([])
+        ->and(AuditLog::query()->count())->toBe(0);
+})->with([
+    'script url' => [['url' => 'javascript:alert(1)'], 'content.items.0.url'],
+    'not a url' => [['url' => 'shop'], 'content.items.0.url'],
+    'quarantined image' => [fn () => ['imageId' => MediaAsset::factory()->create()->id], 'content.items.0.imageId'],
+    'extra key' => [['html' => '<b>x</b>'], 'content.items.0'],
+]);
+
 test('the section type cannot be changed through the payload', function () {
     $editor = User::factory()->editor()->create();
     [$hero] = sectionsOf();
@@ -289,6 +336,7 @@ test('limits and plain text are enforced', function (string $type, array $conten
     expect(AuditLog::query()->count())->toBe(0);
 })->with([
     'too many features' => ['features', ['items' => array_fill(0, 13, ['icon' => null, 'title' => 'T', 'description' => 'D'])], 'content.items'],
+    'too many projects' => ['portfolio', ['items' => array_fill(0, 13, ['title' => 'T', 'category' => null, 'description' => null, 'imageId' => null, 'url' => null])], 'content.items'],
     'too many testimonials' => ['testimonials', ['items' => array_fill(0, 7, ['author' => 'A', 'role' => null, 'quote' => 'Q'])], 'content.items'],
     'too many hero stats' => ['hero', ['title' => 'T', 'stats' => array_fill(0, 5, ['value' => '1', 'label' => 'L'])], 'content.stats'],
     'long hero stat value' => ['hero', ['title' => 'T', 'stats' => [['value' => str_repeat('9', 13), 'label' => 'L']]], 'content.stats.0.value'],

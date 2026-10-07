@@ -8,6 +8,7 @@ use App\Data\Home\FaqContentData;
 use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Home\PortfolioContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Enums\HomeSectionType;
 use App\Models\HomeSection;
@@ -73,6 +74,7 @@ class EnsureHomeSections
             HomeSectionType::LatestArticles => new LatestArticlesContentData,
             HomeSectionType::Contact => new ContactContentData(title: $title),
             HomeSectionType::Cta => new CtaContentData(title: $title),
+            HomeSectionType::Portfolio => new PortfolioContentData,
         };
     }
 }

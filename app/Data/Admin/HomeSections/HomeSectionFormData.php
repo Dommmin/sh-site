@@ -8,6 +8,7 @@ use App\Data\Home\FaqContentData;
 use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Home\PortfolioContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Enums\HomeSectionType;
 use App\Models\HomeSection;
@@ -30,6 +31,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
     ." | { type: 'latest_articles'; content: %latestArticles% }"
     ." | { type: 'contact'; content: %contact% }"
     ." | { type: 'cta'; content: %cta% }"
+    ." | { type: 'portfolio'; content: %portfolio% }"
     .')',
     references: [
         'hero' => HeroContentData::class,
@@ -39,6 +41,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
         'latestArticles' => LatestArticlesContentData::class,
         'contact' => ContactContentData::class,
         'cta' => CtaContentData::class,
+        'portfolio' => PortfolioContentData::class,
     ],
 )]
 class HomeSectionFormData extends Data

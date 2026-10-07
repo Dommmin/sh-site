@@ -18,6 +18,7 @@ import {
     MAX_FAQ_LIMIT,
     MAX_FEATURES,
     MAX_HERO_STATS,
+    MAX_PROJECTS,
     MAX_TESTIMONIALS,
     NONE,
     toContent,
@@ -367,6 +368,69 @@ export function SectionForm({ editor }: SectionFormProps) {
                         t('admin.homeSections.fields.articlesLimitHint'),
                         true,
                     ),
+                ];
+            case 'portfolio':
+                return [
+                    text('title'),
+                    description,
+                    {
+                        type: 'repeater',
+                        name: 'items',
+                        label: t('admin.homeSections.fields.projects'),
+                        maxItems: MAX_PROJECTS,
+                        newItem: () => ({
+                            imageId: '',
+                            title: '',
+                            category: '',
+                            description: '',
+                            url: '',
+                        }),
+                        labels: {
+                            add: t('admin.homeSections.fields.projectAdd'),
+                            item: (position) =>
+                                t('admin.homeSections.fields.projectItem', {
+                                    position,
+                                }),
+                        },
+                        itemFields: [
+                            {
+                                type: 'text',
+                                name: 'title',
+                                label: t('admin.homeSections.fields.itemTitle'),
+                                required: true,
+                            },
+                            {
+                                type: 'image',
+                                name: 'imageId',
+                                label: t('admin.homeSections.fields.thumbnail'),
+                                picker,
+                                labels: imageLabels,
+                            },
+                            {
+                                type: 'text',
+                                name: 'category',
+                                label: t('admin.homeSections.fields.category'),
+                            },
+                            {
+                                type: 'textarea',
+                                name: 'description',
+                                label: t(
+                                    'admin.homeSections.fields.itemDescription',
+                                ),
+                                rows: 2,
+                            },
+                            {
+                                type: 'text',
+                                name: 'url',
+                                label: t(
+                                    'admin.homeSections.fields.projectUrl',
+                                ),
+                                hint: t(
+                                    'admin.homeSections.fields.projectUrlHint',
+                                ),
+                            },
+                        ],
+                    },
                 ];
         }
     }

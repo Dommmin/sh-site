@@ -3,6 +3,7 @@ import { act, useState, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '@/i18n';
+import { RepeaterField, type RepeaterItem } from './repeater-field';
 import {
     ResourceForm,
     type ResourceFormRepeaterItem,
@@ -271,5 +272,85 @@ describe('ResourceForm repeater field', () => {
             ),
         ).toBe(true);
         expect(container.textContent).toContain('At most 3 items.');
+    });
+});
+
+describe('RepeaterField image item field', () => {
+    const imagePicker = {
+        load: vi.fn(async () => []),
+        previewUrl: (mediaId: number) => `/admin/media/${mediaId}/preview`,
+        labels: {
+            image: 'Insert image',
+            dialogTitle: 'Choose image',
+            dialogDescription: 'Clean images only',
+            searchLabel: 'Search images',
+            searchPlaceholder: 'Name',
+            searchClear: 'Clear',
+            listLabel: 'Available images',
+            loading: 'Loading images',
+            empty: 'No images',
+            error: 'Could not load images',
+            retry: 'Retry',
+            selectRequired: 'Select an image.',
+            altLabel: 'Alternative text',
+            altHint: 'Describe it',
+            submit: 'Use image',
+            cancel: 'Cancel',
+            close: 'Close',
+        },
+    };
+
+    function ImageRepeater({ initial }: { initial: RepeaterItem[] }) {
+        const [items, setItems] = useState(initial);
+        latest = { title: '', items };
+
+        return (
+            <RepeaterField
+                id="projects"
+                name="items"
+                label="Projects"
+                items={items}
+                itemErrors={{ '0.imageId': 'Choose a clean image.' }}
+                itemFields={[
+                    {
+                        type: 'image',
+                        name: 'imageId',
+                        label: 'Thumbnail',
+                        picker: imagePicker,
+                        labels: {
+                            choose: 'Choose image',
+                            change: 'Change image',
+                            remove: 'Remove image',
+                            empty: 'No image',
+                            preview: 'Selected image',
+                        },
+                    },
+                    { type: 'text', name: 'title', label: 'Title' },
+                ]}
+                newItem={() => ({ imageId: '', title: '' })}
+                maxItems={6}
+                labels={{
+                    add: 'Add project',
+                    item: (position) => `Project ${position}`,
+                }}
+                onChange={setItems}
+            />
+        );
+    }
+
+    it('previews the item image, shows its error and clears it on remove', async () => {
+        const container = await render(
+            <ImageRepeater initial={[{ imageId: '7', title: 'Site' }]} />,
+        );
+
+        expect(container.querySelector('img')?.getAttribute('src')).toBe(
+            '/admin/media/7/preview',
+        );
+        expect(container.textContent).toContain('Choose a clean image.');
+
+        await click(button(container, 'Remove image'));
+
+        expect(latest.items).toEqual([{ imageId: '', title: 'Site' }]);
+        expect(container.textContent).toContain('No image');
     });
 });

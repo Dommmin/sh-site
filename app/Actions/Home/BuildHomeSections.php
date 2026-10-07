@@ -14,8 +14,11 @@ use App\Data\Home\HomeFaqData;
 use App\Data\Home\HomeFaqItemData;
 use App\Data\Home\HomeHeroData;
 use App\Data\Home\HomeLatestArticlesData;
+use App\Data\Home\HomePortfolioData;
+use App\Data\Home\HomePortfolioItemData;
 use App\Data\Home\HomeSectionData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Home\PortfolioContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Data\Media\MediaImageData;
 use App\Enums\HomeLinkTarget;
@@ -75,7 +78,7 @@ class BuildHomeSections
      * @param  array<int, PageTranslation>  $publishedPages
      * @param  Collection<int, MediaAsset>  $images
      */
-    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData
+    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData|HomePortfolioData
     {
         $content = $section->content;
 
@@ -107,6 +110,18 @@ class BuildHomeSections
                 title: $content->title,
                 items: $this->latestArticles($locale, $content->limit),
                 listUrl: $this->urls->url('articles.index', [], $locale),
+            ),
+            $content instanceof PortfolioContentData => new HomePortfolioData(
+                title: $content->title,
+                description: $content->description,
+                items: array_map(fn ($item): HomePortfolioItemData => new HomePortfolioItemData(
+                    title: $item->title,
+                    category: $item->category,
+                    description: $item->description,
+                    image: $this->image($item->imageId, $images),
+                    imageAlt: $this->imageAlt($item->imageId, $images),
+                    url: $item->url,
+                ), $content->items),
             ),
             $content instanceof FeaturesContentData,
             $content instanceof TestimonialsContentData,
@@ -168,6 +183,14 @@ class BuildHomeSections
 
             if ($content instanceof HeroContentData && $content->imageId !== null) {
                 $ids[] = $content->imageId;
+            }
+
+            if ($content instanceof PortfolioContentData) {
+                foreach ($content->items as $item) {
+                    if ($item->imageId !== null) {
+                        $ids[] = $item->imageId;
+                    }
+                }
             }
         }
 

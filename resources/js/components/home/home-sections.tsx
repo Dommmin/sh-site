@@ -1,6 +1,7 @@
 import { ContactForm } from '@/components/contact-form';
 import {
     Accordion,
+    Badge,
     Button,
     Card,
     CardContent,
@@ -11,6 +12,7 @@ import {
     Heading,
     Hero,
     Image,
+    Inline,
     Link,
     Section,
     Stack,
@@ -109,6 +111,8 @@ function HomeSectionContent({
                     <CtaSection content={section.content} />
                 </div>
             );
+        case 'portfolio':
+            return <PortfolioSection id={id} content={section.content} />;
         default:
             return assertNever(section);
     }
@@ -408,6 +412,80 @@ function LatestArticlesSection({
                         {t('home.allArticles')}
                     </Button>
                 </Stack>
+            </Stack>
+        </Section>
+    );
+}
+
+function PortfolioSection({
+    id,
+    content,
+}: {
+    id: string;
+    content: App.Data.Home.HomePortfolioData;
+}) {
+    const { t } = useTranslation();
+
+    return (
+        <Section id={id} spacing="relaxed" container="wide">
+            <Stack gap="relaxed">
+                <SectionHeading
+                    title={content.title}
+                    description={content.description}
+                />
+                <Grid layout="cards" align="center">
+                    {content.items.map((item, index) => (
+                        <Card key={`${index}-${item.title}`}>
+                            <CardContent>
+                                <Stack gap="tight">
+                                    {item.image && (
+                                        <Image
+                                            src={item.image.src}
+                                            srcset={item.image.srcset}
+                                            sources={item.image.sources}
+                                            width={item.image.width}
+                                            height={item.image.height}
+                                            alt={item.imageAlt}
+                                            sizes="(min-width: 64rem) 22rem, (min-width: 40rem) 45vw, 100vw"
+                                            frame="wide"
+                                        />
+                                    )}
+                                    {item.category && (
+                                        <Inline>
+                                            <Badge tone="outline">
+                                                {item.category}
+                                            </Badge>
+                                        </Inline>
+                                    )}
+                                    <Heading
+                                        level={content.title ? 3 : 2}
+                                        variant="group"
+                                    >
+                                        {item.url ? (
+                                            <Link
+                                                href={item.url}
+                                                external
+                                                ariaLabel={t(
+                                                    'home.viewProject',
+                                                    { title: item.title },
+                                                )}
+                                            >
+                                                {item.title}
+                                            </Link>
+                                        ) : (
+                                            item.title
+                                        )}
+                                    </Heading>
+                                    {item.description && (
+                                        <Text tone="muted">
+                                            {item.description}
+                                        </Text>
+                                    )}
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Grid>
             </Stack>
         </Section>
     );
