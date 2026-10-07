@@ -144,4 +144,40 @@ describe('home section form values', () => {
             ],
         });
     });
+
+    it('edits team skills as one comma separated field', () => {
+        const values = toFormValues({
+            ...hero,
+            type: 'team',
+            content: {
+                title: null,
+                description: null,
+                items: [
+                    {
+                        name: 'Ada',
+                        role: 'Developer',
+                        bio: null,
+                        photoId: null,
+                        skills: ['Laravel', 'React'],
+                    },
+                ],
+            },
+        });
+
+        expect(values.items[0].skills).toBe('Laravel, React');
+
+        values.items[0].skills = ' Laravel ,React,, Figma\n';
+        expect(toContent('team', values)).toMatchObject({
+            items: [{ skills: ['Laravel', 'React', 'Figma'], photoId: null }],
+        });
+    });
+
+    it('shows a skill error on the skills field of its member', () => {
+        expect(
+            toFieldErrors({
+                'content.items.0.skills.2': 'Too long.',
+                'content.items.0.skills.3': 'Also too long.',
+            }),
+        ).toEqual({ 'items.0.skills': 'Too long.' });
+    });
 });

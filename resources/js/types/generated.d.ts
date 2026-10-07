@@ -234,6 +234,7 @@ declare namespace App {
                           type: 'portfolio';
                           content: App.Data.Home.PortfolioContentData;
                       }
+                    | { type: 'team'; content: App.Data.Home.TeamContentData }
                 );
                 export type HomeSectionIndexData = {
                     items: App.Data.Admin.HomeSections.HomeSectionListItemData[];
@@ -690,7 +691,21 @@ declare namespace App {
                       type: 'portfolio';
                       content: App.Data.Home.HomePortfolioData;
                   }
+                | { type: 'team'; content: App.Data.Home.HomeTeamData }
             );
+            export type HomeTeamData = {
+                title: string | null;
+                description: string | null;
+                items: App.Data.Home.HomeTeamMemberData[];
+            };
+            export type HomeTeamMemberData = {
+                name: string;
+                role: string;
+                bio: string | null;
+                photo: App.Data.Media.MediaImageData | null;
+                photoAlt: string;
+                skills: string[];
+            };
             export type LatestArticlesContentData = {
                 limit: number;
                 title: string | null;
@@ -706,6 +721,18 @@ declare namespace App {
                 description: string | null;
                 imageId: number | null;
                 url: string | null;
+            };
+            export type TeamContentData = {
+                items: App.Data.Home.TeamMemberData[];
+                title: string | null;
+                description: string | null;
+            };
+            export type TeamMemberData = {
+                name: string;
+                role: string;
+                bio: string | null;
+                photoId: number | null;
+                skills: string[];
             };
             export type TestimonialItemData = {
                 author: string;
@@ -866,7 +893,8 @@ declare namespace App {
             | 'latest-articles'
             | 'contact'
             | 'cta'
-            | 'portfolio';
+            | 'portfolio'
+            | 'team';
         export type HomeSectionType =
             | 'hero'
             | 'features'
@@ -875,7 +903,8 @@ declare namespace App {
             | 'latest_articles'
             | 'contact'
             | 'cta'
-            | 'portfolio';
+            | 'portfolio'
+            | 'team';
         export type MediaStatus = 'quarantine' | 'clean' | 'rejected';
         export type MenuItemType =
             | 'page'

@@ -971,6 +971,7 @@ return [
             'contact' => 'Contact form',
             'cta' => 'Call to action',
             'portfolio' => 'Portfolio',
+            'team' => 'Team',
         ],
         'fields' => [
             'eyebrow' => 'Eyebrow',
@@ -1014,6 +1015,15 @@ return [
             'thumbnail' => 'Thumbnail',
             'projectUrl' => 'Project URL',
             'projectUrlHint' => 'Optional full http(s) address of the delivered site.',
+            'members' => 'People',
+            'memberItem' => 'Person :position',
+            'memberAdd' => 'Add person',
+            'name' => 'Full name',
+            'memberRole' => 'Position',
+            'bio' => 'Short bio',
+            'photo' => 'Photo',
+            'skills' => 'Skills',
+            'skillsHint' => 'Separate with commas, at most 10, e.g. Laravel, React, Figma.',
         ],
         'image' => [
             'choose' => 'Choose image',

@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 /** One modern-format `<source>` of a responsive picture (e.g. AVIF, WebP). */
 export type ImageSource = {
     /** MIME type, e.g. `image/avif`. */
@@ -33,12 +35,20 @@ export type ImageProps = {
     /** `intrinsic` scales down within its container; `cover` fills a sized frame. */
     fit?: ImageFit;
     /**
-     * `wide` renders the image in a full-width 16:9 frame and crops it to
-     * fill (`cover`), so covers of mixed proportions keep one height.
+     * `wide` renders the image in a full-width 16:9 frame and `square` in a
+     * full-width 1:1 frame (portraits, thumbnails); both crop it to fill
+     * (`cover`), so images of mixed proportions keep one height.
      */
-    frame?: 'wide';
+    frame?: ImageFrame;
     className?: never;
     style?: never;
+};
+
+type ImageFrame = 'wide' | 'square';
+
+const frameMap: Record<ImageFrame, string> = {
+    wide: 'aspect-video',
+    square: 'aspect-square',
 };
 
 const fitMap: Record<ImageFit, string> = {
@@ -65,7 +75,12 @@ export function Image({
 }: ImageProps) {
     if (frame) {
         return (
-            <span className="bg-surface-subtle block aspect-video w-full overflow-hidden rounded-lg">
+            <span
+                className={cn(
+                    'bg-surface-subtle block w-full overflow-hidden rounded-lg',
+                    frameMap[frame],
+                )}
+            >
                 <Image
                     src={src}
                     srcset={srcset}

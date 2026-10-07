@@ -14,6 +14,7 @@ export const MAX_FAQ_LIMIT = 50;
 export const MAX_ARTICLES_LIMIT = 6;
 export const MAX_HERO_STATS = 4;
 export const MAX_PROJECTS = 12;
+export const MAX_MEMBERS = 8;
 
 /**
  * Flat editor state shared by every section type; each type uses a subset.
@@ -156,12 +157,33 @@ export function toFormValues(section: Section): SectionFormValues {
                     url: item.url ?? '',
                 })),
             };
+        case 'team':
+            return {
+                ...blank,
+                title: section.content.title ?? '',
+                description: section.content.description ?? '',
+                items: section.content.items.map((member) => ({
+                    photoId:
+                        member.photoId === null ? '' : String(member.photoId),
+                    name: member.name,
+                    role: member.role,
+                    bio: member.bio ?? '',
+                    skills: member.skills.join(', '),
+                })),
+            };
     }
 }
 
 function isHomeIcon(value: string): value is App.Enums.HomeIcon {
     return Object.hasOwn(homeIcons, value);
 }
+
+/** Comma or newline separated text as a list of trimmed, non-empty entries. */
+const toList = (value: string): string[] =>
+    value
+        .split(/[,\n]/)
+        .map((entry) => entry.trim())
+        .filter((entry) => entry !== '');
 
 const orNull = (value: string): string | null =>
     value.trim() === '' ? null : value;
@@ -266,6 +288,18 @@ export function toContent(
                     url: orNull(item.url ?? ''),
                 })),
             };
+        case 'team':
+            return {
+                title: orNull(values.title),
+                description: orNull(values.description),
+                items: values.items.map((member) => ({
+                    name: member.name ?? '',
+                    role: member.role ?? '',
+                    bio: orNull(member.bio ?? ''),
+                    photoId: intOrNull(member.photoId ?? ''),
+                    skills: toList(member.skills ?? ''),
+                })),
+            };
     }
 }
 
@@ -296,7 +330,17 @@ export function toFieldErrors(
             continue;
         }
 
-        mapped[key.startsWith('content.') ? key.slice(8) : key] = message;
+        const field = key.startsWith('content.') ? key.slice(8) : key;
+        // A list entry inside an item (`items.0.skills.3`) is edited as one
+        // text field (`items.0.skills`); keep the first message.
+        const listEntry = /^(items\.\d+\.\w+)\.\d+$/.exec(field);
+
+        if (listEntry) {
+            mapped[listEntry[1]] ??= message;
+            continue;
+        }
+
+        mapped[field] = message;
     }
 
     return mapped;

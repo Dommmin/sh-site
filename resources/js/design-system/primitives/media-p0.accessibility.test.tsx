@@ -82,6 +82,25 @@ describe('Image', () => {
         expect(img.getAttribute('alt')).toBe('A square cover');
     });
 
+    it('crops an image into a full-width 1:1 frame', async () => {
+        const container = await render(
+            <Image
+                src="/portrait.jpg"
+                width={800}
+                height={1200}
+                alt="A team member"
+                frame="square"
+            />,
+        );
+
+        const frame = container.firstElementChild!;
+        expect(frame.classList.contains('aspect-square')).toBe(true);
+        expect(frame.classList.contains('aspect-video')).toBe(false);
+        expect(
+            frame.querySelector('img')?.classList.contains('object-cover'),
+        ).toBe(true);
+    });
+
     it('loads the LCP image eagerly with high priority', async () => {
         const container = await render(
             <Image

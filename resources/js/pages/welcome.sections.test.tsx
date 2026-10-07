@@ -399,4 +399,44 @@ describe('HomeSections', () => {
         );
         expect(section?.textContent).toContain('E-commerce');
     });
+
+    it('renders team members with a square photo, role and skills', async () => {
+        const container = await render([
+            {
+                id: 10,
+                type: 'team',
+                anchor: 'team',
+                content: {
+                    title: 'Team',
+                    description: null,
+                    items: [
+                        {
+                            name: 'Ada Example',
+                            role: 'Developer',
+                            bio: 'Builds things.',
+                            photo: {
+                                sources: [],
+                                src: '/media/ada.jpg',
+                                srcset: '/media/ada.jpg 600w',
+                                width: 600,
+                                height: 600,
+                            },
+                            photoAlt: 'Ada smiling',
+                            skills: ['Laravel', 'React'],
+                        },
+                    ],
+                },
+            },
+        ]);
+
+        const section = container.querySelector('#team');
+        expect(section?.querySelector('h3')?.textContent).toBe('Ada Example');
+        expect(section?.querySelector('img')?.getAttribute('alt')).toBe(
+            'Ada smiling',
+        );
+        expect(section?.querySelector('.aspect-square img')).not.toBeNull();
+        expect(section?.textContent).toContain('Developer');
+        expect(section?.textContent).toContain('Laravel');
+        expect(section?.textContent).toContain('React');
+    });
 });

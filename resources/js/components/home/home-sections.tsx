@@ -113,6 +113,8 @@ function HomeSectionContent({
             );
         case 'portfolio':
             return <PortfolioSection id={id} content={section.content} />;
+        case 'team':
+            return <TeamSection id={id} content={section.content} />;
         default:
             return assertNever(section);
     }
@@ -480,6 +482,75 @@ function PortfolioSection({
                                         <Text tone="muted">
                                             {item.description}
                                         </Text>
+                                    )}
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Grid>
+            </Stack>
+        </Section>
+    );
+}
+
+function TeamSection({
+    id,
+    content,
+}: {
+    id: string;
+    content: App.Data.Home.HomeTeamData;
+}) {
+    return (
+        <Section id={id} spacing="relaxed" tone="subtle" container="wide">
+            <Stack gap="relaxed">
+                <SectionHeading
+                    title={content.title}
+                    description={content.description}
+                />
+                <Grid layout="cards" align="center">
+                    {content.items.map((member, index) => (
+                        <Card key={`${index}-${member.name}`}>
+                            <CardContent>
+                                <Stack gap="tight">
+                                    {member.photo && (
+                                        <Image
+                                            src={member.photo.src}
+                                            srcset={member.photo.srcset}
+                                            sources={member.photo.sources}
+                                            width={member.photo.width}
+                                            height={member.photo.height}
+                                            alt={member.photoAlt}
+                                            sizes="(min-width: 64rem) 22rem, (min-width: 40rem) 45vw, 100vw"
+                                            frame="square"
+                                        />
+                                    )}
+                                    <Stack gap="none">
+                                        <Heading
+                                            level={content.title ? 3 : 2}
+                                            variant="group"
+                                        >
+                                            {member.name}
+                                        </Heading>
+                                        <Text variant="label" tone="primary">
+                                            {member.role}
+                                        </Text>
+                                    </Stack>
+                                    {member.bio && (
+                                        <Text tone="muted">{member.bio}</Text>
+                                    )}
+                                    {member.skills.length > 0 && (
+                                        <Inline gap="tight" wrap>
+                                            {member.skills.map(
+                                                (skill, skillIndex) => (
+                                                    <Badge
+                                                        key={`${skillIndex}-${skill}`}
+                                                        tone="outline"
+                                                    >
+                                                        {skill}
+                                                    </Badge>
+                                                ),
+                                            )}
+                                        </Inline>
                                     )}
                                 </Stack>
                             </CardContent>

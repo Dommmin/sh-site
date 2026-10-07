@@ -16,4 +16,5 @@ enum HomeSectionAnchor: string
     case Contact = 'contact';
     case Cta = 'cta';
     case Portfolio = 'portfolio';
+    case Team = 'team';
 }

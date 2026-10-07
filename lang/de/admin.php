@@ -971,6 +971,7 @@ return [
             'contact' => 'Kontaktformular',
             'cta' => 'Handlungsaufforderung',
             'portfolio' => 'Portfolio',
+            'team' => 'Team',
         ],
         'fields' => [
             'eyebrow' => 'Dachzeile',
@@ -1014,6 +1015,15 @@ return [
             'thumbnail' => 'Vorschaubild',
             'projectUrl' => 'Projekt-URL',
             'projectUrlHint' => 'Optionale vollständige http(s)-Adresse der umgesetzten Website.',
+            'members' => 'Personen',
+            'memberItem' => 'Person :position',
+            'memberAdd' => 'Person hinzufügen',
+            'name' => 'Vollständiger Name',
+            'memberRole' => 'Position',
+            'bio' => 'Kurzbeschreibung',
+            'photo' => 'Foto',
+            'skills' => 'Fähigkeiten',
+            'skillsHint' => 'Durch Kommas trennen, höchstens 10, z. B. Laravel, React, Figma.',
         ],
         'image' => [
             'choose' => 'Bild auswählen',

@@ -8,6 +8,8 @@ use App\Data\Home\HomeActionData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
 use App\Data\Home\PortfolioItemData;
+use App\Data\Home\TeamContentData;
+use App\Data\Home\TeamMemberData;
 use App\Data\Media\MediaImageData;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
@@ -119,6 +121,29 @@ test('portfolio thumbnails are resolved per project and unusable ones are droppe
             ->where('sections.0.content.items.0.category', 'E-commerce')
             ->where('sections.0.content.items.1.image', null)
             ->where('sections.0.content.items.1.imageAlt', '')
+        );
+});
+
+test('team photos are resolved per member and a deleted one is dropped', function () {
+    $photo = MediaAsset::factory()->withVariants()->create(['alt' => 'Ada smiling']);
+    $deleted = MediaAsset::factory()->withVariants()->create();
+    HomeSection::factory()->ofType(HomeSectionType::Team)->enabled()->create(['content' => new TeamContentData(
+        items: [
+            new TeamMemberData(name: 'Ada', role: 'Developer', photoId: $photo->id, skills: ['Laravel']),
+            new TeamMemberData(name: 'Bo', role: 'Designer', photoId: $deleted->id),
+        ],
+    )]);
+    $deleted->delete();
+
+    $this->get('/')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia
+            ->where('sections.0.type', 'team')
+            ->where('sections.0.anchor', 'team')
+            ->where('sections.0.content.items.0.photoAlt', 'Ada smiling')
+            ->where('sections.0.content.items.0.photo.width', MediaImageData::fromAsset($photo)?->width)
+            ->where('sections.0.content.items.0.skills', ['Laravel'])
+            ->where('sections.0.content.items.1.photo', null)
         );
 });
 
