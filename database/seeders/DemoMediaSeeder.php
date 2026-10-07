@@ -58,9 +58,9 @@ class DemoMediaSeeder extends Seeder
         $owner = User::query()->where('email', DemoContent::USER_EMAIL)->first();
         $disk = (string) config('media.disk');
         $now = now();
-        $remaining = count(self::ASSETS);
+        $remaining = count(static::ASSETS);
 
-        foreach (self::ASSETS as $definition) {
+        foreach (static::ASSETS as $definition) {
             $createdAt = $now->copy()->subDays(3 * $remaining--);
 
             if (MediaAsset::query()->where('uuid', $definition['uuid'])->exists()) {
@@ -124,11 +124,12 @@ class DemoMediaSeeder extends Seeder
     }
 
     /**
-     * Id of a seeded asset by its key in self::ASSETS, if it exists.
+     * Id of a seeded asset by its key in static::ASSETS (a subclass may
+     * seed its own asset list), if it exists.
      */
     public static function assetId(string $key): ?int
     {
-        $id = MediaAsset::query()->where('uuid', self::ASSETS[$key]['uuid'])->value('id');
+        $id = MediaAsset::query()->where('uuid', static::ASSETS[$key]['uuid'])->value('id');
 
         return is_int($id) ? $id : null;
     }
