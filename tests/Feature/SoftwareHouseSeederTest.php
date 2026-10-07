@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Home\UpdateHomeSection;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\PortfolioContentData;
 use App\Enums\HomeSectionType;
@@ -109,11 +110,24 @@ test('a second run changes nothing', function () {
         ->and(MenuItem::query()->orderBy('id')->get()->toArray())->toBe($menu);
 });
 
-test('a locale edited by a person and an authored header menu are left untouched', function () {
+test('outdated seeded content nobody edited is replaced', function () {
     $this->app['env'] = 'local';
     $this->seed(DatabaseSeeder::class);
     HomeSection::query()->where('locale', 'pl')->where('type', HomeSectionType::Hero)->sole()
-        ->forceFill(['content' => new HeroContentData(title: 'Edited by a person')])->save();
+        ->forceFill(['content' => new HeroContentData(title: 'Copy of an older demo')])->save();
+
+    $this->seed(SoftwareHouseSeeder::class);
+
+    expect(showcaseOrder('pl')[2])->toBe(HomeSectionType::Portfolio)
+        ->and(HomeSection::query()->where('locale', 'pl')->where('type', HomeSectionType::Hero)->sole()->content->imageId)
+        ->toBe(SoftwareHouseMediaSeeder::assetId('hero'));
+});
+
+test('a locale edited by a person and an authored header menu are left untouched', function () {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+    $hero = HomeSection::query()->where('locale', 'pl')->where('type', HomeSectionType::Hero)->sole();
+    app(UpdateHomeSection::class)->handle($hero, User::factory()->editor()->create(), new HeroContentData(title: 'Edited by a person'), (string) $hero->updated_at?->toIso8601String());
     MenuItem::query()->where('location', MenuLocation::Header->value)->where('locale', 'en')->firstOrFail()
         ->forceFill(['updated_by' => User::query()->value('id')])->save();
     $polishOrder = showcaseOrder('pl');

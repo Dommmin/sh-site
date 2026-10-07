@@ -6,6 +6,7 @@ use App\Actions\Home\EnsureHomeSections;
 use App\Enums\HomeSectionAnchor;
 use App\Enums\MenuItemType;
 use App\Enums\MenuLocation;
+use App\Models\AuditLog;
 use App\Models\HomeSection;
 use App\Models\MenuItem;
 use App\Services\Localization\LocalizationConfig;
@@ -23,9 +24,10 @@ use Spatie\LaravelData\Data;
  * Run after the default seeders: `make artisan ARGS='db:seed --class=SoftwareHouseSeeder'`.
  * Local only, because the placeholder images skip the malware scan like
  * {@see DemoMediaSeeder}. Idempotent and safe for edits: a locale is
- * rewritten only while each of its sections still holds seeded content
- * (demo, placeholder or this showcase), and its header menu only while no
- * item has an author.
+ * rewritten only while none of its sections was changed by a person (every
+ * panel edit, toggle and reorder is audited; seeders never are) or each
+ * still holds seeded content, and its header menu only while no item has an
+ * author.
  */
 class SoftwareHouseSeeder extends Seeder
 {
@@ -82,8 +84,14 @@ class SoftwareHouseSeeder extends Seeder
             fn (HomeSection $section): string => $section->type->value,
         );
 
+        $changedByPerson = AuditLog::query()
+            ->where('subject_type', (new HomeSection)->getMorphClass())
+            ->whereIn('subject_id', $sections->modelKeys())
+            ->pluck('subject_id')
+            ->all();
+
         foreach ($sections as $type => $section) {
-            if (! $this->holdsSeededContent($section, $definitions[$type]['content']->toArray())) {
+            if (in_array($section->id, $changedByPerson, true) && ! $this->holdsSeededContent($section, $definitions[$type]['content']->toArray())) {
                 return;
             }
         }
