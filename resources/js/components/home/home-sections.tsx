@@ -14,6 +14,7 @@ import {
     Link,
     Section,
     Stack,
+    StatList,
     Surface,
     Text,
 } from '@/design-system/primitives';
@@ -155,22 +156,55 @@ function Actions({
     );
 }
 
+/**
+ * Hero copy with an optional DAM image beside it (the LCP image, so it
+ * loads eagerly) and the key figures in a band right below.
+ */
 function HeroSection({ content }: { content: App.Data.Home.HomeHeroData }) {
+    const { image } = content;
+
     return (
-        <Hero
-            eyebrow={content.eyebrow ?? undefined}
-            title={content.title}
-            description={content.description ?? undefined}
-            actions={
-                content.primaryAction || content.secondaryAction ? (
-                    <Actions
-                        primary={content.primaryAction}
-                        secondary={content.secondaryAction}
+        <>
+            <Hero
+                eyebrow={content.eyebrow ?? undefined}
+                title={content.title}
+                description={content.description ?? undefined}
+                actions={
+                    content.primaryAction || content.secondaryAction ? (
+                        <Actions
+                            primary={content.primaryAction}
+                            secondary={content.secondaryAction}
+                        />
+                    ) : undefined
+                }
+                media={
+                    image ? (
+                        <Image
+                            src={image.src}
+                            srcset={image.srcset}
+                            sources={image.sources}
+                            width={image.width}
+                            height={image.height}
+                            alt={content.imageAlt}
+                            sizes="(min-width: 64rem) 36rem, 100vw"
+                            priority
+                        />
+                    ) : undefined
+                }
+                align={image ? 'start' : 'center'}
+            />
+            {content.stats.length > 0 && (
+                <Section spacing="compact" container="wide">
+                    <StatList
+                        items={content.stats.map((stat, index) => ({
+                            id: `${index}-${stat.label}`,
+                            value: stat.value,
+                            label: stat.label,
+                        }))}
                     />
-                ) : undefined
-            }
-            align="center"
-        />
+                </Section>
+            )}
+        </>
     );
 }
 

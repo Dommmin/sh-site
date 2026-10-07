@@ -6,15 +6,18 @@ import {
     PageHeader,
     ResourceForm,
     Stack,
+    type ImagePickerFieldLabels,
     type ResourceFormField,
     type ResourceFormSection,
 } from '@/design-system/primitives';
+import { useMediaImagePicker } from '@/hooks/use-media-image-picker';
 import { useTranslation } from '@/i18n';
 import { edit, index, update } from '@/routes/admin/home-sections';
 import {
     MAX_ARTICLES_LIMIT,
     MAX_FAQ_LIMIT,
     MAX_FEATURES,
+    MAX_HERO_STATS,
     MAX_TESTIMONIALS,
     NONE,
     toContent,
@@ -51,6 +54,7 @@ export function SectionForm({ editor }: SectionFormProps) {
     const { t } = useTranslation();
     const form = useForm<SectionFormValues>(toFormValues(section));
     const [isConflictOpen, setIsConflictOpen] = useState(false);
+    const imagePicker = useMediaImagePicker();
     const typeLabel = t(`admin.homeSections.types.${section.type}`);
 
     const errors = toFieldErrors(
@@ -171,6 +175,22 @@ export function SectionForm({ editor }: SectionFormProps) {
         ];
     };
 
+    const imageLabels: ImagePickerFieldLabels = {
+        choose: t('admin.homeSections.image.choose'),
+        change: t('admin.homeSections.image.change'),
+        remove: t('admin.homeSections.image.remove'),
+        empty: t('admin.homeSections.image.empty'),
+        preview: t('admin.homeSections.image.preview'),
+    };
+    const picker = {
+        ...imagePicker,
+        labels: {
+            ...imagePicker.labels,
+            dialogTitle: t('admin.homeSections.image.choose'),
+            submit: t('admin.homeSections.image.choose'),
+        },
+    };
+
     const limit = (max: number, hint: string, required: boolean): Field => ({
         type: 'number',
         name: 'limit',
@@ -185,7 +205,50 @@ export function SectionForm({ editor }: SectionFormProps) {
     function contentFields(): Field[] {
         switch (section.type) {
             case 'hero':
-                return [text('eyebrow'), text('title', true), description];
+                return [
+                    text('eyebrow'),
+                    text('title', true),
+                    description,
+                    {
+                        type: 'image',
+                        name: 'imageId',
+                        label: t('admin.homeSections.fields.image'),
+                        hint: t('admin.homeSections.fields.heroImageHint'),
+                        picker,
+                        labels: imageLabels,
+                    },
+                    {
+                        type: 'repeater',
+                        name: 'stats',
+                        label: t('admin.homeSections.fields.stats'),
+                        maxItems: MAX_HERO_STATS,
+                        newItem: () => ({ value: '', label: '' }),
+                        labels: {
+                            add: t('admin.homeSections.fields.statAdd'),
+                            item: (position) =>
+                                t('admin.homeSections.fields.statItem', {
+                                    position,
+                                }),
+                        },
+                        itemFields: [
+                            {
+                                type: 'text',
+                                name: 'value',
+                                label: t('admin.homeSections.fields.statValue'),
+                                hint: t(
+                                    'admin.homeSections.fields.statValueHint',
+                                ),
+                                required: true,
+                            },
+                            {
+                                type: 'text',
+                                name: 'label',
+                                label: t('admin.homeSections.fields.statLabel'),
+                                required: true,
+                            },
+                        ],
+                    },
+                ];
             case 'cta':
             case 'contact':
                 return [text('title', true), description];

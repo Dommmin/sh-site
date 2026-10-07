@@ -3,13 +3,16 @@
 use App\Data\Home\CtaContentData;
 use App\Data\Home\FaqContentData;
 use App\Data\Home\HeroContentData;
+use App\Data\Home\HeroStatData;
 use App\Data\Home\HomeActionData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Media\MediaImageData;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
 use App\Models\ArticleTranslation;
 use App\Models\Faq;
 use App\Models\HomeSection;
+use App\Models\MediaAsset;
 use App\Models\PageTranslation;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -53,6 +56,42 @@ test('a locale without sections renders an empty page', function () {
             ->where('sections', [])
             ->has('seo')
         );
+});
+
+test('the hero image is resolved from the DAM and a missing or unusable one is dropped', function () {
+    $image = MediaAsset::factory()->withVariants()->create(['alt' => 'Our team at work']);
+    $quarantined = MediaAsset::factory()->create();
+    HomeSection::factory()->ofType(HomeSectionType::Hero)->enabled()->create(['content' => new HeroContentData(
+        title: 'With image',
+        imageId: $image->id,
+        stats: [new HeroStatData(value: '300+', label: 'Projects')],
+    )]);
+    HomeSection::factory()->ofType(HomeSectionType::Hero)->enabled()->create(['locale' => 'pl', 'content' => new HeroContentData(
+        title: 'Bez obrazu',
+        imageId: $quarantined->id,
+    )]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia
+            ->where('sections.0.content.imageAlt', 'Our team at work')
+            ->where('sections.0.content.image.width', MediaImageData::fromAsset($image)?->width)
+            ->where('sections.0.content.stats', [['value' => '300+', 'label' => 'Projects']])
+        );
+
+    $this->get('/pl')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia
+            ->where('sections.0.content.image', null)
+            ->where('sections.0.content.imageAlt', '')
+            ->where('sections.0.content.stats', [])
+        );
+
+    $image->delete();
+
+    $this->get('/')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia->where('sections.0.content.image', null));
 });
 
 test('actions are resolved to URLs of the locale and unavailable ones are dropped', function () {

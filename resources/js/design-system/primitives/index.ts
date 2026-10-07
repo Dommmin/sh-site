@@ -82,6 +82,7 @@ export * from './skeleton';
 export * from './spinner';
 export * from './split-layout';
 export * from './stack';
+export * from './stat-list';
 export * from './surface';
 export * from './switch-field';
 export * from './tabs';

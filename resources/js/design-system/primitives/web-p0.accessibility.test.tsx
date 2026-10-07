@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { CTA } from './cta';
 import { FeatureGrid } from './feature-grid';
 import { Hero } from './hero';
+import { StatList } from './stat-list';
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 
@@ -99,5 +100,35 @@ describe('CTA', () => {
         );
         expect(container.textContent).toContain('Join today');
         expect(container.querySelector('button')?.textContent).toBe('Sign up');
+    });
+});
+
+describe('StatList', () => {
+    it('pairs each value with its label in a description list without headings', async () => {
+        const container = await render(
+            <StatList
+                items={[
+                    { id: 'projects', value: '300+', label: 'Projects' },
+                    { id: 'clients', value: '12', label: 'Countries' },
+                ]}
+            />,
+        );
+
+        const terms = Array.from(container.querySelectorAll('dl dt')).map(
+            (term) => term.textContent,
+        );
+        const values = Array.from(container.querySelectorAll('dl dd')).map(
+            (value) => value.textContent,
+        );
+
+        expect(terms).toEqual(['Projects', 'Countries']);
+        expect(values).toEqual(['300+', '12']);
+        expect(container.querySelector('h1, h2, h3, h4, h5, h6')).toBeNull();
+    });
+
+    it('renders nothing without items', async () => {
+        const container = await render(<StatList items={[]} />);
+
+        expect(container.querySelector('dl')).toBeNull();
     });
 });
