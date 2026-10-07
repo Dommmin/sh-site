@@ -9,6 +9,7 @@ use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\PricingContentData;
 use App\Data\Home\TeamContentData;
 use App\Data\Home\TestimonialsContentData;
 use Spatie\LaravelData\Data;
@@ -29,6 +30,7 @@ enum HomeSectionType: string
     case Cta = 'cta';
     case Portfolio = 'portfolio';
     case Team = 'team';
+    case Pricing = 'pricing';
 
     /**
      * Stable anchor id of the rendered section (navigation contract).
@@ -45,6 +47,7 @@ enum HomeSectionType: string
             self::Cta => HomeSectionAnchor::Cta,
             self::Portfolio => HomeSectionAnchor::Portfolio,
             self::Team => HomeSectionAnchor::Team,
+            self::Pricing => HomeSectionAnchor::Pricing,
         };
     }
 
@@ -65,6 +68,7 @@ enum HomeSectionType: string
             self::Cta => CtaContentData::class,
             self::Portfolio => PortfolioContentData::class,
             self::Team => TeamContentData::class,
+            self::Pricing => PricingContentData::class,
         };
     }
 

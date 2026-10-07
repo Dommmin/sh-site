@@ -106,5 +106,8 @@ return [
         'readMore' => 'Przeczytaj artykuł: :title',
         'faqEmpty' => 'Nie opublikowano jeszcze żadnych pytań.',
         'viewProject' => 'Zobacz projekt: :title',
+        'priceFrom' => 'od :price',
+        'priceOnRequest' => 'Wycena indywidualna',
+        'recommended' => 'Polecany',
     ],
 ];

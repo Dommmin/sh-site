@@ -180,4 +180,95 @@ describe('home section form values', () => {
             }),
         ).toEqual({ 'items.0.skills': 'Too long.' });
     });
+
+    it('round-trips pricing plans with prices in the smallest unit', () => {
+        const values = toFormValues({
+            ...hero,
+            type: 'pricing',
+            content: {
+                title: 'Pricing',
+                description: null,
+                note: null,
+                items: [
+                    {
+                        name: 'Start',
+                        priceMinor: 290050,
+                        currency: 'PLN',
+                        priceFrom: true,
+                        period: null,
+                        description: null,
+                        features: ['Five pages', 'Contact form, maps'],
+                        highlighted: true,
+                        action: { label: 'Ask', target: 'page', pageId: 4 },
+                    },
+                ],
+            },
+        });
+
+        expect(values.items[0]).toMatchObject({
+            price: '2900.50',
+            priceMode: 'from',
+            highlighted: 'yes',
+            actionPageId: '4',
+        });
+        expect(toContent('pricing', values)).toEqual({
+            title: 'Pricing',
+            description: null,
+            note: null,
+            items: [
+                {
+                    name: 'Start',
+                    priceMinor: 290050,
+                    currency: 'PLN',
+                    priceFrom: true,
+                    period: null,
+                    description: null,
+                    features: ['Five pages', 'Contact form, maps'],
+                    highlighted: true,
+                    action: { label: 'Ask', target: 'page', pageId: 4 },
+                },
+            ],
+        });
+    });
+
+    it('parses entered prices and keeps invalid ones for the backend', () => {
+        const values = toFormValues({
+            ...hero,
+            type: 'pricing',
+            content: { title: null, description: null, note: null, items: [] },
+        });
+        const plan = {
+            name: 'P',
+            currency: 'PLN',
+            priceMode: 'exact',
+            highlighted: 'no',
+            actionTarget: NONE,
+        };
+        const priceOf = (price: string) =>
+            (
+                toContent('pricing', { ...values, items: [{ ...plan, price }] })
+                    .items as { priceMinor: unknown; action: unknown }[]
+            )[0];
+
+        expect(priceOf('2 900,5').priceMinor).toBe(290050);
+        expect(priceOf('').priceMinor).toBeNull();
+        expect(priceOf('abc').priceMinor).toBe('abc');
+        expect(priceOf('10').action).toBeNull();
+    });
+
+    it('shows plan errors on the fields that edit them', () => {
+        expect(
+            toFieldErrors({
+                'content.items.0.priceMinor': 'Invalid price.',
+                'content.items.1.action.label': 'Label required.',
+                'content.items.1.action.pageId': 'Page required.',
+                'content.items.2.features.4': 'Too long.',
+            }),
+        ).toEqual({
+            'items.0.price': 'Invalid price.',
+            'items.1.actionLabel': 'Label required.',
+            'items.1.actionPageId': 'Page required.',
+            'items.2.features': 'Too long.',
+        });
+    });
 });

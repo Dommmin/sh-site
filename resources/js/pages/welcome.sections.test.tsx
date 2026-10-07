@@ -52,6 +52,10 @@ const initialPage = {
                     allArticles: 'All articles',
                     readMore: 'Read article: :title',
                     faqEmpty: 'No questions yet.',
+                    viewProject: 'View project: :title',
+                    priceFrom: 'from :price',
+                    priceOnRequest: 'Quote on request',
+                    recommended: 'Recommended',
                 },
                 contact: {
                     title: 'Default contact title',
@@ -438,5 +442,63 @@ describe('HomeSections', () => {
         expect(section?.textContent).toContain('Developer');
         expect(section?.textContent).toContain('Laravel');
         expect(section?.textContent).toContain('React');
+    });
+
+    it('renders pricing plans with formatted prices, scope and actions', async () => {
+        const plan = {
+            period: null,
+            description: null,
+            features: [],
+            highlighted: false,
+            action: null,
+            currency: 'PLN',
+            priceFrom: false,
+        };
+        const container = await render([
+            {
+                id: 11,
+                type: 'pricing',
+                anchor: 'pricing',
+                content: {
+                    title: 'Pricing',
+                    description: null,
+                    note: 'Prices are net.',
+                    items: [
+                        {
+                            ...plan,
+                            name: 'Business card',
+                            priceMinor: 290000,
+                            priceFrom: true,
+                            features: ['Up to 5 pages', 'Contact form'],
+                            highlighted: true,
+                            action: {
+                                label: 'Ask for a quote',
+                                url: '#contact',
+                            },
+                        },
+                        { ...plan, name: 'Logo', priceMinor: 49950 },
+                        { ...plan, name: 'Shop', priceMinor: null },
+                    ],
+                },
+            },
+        ]);
+
+        const section = container.querySelector('#pricing');
+        // Intl separates the currency with a no-break space.
+        const text = (section?.textContent ?? '').replace(/\u00a0/g, ' ');
+        expect(text).toContain('from PLN 2,900');
+        expect(text).toContain('PLN 499.50');
+        expect(text).toContain('Quote on request');
+        expect(text).toContain('Recommended');
+        expect(text).toContain('Prices are net.');
+        expect(
+            Array.from(section?.querySelectorAll('ul li') ?? []).map(
+                (item) => item.textContent,
+            ),
+        ).toEqual(['Up to 5 pages', 'Contact form']);
+        expect(section?.querySelector('a')?.getAttribute('href')).toBe(
+            '#contact',
+        );
+        expect(section?.querySelectorAll('a')).toHaveLength(1);
     });
 });

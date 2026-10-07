@@ -7,6 +7,8 @@ use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\PricingContentData;
+use App\Data\Home\PricingPlanData;
 use App\Data\Home\TeamContentData;
 use App\Data\Home\TeamMemberData;
 use App\Data\Home\TestimonialsContentData;
@@ -112,6 +114,24 @@ final class HomeSectionContentRules
                 'content.items.*.photoId' => $this->image(),
                 'content.items.*.skills' => ['present', 'array', 'list', 'max:'.TeamMemberData::MAX_SKILLS],
                 'content.items.*.skills.*' => $this->text(40, required: true),
+            ],
+            HomeSectionType::Pricing => [
+                'content' => ['required', 'array:title,description,note,items'],
+                'content.title' => $this->text(120),
+                'content.description' => $this->text(500),
+                'content.note' => $this->text(300),
+                'content.items' => ['present', 'array', 'list', 'max:'.PricingContentData::MAX_ITEMS],
+                'content.items.*' => ['required', 'array:name,priceMinor,currency,priceFrom,period,description,features,highlighted,action'],
+                'content.items.*.name' => $this->text(60, required: true),
+                'content.items.*.priceMinor' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
+                'content.items.*.currency' => ['required', Rule::in(PricingContentData::CURRENCIES)],
+                'content.items.*.priceFrom' => ['required', 'boolean'],
+                'content.items.*.period' => $this->text(30),
+                'content.items.*.description' => $this->text(300),
+                'content.items.*.features' => ['present', 'array', 'list', 'max:'.PricingPlanData::MAX_FEATURES],
+                'content.items.*.features.*' => $this->text(120, required: true),
+                'content.items.*.highlighted' => ['required', 'boolean'],
+                ...$this->action('content.items.*.action', $locale),
             ],
             HomeSectionType::Contact => [
                 'content' => ['required', 'array:title,description'],

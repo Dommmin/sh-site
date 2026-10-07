@@ -12,6 +12,7 @@ use App\Data\Home\HeroContentData;
 use App\Data\Home\HomeActionData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\PricingContentData;
 use App\Data\Home\TeamContentData;
 use App\Data\Home\TestimonialItemData;
 use App\Data\Home\TestimonialsContentData;
@@ -56,12 +57,12 @@ class HomeSectionSeeder extends Seeder
      */
     public const array LOCAL_LAYOUT = [
         'en' => [
-            'order' => [HomeSectionType::Hero, HomeSectionType::LatestArticles, HomeSectionType::Features, HomeSectionType::Testimonials, HomeSectionType::Faq, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Portfolio, HomeSectionType::Team],
-            'disabled' => [HomeSectionType::Portfolio, HomeSectionType::Team],
+            'order' => [HomeSectionType::Hero, HomeSectionType::LatestArticles, HomeSectionType::Features, HomeSectionType::Testimonials, HomeSectionType::Faq, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Portfolio, HomeSectionType::Team, HomeSectionType::Pricing],
+            'disabled' => [HomeSectionType::Portfolio, HomeSectionType::Team, HomeSectionType::Pricing],
         ],
         'de' => [
-            'order' => [HomeSectionType::Hero, HomeSectionType::Features, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles, HomeSectionType::Portfolio, HomeSectionType::Team],
-            'disabled' => [HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles, HomeSectionType::Portfolio, HomeSectionType::Team],
+            'order' => [HomeSectionType::Hero, HomeSectionType::Features, HomeSectionType::Contact, HomeSectionType::Cta, HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles, HomeSectionType::Portfolio, HomeSectionType::Team, HomeSectionType::Pricing],
+            'disabled' => [HomeSectionType::Faq, HomeSectionType::Testimonials, HomeSectionType::LatestArticles, HomeSectionType::Portfolio, HomeSectionType::Team, HomeSectionType::Pricing],
         ],
     ];
 
@@ -260,6 +261,7 @@ class HomeSectionSeeder extends Seeder
             ),
             HomeSectionType::Portfolio => new PortfolioContentData,
             HomeSectionType::Team => new TeamContentData,
+            HomeSectionType::Pricing => new PricingContentData,
         };
     }
 

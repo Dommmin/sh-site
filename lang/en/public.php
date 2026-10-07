@@ -106,5 +106,8 @@ return [
         'readMore' => 'Read article: :title',
         'faqEmpty' => 'No questions have been published yet.',
         'viewProject' => 'View project: :title',
+        'priceFrom' => 'from :price',
+        'priceOnRequest' => 'Quote on request',
+        'recommended' => 'Recommended',
     ],
 ];

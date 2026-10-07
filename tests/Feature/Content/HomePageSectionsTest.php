@@ -8,6 +8,8 @@ use App\Data\Home\HomeActionData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
 use App\Data\Home\PortfolioItemData;
+use App\Data\Home\PricingContentData;
+use App\Data\Home\PricingPlanData;
 use App\Data\Home\TeamContentData;
 use App\Data\Home\TeamMemberData;
 use App\Data\Media\MediaImageData;
@@ -144,6 +146,32 @@ test('team photos are resolved per member and a deleted one is dropped', functio
             ->where('sections.0.content.items.0.photo.width', MediaImageData::fromAsset($photo)?->width)
             ->where('sections.0.content.items.0.skills', ['Laravel'])
             ->where('sections.0.content.items.1.photo', null)
+        );
+});
+
+test('pricing plan actions are resolved and an unpublished page action is dropped', function () {
+    $published = PageTranslation::factory()->published()->create(['slug' => 'offer']);
+    $draft = PageTranslation::factory()->draft()->create();
+    HomeSection::factory()->ofType(HomeSectionType::Pricing)->enabled()->create(['content' => new PricingContentData(
+        items: [
+            new PricingPlanData(name: 'Start', priceMinor: 290000, priceFrom: true, features: ['Five pages'], highlighted: true, action: new HomeActionData(label: 'Details', target: HomeLinkTarget::Page, pageId: $published->page_id)),
+            new PricingPlanData(name: 'Shop', action: new HomeActionData(label: 'Draft', target: HomeLinkTarget::Page, pageId: $draft->page_id)),
+            new PricingPlanData(name: 'Logo', action: new HomeActionData(label: 'Write', target: HomeLinkTarget::Contact)),
+        ],
+        note: 'Prices are net.',
+    )]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia
+            ->where('sections.0.type', 'pricing')
+            ->where('sections.0.anchor', 'pricing')
+            ->where('sections.0.content.items.0.priceMinor', 290000)
+            ->where('sections.0.content.items.0.currency', 'PLN')
+            ->where('sections.0.content.items.0.action.url', url('/offer'))
+            ->where('sections.0.content.items.1.action', null)
+            ->where('sections.0.content.items.2.action.url', '#contact')
+            ->where('sections.0.content.note', 'Prices are net.')
         );
 });
 
