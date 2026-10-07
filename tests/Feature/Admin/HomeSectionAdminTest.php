@@ -3,6 +3,7 @@
 use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\TeamContentData;
 use App\Enums\AuditAction;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
@@ -310,6 +311,50 @@ test('portfolio links and thumbnails are restricted', function (array $item, str
     'extra key' => [['html' => '<b>x</b>'], 'content.items.0'],
 ]);
 
+test('team members are stored with their photo and skills', function () {
+    $editor = User::factory()->editor()->create();
+    $team = HomeSection::factory()->ofType(HomeSectionType::Team)->create();
+    $photo = MediaAsset::factory()->withVariants()->create();
+
+    $this->actingAs($editor)->put(route('admin.home-sections.update', $team), [
+        'updated_at' => $team->updated_at?->toIso8601String(),
+        'content' => [
+            'title' => 'Team',
+            'description' => null,
+            'items' => [
+                ['name' => 'Ada Example', 'role' => 'Developer', 'bio' => null, 'photoId' => $photo->id, 'skills' => ['Laravel', 'React']],
+            ],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $content = $team->fresh()?->content;
+    expect($content)->toBeInstanceOf(TeamContentData::class)
+        ->and($content?->items[0]->photoId)->toBe($photo->id)
+        ->and($content?->items[0]->skills)->toBe(['Laravel', 'React']);
+});
+
+test('team members are validated', function (array $member, string $error) {
+    $editor = User::factory()->editor()->create();
+    $team = HomeSection::factory()->ofType(HomeSectionType::Team)->create();
+
+    $this->actingAs($editor)->putJson(route('admin.home-sections.update', $team), [
+        'updated_at' => $team->updated_at?->toIso8601String(),
+        'content' => [
+            'title' => null,
+            'description' => null,
+            'items' => [['name' => 'Ada', 'role' => 'Developer', 'bio' => null, 'photoId' => null, 'skills' => [], ...$member]],
+        ],
+    ])->assertUnprocessable()->assertJsonValidationErrors($error);
+
+    expect($team->fresh()?->content->items)->toBe([])
+        ->and(AuditLog::query()->count())->toBe(0);
+})->with([
+    'missing role' => [['role' => ''], 'content.items.0.role'],
+    'too many skills' => [['skills' => array_fill(0, 11, 'PHP')], 'content.items.0.skills'],
+    'markup in skill' => [['skills' => ['<b>PHP</b>']], 'content.items.0.skills.0'],
+    'quarantined photo' => [fn () => ['photoId' => MediaAsset::factory()->create()->id], 'content.items.0.photoId'],
+]);
+
 test('the section type cannot be changed through the payload', function () {
     $editor = User::factory()->editor()->create();
     [$hero] = sectionsOf();
@@ -337,6 +382,7 @@ test('limits and plain text are enforced', function (string $type, array $conten
 })->with([
     'too many features' => ['features', ['items' => array_fill(0, 13, ['icon' => null, 'title' => 'T', 'description' => 'D'])], 'content.items'],
     'too many projects' => ['portfolio', ['items' => array_fill(0, 13, ['title' => 'T', 'category' => null, 'description' => null, 'imageId' => null, 'url' => null])], 'content.items'],
+    'too many team members' => ['team', ['items' => array_fill(0, 9, ['name' => 'N', 'role' => 'R', 'bio' => null, 'photoId' => null, 'skills' => []])], 'content.items'],
     'too many testimonials' => ['testimonials', ['items' => array_fill(0, 7, ['author' => 'A', 'role' => null, 'quote' => 'Q'])], 'content.items'],
     'too many hero stats' => ['hero', ['title' => 'T', 'stats' => array_fill(0, 5, ['value' => '1', 'label' => 'L'])], 'content.stats'],
     'long hero stat value' => ['hero', ['title' => 'T', 'stats' => [['value' => str_repeat('9', 13), 'label' => 'L']]], 'content.stats.0.value'],

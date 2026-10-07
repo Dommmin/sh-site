@@ -18,6 +18,7 @@ import {
     MAX_FAQ_LIMIT,
     MAX_FEATURES,
     MAX_HERO_STATS,
+    MAX_MEMBERS,
     MAX_PROJECTS,
     MAX_TESTIMONIALS,
     NONE,
@@ -428,6 +429,66 @@ export function SectionForm({ editor }: SectionFormProps) {
                                 hint: t(
                                     'admin.homeSections.fields.projectUrlHint',
                                 ),
+                            },
+                        ],
+                    },
+                ];
+            case 'team':
+                return [
+                    text('title'),
+                    description,
+                    {
+                        type: 'repeater',
+                        name: 'items',
+                        label: t('admin.homeSections.fields.members'),
+                        maxItems: MAX_MEMBERS,
+                        newItem: () => ({
+                            photoId: '',
+                            name: '',
+                            role: '',
+                            bio: '',
+                            skills: '',
+                        }),
+                        labels: {
+                            add: t('admin.homeSections.fields.memberAdd'),
+                            item: (position) =>
+                                t('admin.homeSections.fields.memberItem', {
+                                    position,
+                                }),
+                        },
+                        itemFields: [
+                            {
+                                type: 'text',
+                                name: 'name',
+                                label: t('admin.homeSections.fields.name'),
+                                required: true,
+                            },
+                            {
+                                type: 'text',
+                                name: 'role',
+                                label: t(
+                                    'admin.homeSections.fields.memberRole',
+                                ),
+                                required: true,
+                            },
+                            {
+                                type: 'image',
+                                name: 'photoId',
+                                label: t('admin.homeSections.fields.photo'),
+                                picker,
+                                labels: imageLabels,
+                            },
+                            {
+                                type: 'textarea',
+                                name: 'bio',
+                                label: t('admin.homeSections.fields.bio'),
+                                rows: 3,
+                            },
+                            {
+                                type: 'text',
+                                name: 'skills',
+                                label: t('admin.homeSections.fields.skills'),
+                                hint: t('admin.homeSections.fields.skillsHint'),
                             },
                         ],
                     },

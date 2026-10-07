@@ -1018,6 +1018,7 @@ return [
             'contact' => 'Formularz kontaktowy',
             'cta' => 'Wezwanie do działania',
             'portfolio' => 'Portfolio',
+            'team' => 'Zespół',
         ],
         'fields' => [
             'eyebrow' => 'Nadtytuł',
@@ -1061,6 +1062,15 @@ return [
             'thumbnail' => 'Miniatura',
             'projectUrl' => 'Adres projektu',
             'projectUrlHint' => 'Opcjonalny pełny adres http(s) zrealizowanej strony.',
+            'members' => 'Osoby',
+            'memberItem' => 'Osoba :position',
+            'memberAdd' => 'Dodaj osobę',
+            'name' => 'Imię i nazwisko',
+            'memberRole' => 'Stanowisko',
+            'bio' => 'Krótki opis',
+            'photo' => 'Zdjęcie',
+            'skills' => 'Umiejętności',
+            'skillsHint' => 'Oddziel przecinkami, maksymalnie 10, np. Laravel, React, Figma.',
         ],
         'image' => [
             'choose' => 'Wybierz obraz',

@@ -17,8 +17,11 @@ use App\Data\Home\HomeLatestArticlesData;
 use App\Data\Home\HomePortfolioData;
 use App\Data\Home\HomePortfolioItemData;
 use App\Data\Home\HomeSectionData;
+use App\Data\Home\HomeTeamData;
+use App\Data\Home\HomeTeamMemberData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\TeamContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Data\Media\MediaImageData;
 use App\Enums\HomeLinkTarget;
@@ -78,7 +81,7 @@ class BuildHomeSections
      * @param  array<int, PageTranslation>  $publishedPages
      * @param  Collection<int, MediaAsset>  $images
      */
-    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData|HomePortfolioData
+    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData|HomePortfolioData|HomeTeamData
     {
         $content = $section->content;
 
@@ -121,6 +124,18 @@ class BuildHomeSections
                     image: $this->image($item->imageId, $images),
                     imageAlt: $this->imageAlt($item->imageId, $images),
                     url: $item->url,
+                ), $content->items),
+            ),
+            $content instanceof TeamContentData => new HomeTeamData(
+                title: $content->title,
+                description: $content->description,
+                items: array_map(fn ($member): HomeTeamMemberData => new HomeTeamMemberData(
+                    name: $member->name,
+                    role: $member->role,
+                    bio: $member->bio,
+                    photo: $this->image($member->photoId, $images),
+                    photoAlt: $this->imageAlt($member->photoId, $images),
+                    skills: $member->skills,
                 ), $content->items),
             ),
             $content instanceof FeaturesContentData,
@@ -189,6 +204,14 @@ class BuildHomeSections
                 foreach ($content->items as $item) {
                     if ($item->imageId !== null) {
                         $ids[] = $item->imageId;
+                    }
+                }
+            }
+
+            if ($content instanceof TeamContentData) {
+                foreach ($content->items as $member) {
+                    if ($member->photoId !== null) {
+                        $ids[] = $member->photoId;
                     }
                 }
             }

@@ -7,6 +7,8 @@ use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\TeamContentData;
+use App\Data\Home\TeamMemberData;
 use App\Data\Home\TestimonialsContentData;
 use App\Enums\HomeIcon;
 use App\Enums\HomeLinkTarget;
@@ -97,6 +99,19 @@ final class HomeSectionContentRules
                 'content.items.*.description' => $this->text(300),
                 'content.items.*.imageId' => $this->image(),
                 'content.items.*.url' => ['nullable', 'string', 'max:255', 'url:http,https'],
+            ],
+            HomeSectionType::Team => [
+                'content' => ['required', 'array:title,description,items'],
+                'content.title' => $this->text(120),
+                'content.description' => $this->text(500),
+                'content.items' => ['present', 'array', 'list', 'max:'.TeamContentData::MAX_ITEMS],
+                'content.items.*' => ['required', 'array:name,role,bio,photoId,skills'],
+                'content.items.*.name' => $this->text(80, required: true),
+                'content.items.*.role' => $this->text(80, required: true),
+                'content.items.*.bio' => $this->text(400),
+                'content.items.*.photoId' => $this->image(),
+                'content.items.*.skills' => ['present', 'array', 'list', 'max:'.TeamMemberData::MAX_SKILLS],
+                'content.items.*.skills.*' => $this->text(40, required: true),
             ],
             HomeSectionType::Contact => [
                 'content' => ['required', 'array:title,description'],
