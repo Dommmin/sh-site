@@ -4,12 +4,14 @@ namespace App\Http\Requests\Admin\HomeSections;
 
 use App\Data\Home\FaqContentData;
 use App\Data\Home\FeaturesContentData;
+use App\Data\Home\HeroContentData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Enums\HomeIcon;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
 use App\Enums\PublicationStatus;
+use App\Rules\DamImage;
 use App\Services\Home\HomeLinkResolver;
 use Illuminate\Validation\Rule;
 
@@ -34,12 +36,17 @@ final class HomeSectionContentRules
     {
         return match ($type) {
             HomeSectionType::Hero => [
-                'content' => ['required', 'array:eyebrow,title,description,primaryAction,secondaryAction'],
+                'content' => ['required', 'array:eyebrow,title,description,primaryAction,secondaryAction,imageId,stats'],
                 'content.eyebrow' => $this->text(60),
                 'content.title' => $this->text(120, required: true),
                 'content.description' => $this->text(500),
                 ...$this->action('content.primaryAction', $locale),
                 ...$this->action('content.secondaryAction', $locale),
+                'content.imageId' => $this->image(),
+                'content.stats' => ['present', 'array', 'list', 'max:'.HeroContentData::MAX_STATS],
+                'content.stats.*' => ['required', 'array:value,label'],
+                'content.stats.*.value' => $this->text(12, required: true),
+                'content.stats.*.label' => $this->text(60, required: true),
             ],
             HomeSectionType::Cta => [
                 'content' => ['required', 'array:title,description,primaryAction,secondaryAction'],
@@ -92,6 +99,16 @@ final class HomeSectionContentRules
     private function text(int $max, bool $required = false): array
     {
         return [$required ? 'required' : 'nullable', 'string', 'max:'.$max, self::NO_MARKUP];
+    }
+
+    /**
+     * An optional DAM image: the id of a clean image with variants.
+     *
+     * @return list<mixed>
+     */
+    private function image(): array
+    {
+        return ['nullable', 'integer', new DamImage];
     }
 
     /**

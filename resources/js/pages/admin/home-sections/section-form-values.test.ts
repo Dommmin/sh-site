@@ -20,6 +20,8 @@ const hero: Section = {
         description: 'Intro',
         primaryAction: { label: 'About', target: 'page', pageId: 4 },
         secondaryAction: null,
+        imageId: 7,
+        stats: [{ value: '300+', label: 'Projects' }],
     },
 };
 
@@ -30,13 +32,22 @@ describe('home section form values', () => {
         expect(values.primaryTarget).toBe('page');
         expect(values.primaryPageId).toBe('4');
         expect(values.secondaryTarget).toBe(NONE);
+        expect(values.imageId).toBe('7');
         expect(toContent('hero', values)).toEqual({
             eyebrow: null,
             title: 'Hero',
             description: 'Intro',
             primaryAction: { label: 'About', target: 'page', pageId: 4 },
             secondaryAction: null,
+            imageId: 7,
+            stats: [{ value: '300+', label: 'Projects' }],
         });
+    });
+
+    it('sends a removed hero image as null', () => {
+        const values = { ...toFormValues(hero), imageId: '' };
+
+        expect(toContent('hero', values)).toMatchObject({ imageId: null });
     });
 
     it('sends feature items with a known icon or none', () => {

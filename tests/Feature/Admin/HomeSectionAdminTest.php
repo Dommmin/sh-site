@@ -7,6 +7,7 @@ use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
 use App\Models\AuditLog;
 use App\Models\HomeSection;
+use App\Models\MediaAsset;
 use App\Models\PageTranslation;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -31,6 +32,8 @@ function heroPayload(HomeSection $section, array $content = []): array
             'description' => 'New description',
             'primaryAction' => ['label' => 'Write to us', 'target' => 'contact', 'pageId' => null],
             'secondaryAction' => null,
+            'imageId' => null,
+            'stats' => [],
             ...$content,
         ],
     ];
@@ -228,6 +231,38 @@ test('unknown item keys and icons are rejected', function (array $item) {
     'unknown icon' => [['icon' => 'skull']],
 ]);
 
+test('the hero stores its stats and a usable DAM image', function () {
+    $editor = User::factory()->editor()->create();
+    [$hero] = sectionsOf();
+    $image = MediaAsset::factory()->withVariants()->create();
+
+    $this->actingAs($editor)->put(route('admin.home-sections.update', $hero), heroPayload($hero, [
+        'imageId' => $image->id,
+        'stats' => [['value' => '300+', 'label' => 'Projects delivered']],
+    ]))->assertSessionHasNoErrors();
+
+    $content = $hero->fresh()?->content;
+    expect($content)->toBeInstanceOf(HeroContentData::class)
+        ->and($content?->imageId)->toBe($image->id)
+        ->and($content?->stats[0]->value)->toBe('300+');
+});
+
+test('the hero rejects an image that is not a usable DAM image', function () {
+    $editor = User::factory()->editor()->create();
+    [$hero] = sectionsOf();
+    $original = $hero->fresh()?->toArray();
+    $quarantined = MediaAsset::factory()->create();
+
+    foreach ([$quarantined->id, 999999] as $imageId) {
+        $this->actingAs($editor)
+            ->putJson(route('admin.home-sections.update', $hero), heroPayload($hero, ['imageId' => $imageId]))
+            ->assertJsonValidationErrors('content.imageId');
+    }
+
+    expect($hero->fresh()?->toArray())->toBe($original)
+        ->and(AuditLog::query()->count())->toBe(0);
+});
+
 test('the section type cannot be changed through the payload', function () {
     $editor = User::factory()->editor()->create();
     [$hero] = sectionsOf();
@@ -255,6 +290,8 @@ test('limits and plain text are enforced', function (string $type, array $conten
 })->with([
     'too many features' => ['features', ['items' => array_fill(0, 13, ['icon' => null, 'title' => 'T', 'description' => 'D'])], 'content.items'],
     'too many testimonials' => ['testimonials', ['items' => array_fill(0, 7, ['author' => 'A', 'role' => null, 'quote' => 'Q'])], 'content.items'],
+    'too many hero stats' => ['hero', ['title' => 'T', 'stats' => array_fill(0, 5, ['value' => '1', 'label' => 'L'])], 'content.stats'],
+    'long hero stat value' => ['hero', ['title' => 'T', 'stats' => [['value' => str_repeat('9', 13), 'label' => 'L']]], 'content.stats.0.value'],
     'long hero title' => ['hero', ['title' => str_repeat('a', 121)], 'content.title'],
     'missing hero title' => ['hero', ['title' => ''], 'content.title'],
     'markup in title' => ['hero', ['title' => '<img src=x onerror=alert(1)>'], 'content.title'],

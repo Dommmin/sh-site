@@ -17,21 +17,25 @@ use App\Data\Home\HomeLatestArticlesData;
 use App\Data\Home\HomeSectionData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\TestimonialsContentData;
+use App\Data\Media\MediaImageData;
 use App\Enums\HomeLinkTarget;
 use App\Models\HomeSection;
+use App\Models\MediaAsset;
 use App\Models\PageTranslation;
 use App\Models\User;
 use App\Repositories\Content\ArticleRepository;
 use App\Repositories\Content\PageRepository;
 use App\Repositories\Home\HomeSectionRepository;
+use App\Repositories\Media\MediaAssetRepository;
 use App\Services\Home\HomeLinkResolver;
 use App\Services\Localization\LocalizedUrlGenerator;
+use Illuminate\Database\Eloquent\Collection;
 use LogicException;
 
 /**
  * Build the enabled sections of the public home page in a locale: display
- * order, action URLs resolved for the locale, FAQ questions and the newest
- * articles loaded. No enabled section means an empty list.
+ * order, action URLs resolved for the locale, FAQ questions, the newest
+ * articles and DAM images loaded. No enabled section means an empty list.
  */
 class BuildHomeSections
 {
@@ -41,6 +45,7 @@ class BuildHomeSections
         private readonly PageRepository $pages,
         private readonly HomeLinkResolver $links,
         private readonly LocalizedUrlGenerator $urls,
+        private readonly MediaAssetRepository $media,
     ) {}
 
     /**
@@ -51,6 +56,7 @@ class BuildHomeSections
     {
         $sections = $this->sections->enabledFor($locale);
         $publishedPages = $this->pages->publishedInLocale($locale, $this->linkedPageIds($sections->all()));
+        $images = $this->media->usableImagesByIds($this->imageIds($sections->all()));
 
         $result = [];
         foreach ($sections as $section) {
@@ -58,7 +64,7 @@ class BuildHomeSections
                 id: $section->id,
                 type: $section->type,
                 anchor: $section->type->anchor(),
-                content: $this->content($section, $locale, $publishedPages, $viewer),
+                content: $this->content($section, $locale, $publishedPages, $images, $viewer),
             );
         }
 
@@ -67,8 +73,9 @@ class BuildHomeSections
 
     /**
      * @param  array<int, PageTranslation>  $publishedPages
+     * @param  Collection<int, MediaAsset>  $images
      */
-    private function content(HomeSection $section, string $locale, array $publishedPages, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData
+    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData
     {
         $content = $section->content;
 
@@ -79,6 +86,9 @@ class BuildHomeSections
                 description: $content->description,
                 primaryAction: $this->links->resolve($content->primaryAction, $locale, $publishedPages, $viewer),
                 secondaryAction: $this->links->resolve($content->secondaryAction, $locale, $publishedPages, $viewer),
+                image: $this->image($content->imageId, $images),
+                imageAlt: $this->imageAlt($content->imageId, $images),
+                stats: $content->stats,
             ),
             $content instanceof CtaContentData => new HomeCtaData(
                 title: $content->title,
@@ -119,6 +129,49 @@ class BuildHomeSections
         }
 
         return $items;
+    }
+
+    /**
+     * Responsive picture of a referenced DAM image; null when the asset was
+     * deleted or is no longer a usable image.
+     *
+     * @param  Collection<int, MediaAsset>  $images
+     */
+    private function image(?int $id, Collection $images): ?MediaImageData
+    {
+        $asset = $id === null ? null : $images->get($id);
+
+        return $asset === null ? null : MediaImageData::fromAsset($asset);
+    }
+
+    /**
+     * Alternative text of a referenced DAM image (it belongs to the asset).
+     *
+     * @param  Collection<int, MediaAsset>  $images
+     */
+    private function imageAlt(?int $id, Collection $images): string
+    {
+        return ($id === null ? null : $images->get($id))->alt ?? '';
+    }
+
+    /**
+     * Ids of the DAM images referenced by section content.
+     *
+     * @param  array<int, HomeSection>  $sections
+     * @return list<int>
+     */
+    private function imageIds(array $sections): array
+    {
+        $ids = [];
+        foreach ($sections as $section) {
+            $content = $section->content;
+
+            if ($content instanceof HeroContentData && $content->imageId !== null) {
+                $ids[] = $content->imageId;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
     /**

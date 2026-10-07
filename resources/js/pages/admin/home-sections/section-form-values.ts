@@ -12,6 +12,7 @@ export const MAX_FEATURES = 12;
 export const MAX_TESTIMONIALS = 6;
 export const MAX_FAQ_LIMIT = 50;
 export const MAX_ARTICLES_LIMIT = 6;
+export const MAX_HERO_STATS = 4;
 
 /**
  * Flat editor state shared by every section type; each type uses a subset.
@@ -29,7 +30,10 @@ export type SectionFormValues = {
     secondaryLabel: string;
     secondaryTarget: string;
     secondaryPageId: string;
+    /** DAM asset id as a string; `''` means no image. */
+    imageId: string;
     items: ResourceFormRepeaterItem[];
+    stats: ResourceFormRepeaterItem[];
 };
 
 const blank: SectionFormValues = {
@@ -43,7 +47,9 @@ const blank: SectionFormValues = {
     secondaryLabel: '',
     secondaryTarget: NONE,
     secondaryPageId: '',
+    imageId: '',
     items: [],
+    stats: [],
 };
 
 function actionValues(
@@ -76,6 +82,14 @@ export function toFormValues(section: Section): SectionFormValues {
                 description: section.content.description ?? '',
                 ...actionValues('primary', section.content.primaryAction),
                 ...actionValues('secondary', section.content.secondaryAction),
+                imageId:
+                    section.content.imageId === null
+                        ? ''
+                        : String(section.content.imageId),
+                stats: section.content.stats.map((stat) => ({
+                    value: stat.value,
+                    label: stat.label,
+                })),
             };
         case 'cta':
             return {
@@ -178,6 +192,11 @@ export function toContent(
                 description: orNull(values.description),
                 primaryAction: toAction(values, 'primary'),
                 secondaryAction: toAction(values, 'secondary'),
+                imageId: intOrNull(values.imageId),
+                stats: values.stats.map((stat) => ({
+                    value: stat.value ?? '',
+                    label: stat.label ?? '',
+                })),
             };
         case 'cta':
             return {

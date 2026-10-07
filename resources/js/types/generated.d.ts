@@ -643,6 +643,12 @@ declare namespace App {
                 description: string | null;
                 primaryAction: App.Data.Home.HomeActionData | null;
                 secondaryAction: App.Data.Home.HomeActionData | null;
+                imageId: number | null;
+                stats: App.Data.Home.HeroStatData[];
+            };
+            export type HeroStatData = {
+                value: string;
+                label: string;
             };
             export type HomeActionData = {
                 label: string;
@@ -671,6 +677,9 @@ declare namespace App {
                 description: string | null;
                 primaryAction: App.Data.Home.HomeLinkData | null;
                 secondaryAction: App.Data.Home.HomeLinkData | null;
+                image: App.Data.Media.MediaImageData | null;
+                imageAlt: string;
+                stats: App.Data.Home.HeroStatData[];
             };
             export type HomeLatestArticlesData = {
                 title: string | null;

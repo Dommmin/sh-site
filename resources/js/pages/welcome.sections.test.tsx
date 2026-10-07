@@ -78,6 +78,9 @@ const sections: Section[] = [
             description: 'Hero description',
             primaryAction: { label: 'Write to us', url: '#contact' },
             secondaryAction: null,
+            image: null,
+            imageAlt: '',
+            stats: [],
         },
     },
     {
@@ -305,5 +308,40 @@ describe('HomeSections', () => {
         expect(main.className).toContain('bg-primary');
         expect(extra.textContent).toBe('Articles');
         expect(extra.className).not.toContain('bg-primary');
+    });
+
+    it('renders the hero image eagerly beside the copy and its figures below', async () => {
+        const container = await render([
+            {
+                ...sections[0],
+                type: 'hero',
+                content: {
+                    eyebrow: null,
+                    title: 'Hero title',
+                    description: null,
+                    primaryAction: null,
+                    secondaryAction: null,
+                    image: {
+                        sources: [],
+                        src: '/media/hero.jpg',
+                        srcset: '/media/hero.jpg 1200w',
+                        width: 1200,
+                        height: 800,
+                    },
+                    imageAlt: 'Our studio',
+                    stats: [{ value: '300+', label: 'Projects' }],
+                },
+            },
+        ]);
+
+        const image = container.querySelector('#hero img');
+        expect(image?.getAttribute('alt')).toBe('Our studio');
+        expect(image?.getAttribute('loading')).toBe('eager');
+        expect(container.querySelector('#hero dl dt')?.textContent).toBe(
+            'Projects',
+        );
+        expect(container.querySelector('#hero dl dd')?.textContent).toBe(
+            '300+',
+        );
     });
 });
