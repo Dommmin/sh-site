@@ -344,4 +344,59 @@ describe('HomeSections', () => {
             '300+',
         );
     });
+
+    it('renders portfolio projects with category, thumbnail and an external link', async () => {
+        const container = await render([
+            {
+                id: 9,
+                type: 'portfolio',
+                anchor: 'portfolio',
+                content: {
+                    title: 'Our work',
+                    description: null,
+                    items: [
+                        {
+                            title: 'Shop',
+                            category: 'E-commerce',
+                            description: 'Online store',
+                            image: {
+                                sources: [],
+                                src: '/media/shop.jpg',
+                                srcset: '/media/shop.jpg 800w',
+                                width: 800,
+                                height: 450,
+                            },
+                            imageAlt: 'Shop home page',
+                            url: 'https://shop.example.com',
+                        },
+                        {
+                            title: 'Logo',
+                            category: null,
+                            description: null,
+                            image: null,
+                            imageAlt: '',
+                            url: null,
+                        },
+                    ],
+                },
+            },
+        ]);
+
+        const section = container.querySelector('#portfolio');
+        expect(section?.querySelector('h2')?.textContent).toBe('Our work');
+        expect(
+            Array.from(section?.querySelectorAll('h3') ?? []).map(
+                (heading) => heading.textContent,
+            ),
+        ).toEqual(['Shop', 'Logo']);
+        const link = section?.querySelector('a');
+        expect(link?.getAttribute('href')).toBe('https://shop.example.com');
+        expect(link?.getAttribute('target')).toBe('_blank');
+        expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
+        expect(section?.querySelectorAll('img')).toHaveLength(1);
+        expect(section?.querySelector('img')?.getAttribute('alt')).toBe(
+            'Shop home page',
+        );
+        expect(section?.textContent).toContain('E-commerce');
+    });
 });

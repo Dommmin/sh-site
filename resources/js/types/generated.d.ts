@@ -256,6 +256,10 @@ declare namespace App {
                           content: App.Data.Home.ContactContentData;
                       }
                     | { type: 'cta'; content: App.Data.Home.CtaContentData }
+                    | {
+                          type: 'portfolio';
+                          content: App.Data.Home.PortfolioContentData;
+                      }
                 );
                 export type HomeSectionIndexData = {
                     items: App.Data.Admin.HomeSections.HomeSectionListItemData[];
@@ -690,6 +694,19 @@ declare namespace App {
                 label: string;
                 url: string;
             };
+            export type HomePortfolioData = {
+                title: string | null;
+                description: string | null;
+                items: App.Data.Home.HomePortfolioItemData[];
+            };
+            export type HomePortfolioItemData = {
+                title: string;
+                category: string | null;
+                description: string | null;
+                image: App.Data.Media.MediaImageData | null;
+                imageAlt: string;
+                url: string | null;
+            };
             export type HomeSectionData = {
                 id: number;
                 anchor: App.Enums.HomeSectionAnchor;
@@ -710,10 +727,26 @@ declare namespace App {
                   }
                 | { type: 'contact'; content: App.Data.Home.ContactContentData }
                 | { type: 'cta'; content: App.Data.Home.HomeCtaData }
+                | {
+                      type: 'portfolio';
+                      content: App.Data.Home.HomePortfolioData;
+                  }
             );
             export type LatestArticlesContentData = {
                 limit: number;
                 title: string | null;
+            };
+            export type PortfolioContentData = {
+                items: App.Data.Home.PortfolioItemData[];
+                title: string | null;
+                description: string | null;
+            };
+            export type PortfolioItemData = {
+                title: string;
+                category: string | null;
+                description: string | null;
+                imageId: number | null;
+                url: string | null;
             };
             export type TestimonialItemData = {
                 author: string;
@@ -874,7 +907,8 @@ declare namespace App {
             | 'testimonials'
             | 'latest-articles'
             | 'contact'
-            | 'cta';
+            | 'cta'
+            | 'portfolio';
         export type HomeSectionType =
             | 'hero'
             | 'features'
@@ -882,7 +916,8 @@ declare namespace App {
             | 'testimonials'
             | 'latest_articles'
             | 'contact'
-            | 'cta';
+            | 'cta'
+            | 'portfolio';
         export type MediaStatus = 'quarantine' | 'clean' | 'rejected';
         export type MenuItemType =
             | 'page'

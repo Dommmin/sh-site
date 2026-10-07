@@ -6,6 +6,8 @@ use App\Data\Home\HeroContentData;
 use App\Data\Home\HeroStatData;
 use App\Data\Home\HomeActionData;
 use App\Data\Home\LatestArticlesContentData;
+use App\Data\Home\PortfolioContentData;
+use App\Data\Home\PortfolioItemData;
 use App\Data\Media\MediaImageData;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
@@ -92,6 +94,32 @@ test('the hero image is resolved from the DAM and a missing or unusable one is d
     $this->get('/')
         ->assertOk()
         ->assertInertia(fn (Assert $inertia) => $inertia->where('sections.0.content.image', null));
+});
+
+test('portfolio thumbnails are resolved per project and unusable ones are dropped', function () {
+    $image = MediaAsset::factory()->withVariants()->create(['alt' => 'Shop home page']);
+    $quarantined = MediaAsset::factory()->create();
+    HomeSection::factory()->ofType(HomeSectionType::Portfolio)->enabled()->create(['content' => new PortfolioContentData(
+        items: [
+            new PortfolioItemData(title: 'Shop', category: 'E-commerce', imageId: $image->id, url: 'https://shop.example.com'),
+            new PortfolioItemData(title: 'Logo', imageId: $quarantined->id),
+        ],
+        title: 'Our work',
+    )]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia
+            ->where('sections.0.type', 'portfolio')
+            ->where('sections.0.anchor', 'portfolio')
+            ->where('sections.0.content.title', 'Our work')
+            ->where('sections.0.content.items.0.imageAlt', 'Shop home page')
+            ->where('sections.0.content.items.0.image.width', MediaImageData::fromAsset($image)?->width)
+            ->where('sections.0.content.items.0.url', 'https://shop.example.com')
+            ->where('sections.0.content.items.0.category', 'E-commerce')
+            ->where('sections.0.content.items.1.image', null)
+            ->where('sections.0.content.items.1.imageAlt', '')
+        );
 });
 
 test('actions are resolved to URLs of the locale and unavailable ones are dropped', function () {
