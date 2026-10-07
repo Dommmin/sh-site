@@ -18,8 +18,9 @@ use Spatie\LaravelData\Data;
 
 /**
  * Turn the local demo into the software house showcase: placeholder images,
- * home sections in the showcase order ({@see SoftwareHouseContent}) and a
- * header menu of section anchors in every public locale.
+ * home sections in the showcase order ({@see SoftwareHouseContent}, Polish,
+ * English and German copy) and a header menu of section anchors in every
+ * public locale.
  *
  * Run after the default seeders: `make artisan ARGS='db:seed --class=SoftwareHouseSeeder'`.
  * Local only, because the placeholder images skip the malware scan like
@@ -58,20 +59,19 @@ class SoftwareHouseSeeder extends Seeder
      */
     public static function headerMenu(string $locale): array
     {
-        $pl = $locale === 'pl';
-        $anchor = fn (HomeSectionAnchor $anchor, string $polish, string $english): array => [
+        $anchor = fn (HomeSectionAnchor $anchor, string $polish, string $english, string $german): array => [
             'type' => MenuItemType::Anchor,
             'anchor' => $anchor->value,
-            'label' => $pl ? $polish : $english,
+            'label' => SoftwareHouseContent::pick($locale, $polish, $english, $german),
         ];
 
         return [
-            $anchor(HomeSectionAnchor::Features, 'Usługi', 'Services'),
-            $anchor(HomeSectionAnchor::Portfolio, 'Portfolio', 'Portfolio'),
-            $anchor(HomeSectionAnchor::Team, 'Zespół', 'Team'),
-            $anchor(HomeSectionAnchor::Pricing, 'Cennik', 'Pricing'),
+            $anchor(HomeSectionAnchor::Features, 'Usługi', 'Services', 'Leistungen'),
+            $anchor(HomeSectionAnchor::Portfolio, 'Portfolio', 'Portfolio', 'Portfolio'),
+            $anchor(HomeSectionAnchor::Team, 'Zespół', 'Team', 'Team'),
+            $anchor(HomeSectionAnchor::Pricing, 'Cennik', 'Pricing', 'Preise'),
             ['type' => MenuItemType::ArticleIndex, 'label' => 'Blog'],
-            $anchor(HomeSectionAnchor::Contact, 'Kontakt', 'Contact'),
+            $anchor(HomeSectionAnchor::Contact, 'Kontakt', 'Contact', 'Kontakt'),
         ];
     }
 

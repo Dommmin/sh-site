@@ -91,7 +91,9 @@ test('the showcase seeder turns the demo into the software house home page', fun
         ->and(showcaseHeader('pl'))->toBe([
             'features:Usługi', 'portfolio:Portfolio', 'team:Zespół', 'pricing:Cennik', 'article_index:Blog', 'contact:Kontakt',
         ])
-        ->and(showcaseHeader('en')[0])->toBe('features:Services');
+        ->and(showcaseHeader('en')[0])->toBe('features:Services')
+        ->and(showcaseHeader('de')[0])->toBe('features:Leistungen')
+        ->and(HomeSection::query()->where('locale', 'de')->where('type', HomeSectionType::Pricing)->sole()->content->title)->toBe('Preise');
 
     $this->get('/pl')->assertOk();
 });
