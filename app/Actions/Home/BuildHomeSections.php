@@ -16,11 +16,14 @@ use App\Data\Home\HomeHeroData;
 use App\Data\Home\HomeLatestArticlesData;
 use App\Data\Home\HomePortfolioData;
 use App\Data\Home\HomePortfolioItemData;
+use App\Data\Home\HomePricingData;
+use App\Data\Home\HomePricingPlanData;
 use App\Data\Home\HomeSectionData;
 use App\Data\Home\HomeTeamData;
 use App\Data\Home\HomeTeamMemberData;
 use App\Data\Home\LatestArticlesContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\PricingContentData;
 use App\Data\Home\TeamContentData;
 use App\Data\Home\TestimonialsContentData;
 use App\Data\Media\MediaImageData;
@@ -81,7 +84,7 @@ class BuildHomeSections
      * @param  array<int, PageTranslation>  $publishedPages
      * @param  Collection<int, MediaAsset>  $images
      */
-    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData|HomePortfolioData|HomeTeamData
+    private function content(HomeSection $section, string $locale, array $publishedPages, Collection $images, ?User $viewer): HomeHeroData|FeaturesContentData|HomeFaqData|TestimonialsContentData|HomeLatestArticlesData|ContactContentData|HomeCtaData|HomePortfolioData|HomeTeamData|HomePricingData
     {
         $content = $section->content;
 
@@ -137,6 +140,22 @@ class BuildHomeSections
                     photoAlt: $this->imageAlt($member->photoId, $images),
                     skills: $member->skills,
                 ), $content->items),
+            ),
+            $content instanceof PricingContentData => new HomePricingData(
+                title: $content->title,
+                description: $content->description,
+                items: array_map(fn ($plan): HomePricingPlanData => new HomePricingPlanData(
+                    name: $plan->name,
+                    priceMinor: $plan->priceMinor,
+                    currency: $plan->currency,
+                    priceFrom: $plan->priceFrom,
+                    period: $plan->period,
+                    description: $plan->description,
+                    features: $plan->features,
+                    highlighted: $plan->highlighted,
+                    action: $this->links->resolve($plan->action, $locale, $publishedPages, $viewer),
+                ), $content->items),
+                note: $content->note,
             ),
             $content instanceof FeaturesContentData,
             $content instanceof TestimonialsContentData,
@@ -221,7 +240,7 @@ class BuildHomeSections
     }
 
     /**
-     * Ids of the CMS pages referenced by hero/CTA actions.
+     * Ids of the CMS pages referenced by hero, CTA and pricing actions.
      *
      * @param  array<int, HomeSection>  $sections
      * @return list<int>
@@ -232,11 +251,13 @@ class BuildHomeSections
         foreach ($sections as $section) {
             $content = $section->content;
 
-            if (! $content instanceof HeroContentData && ! $content instanceof CtaContentData) {
-                continue;
-            }
+            $actions = match (true) {
+                $content instanceof HeroContentData, $content instanceof CtaContentData => [$content->primaryAction, $content->secondaryAction],
+                $content instanceof PricingContentData => array_map(fn ($plan): ?HomeActionData => $plan->action, $content->items),
+                default => [],
+            };
 
-            foreach ([$content->primaryAction, $content->secondaryAction] as $action) {
+            foreach ($actions as $action) {
                 if ($action instanceof HomeActionData && $action->target === HomeLinkTarget::Page && $action->pageId !== null) {
                     $ids[] = $action->pageId;
                 }

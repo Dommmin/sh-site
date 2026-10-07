@@ -3,6 +3,7 @@
 use App\Data\Home\FeaturesContentData;
 use App\Data\Home\HeroContentData;
 use App\Data\Home\PortfolioContentData;
+use App\Data\Home\PricingContentData;
 use App\Data\Home\TeamContentData;
 use App\Enums\AuditAction;
 use App\Enums\HomeLinkTarget;
@@ -355,6 +356,77 @@ test('team members are validated', function (array $member, string $error) {
     'quarantined photo' => [fn () => ['photoId' => MediaAsset::factory()->create()->id], 'content.items.0.photoId'],
 ]);
 
+/**
+ * A valid pricing plan payload.
+ *
+ * @param  array<string, mixed>  $plan
+ * @return array<string, mixed>
+ */
+function pricingPlan(array $plan = []): array
+{
+    return [
+        'name' => 'Start',
+        'priceMinor' => 290000,
+        'currency' => 'PLN',
+        'priceFrom' => true,
+        'period' => null,
+        'description' => null,
+        'features' => ['Five pages'],
+        'highlighted' => false,
+        'action' => null,
+        ...$plan,
+    ];
+}
+
+test('pricing plans are stored with an integer price and a page action', function () {
+    $editor = User::factory()->editor()->create();
+    $pricing = HomeSection::factory()->ofType(HomeSectionType::Pricing)->create();
+    $page = PageTranslation::factory()->published()->create();
+
+    $this->actingAs($editor)->put(route('admin.home-sections.update', $pricing), [
+        'updated_at' => $pricing->updated_at?->toIso8601String(),
+        'content' => [
+            'title' => 'Pricing',
+            'description' => null,
+            'note' => 'Prices are net.',
+            'items' => [
+                pricingPlan(['highlighted' => true, 'action' => ['label' => 'Details', 'target' => 'page', 'pageId' => $page->page_id]]),
+                pricingPlan(['name' => 'Shop', 'priceMinor' => null, 'priceFrom' => false]),
+            ],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $content = $pricing->fresh()?->content;
+    expect($content)->toBeInstanceOf(PricingContentData::class)
+        ->and($content?->items[0]->priceMinor)->toBe(290000)
+        ->and($content?->items[0]->highlighted)->toBeTrue()
+        ->and($content?->items[0]->action?->pageId)->toBe($page->page_id)
+        ->and($content?->items[1]->priceMinor)->toBeNull()
+        ->and($content?->note)->toBe('Prices are net.');
+});
+
+test('pricing plans are validated', function (array $plan, string $error) {
+    $editor = User::factory()->editor()->create();
+    $pricing = HomeSection::factory()->ofType(HomeSectionType::Pricing)->create();
+
+    $this->actingAs($editor)->putJson(route('admin.home-sections.update', $pricing), [
+        'updated_at' => $pricing->updated_at?->toIso8601String(),
+        'content' => ['title' => null, 'description' => null, 'note' => null, 'items' => [pricingPlan($plan)]],
+    ])->assertUnprocessable()->assertJsonValidationErrors($error);
+
+    expect($pricing->fresh()?->content->items)->toBe([])
+        ->and(AuditLog::query()->count())->toBe(0);
+})->with([
+    'decimal price' => [['priceMinor' => 12.5], 'content.items.0.priceMinor'],
+    'negative price' => [['priceMinor' => -1], 'content.items.0.priceMinor'],
+    'unsupported currency' => [['currency' => 'BTC'], 'content.items.0.currency'],
+    'too many features' => [['features' => array_fill(0, 11, 'Page')], 'content.items.0.features'],
+    'markup in feature' => [['features' => ['<script>x</script>']], 'content.items.0.features.0'],
+    'page action without page' => [['action' => ['label' => 'Go', 'target' => 'page', 'pageId' => null]], 'content.items.0.action.pageId'],
+    'action without label' => [['action' => ['label' => '', 'target' => 'contact', 'pageId' => null]], 'content.items.0.action.label'],
+    'unknown action target' => [['action' => ['label' => 'Go', 'target' => 'https://evil.test', 'pageId' => null]], 'content.items.0.action.target'],
+]);
+
 test('the section type cannot be changed through the payload', function () {
     $editor = User::factory()->editor()->create();
     [$hero] = sectionsOf();
@@ -383,6 +455,7 @@ test('limits and plain text are enforced', function (string $type, array $conten
     'too many features' => ['features', ['items' => array_fill(0, 13, ['icon' => null, 'title' => 'T', 'description' => 'D'])], 'content.items'],
     'too many projects' => ['portfolio', ['items' => array_fill(0, 13, ['title' => 'T', 'category' => null, 'description' => null, 'imageId' => null, 'url' => null])], 'content.items'],
     'too many team members' => ['team', ['items' => array_fill(0, 9, ['name' => 'N', 'role' => 'R', 'bio' => null, 'photoId' => null, 'skills' => []])], 'content.items'],
+    'too many plans' => ['pricing', ['items' => array_fill(0, 5, pricingPlan())], 'content.items'],
     'too many testimonials' => ['testimonials', ['items' => array_fill(0, 7, ['author' => 'A', 'role' => null, 'quote' => 'Q'])], 'content.items'],
     'too many hero stats' => ['hero', ['title' => 'T', 'stats' => array_fill(0, 5, ['value' => '1', 'label' => 'L'])], 'content.stats'],
     'long hero stat value' => ['hero', ['title' => 'T', 'stats' => [['value' => str_repeat('9', 13), 'label' => 'L']]], 'content.stats.0.value'],

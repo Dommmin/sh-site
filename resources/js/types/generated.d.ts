@@ -261,6 +261,10 @@ declare namespace App {
                           content: App.Data.Home.PortfolioContentData;
                       }
                     | { type: 'team'; content: App.Data.Home.TeamContentData }
+                    | {
+                          type: 'pricing';
+                          content: App.Data.Home.PricingContentData;
+                      }
                 );
                 export type HomeSectionIndexData = {
                     items: App.Data.Admin.HomeSections.HomeSectionListItemData[];
@@ -708,6 +712,23 @@ declare namespace App {
                 imageAlt: string;
                 url: string | null;
             };
+            export type HomePricingData = {
+                title: string | null;
+                description: string | null;
+                items: App.Data.Home.HomePricingPlanData[];
+                note: string | null;
+            };
+            export type HomePricingPlanData = {
+                name: string;
+                priceMinor: number | null;
+                currency: string;
+                priceFrom: boolean;
+                period: string | null;
+                description: string | null;
+                features: string[];
+                highlighted: boolean;
+                action: App.Data.Home.HomeLinkData | null;
+            };
             export type HomeSectionData = {
                 id: number;
                 anchor: App.Enums.HomeSectionAnchor;
@@ -733,6 +754,7 @@ declare namespace App {
                       content: App.Data.Home.HomePortfolioData;
                   }
                 | { type: 'team'; content: App.Data.Home.HomeTeamData }
+                | { type: 'pricing'; content: App.Data.Home.HomePricingData }
             );
             export type HomeTeamData = {
                 title: string | null;
@@ -762,6 +784,23 @@ declare namespace App {
                 description: string | null;
                 imageId: number | null;
                 url: string | null;
+            };
+            export type PricingContentData = {
+                items: App.Data.Home.PricingPlanData[];
+                title: string | null;
+                description: string | null;
+                note: string | null;
+            };
+            export type PricingPlanData = {
+                name: string;
+                priceMinor: number | null;
+                currency: string;
+                priceFrom: boolean;
+                period: string | null;
+                description: string | null;
+                features: string[];
+                highlighted: boolean;
+                action: App.Data.Home.HomeActionData | null;
             };
             export type TeamContentData = {
                 items: App.Data.Home.TeamMemberData[];
@@ -936,7 +975,8 @@ declare namespace App {
             | 'contact'
             | 'cta'
             | 'portfolio'
-            | 'team';
+            | 'team'
+            | 'pricing';
         export type HomeSectionType =
             | 'hero'
             | 'features'
@@ -946,7 +986,8 @@ declare namespace App {
             | 'contact'
             | 'cta'
             | 'portfolio'
-            | 'team';
+            | 'team'
+            | 'pricing';
         export type MediaStatus = 'quarantine' | 'clean' | 'rejected';
         export type MenuItemType =
             | 'page'

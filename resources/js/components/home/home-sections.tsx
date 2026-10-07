@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import { ContactForm } from '@/components/contact-form';
 import {
     Accordion,
@@ -11,6 +12,7 @@ import {
     Grid,
     Heading,
     Hero,
+    Icon,
     Image,
     Inline,
     Link,
@@ -115,6 +117,8 @@ function HomeSectionContent({
             return <PortfolioSection id={id} content={section.content} />;
         case 'team':
             return <TeamSection id={id} content={section.content} />;
+        case 'pricing':
+            return <PricingSection id={id} content={section.content} />;
         default:
             return assertNever(section);
     }
@@ -557,6 +561,126 @@ function TeamSection({
                         </Card>
                     ))}
                 </Grid>
+            </Stack>
+        </Section>
+    );
+}
+
+function PricingSection({
+    id,
+    content,
+}: {
+    id: string;
+    content: App.Data.Home.HomePricingData;
+}) {
+    const { t, formatNumber } = useTranslation();
+
+    function price(plan: App.Data.Home.HomePricingPlanData): string {
+        if (plan.priceMinor === null) {
+            return t('home.priceOnRequest');
+        }
+
+        const amount = formatNumber(plan.priceMinor / 100, {
+            style: 'currency',
+            currency: plan.currency,
+            minimumFractionDigits: plan.priceMinor % 100 === 0 ? 0 : 2,
+            maximumFractionDigits: 2,
+        });
+
+        return plan.priceFrom ? t('home.priceFrom', { price: amount }) : amount;
+    }
+
+    return (
+        <Section id={id} spacing="relaxed" container="wide">
+            <Stack gap="relaxed">
+                <SectionHeading
+                    title={content.title}
+                    description={content.description}
+                />
+                <Grid layout="cards" align="center">
+                    {content.items.map((plan, index) => (
+                        <Card key={`${index}-${plan.name}`}>
+                            <CardContent>
+                                <Stack gap="default">
+                                    <Inline
+                                        justify="between"
+                                        align="center"
+                                        wrap
+                                    >
+                                        <Heading
+                                            level={content.title ? 3 : 2}
+                                            variant="group"
+                                        >
+                                            {plan.name}
+                                        </Heading>
+                                        {plan.highlighted && (
+                                            <Badge tone="primary">
+                                                {t('home.recommended')}
+                                            </Badge>
+                                        )}
+                                    </Inline>
+                                    <Stack gap="none">
+                                        <Text variant="lead" as="p">
+                                            {price(plan)}
+                                        </Text>
+                                        {plan.period && (
+                                            <Text variant="caption" as="p">
+                                                {plan.period}
+                                            </Text>
+                                        )}
+                                    </Stack>
+                                    {plan.description && (
+                                        <Text tone="muted">
+                                            {plan.description}
+                                        </Text>
+                                    )}
+                                    {plan.features.length > 0 && (
+                                        <Stack as="ul" gap="tight">
+                                            {plan.features.map(
+                                                (feature, featureIndex) => (
+                                                    <li
+                                                        key={`${featureIndex}-${feature}`}
+                                                    >
+                                                        <Inline
+                                                            gap="tight"
+                                                            align="start"
+                                                        >
+                                                            <Icon
+                                                                icon={Check}
+                                                                size="sm"
+                                                                tone="primary"
+                                                            />
+                                                            <Text>
+                                                                {feature}
+                                                            </Text>
+                                                        </Inline>
+                                                    </li>
+                                                ),
+                                            )}
+                                        </Stack>
+                                    )}
+                                    {plan.action && (
+                                        <Button
+                                            variant={
+                                                plan.highlighted
+                                                    ? 'primary'
+                                                    : 'outline'
+                                            }
+                                            href={plan.action.url}
+                                        >
+                                            {plan.action.label}
+                                        </Button>
+                                    )}
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Grid>
+                {content.note && (
+                    <Text variant="caption" tone="muted" align="center">
+                        {content.note}
+                    </Text>
+                )}
             </Stack>
         </Section>
     );

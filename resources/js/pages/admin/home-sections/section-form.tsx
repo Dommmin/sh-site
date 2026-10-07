@@ -18,10 +18,16 @@ import {
     MAX_FAQ_LIMIT,
     MAX_FEATURES,
     MAX_HERO_STATS,
+    CURRENCIES,
+    HIGHLIGHT_NO,
+    HIGHLIGHT_YES,
     MAX_MEMBERS,
+    MAX_PLANS,
     MAX_PROJECTS,
     MAX_TESTIMONIALS,
     NONE,
+    PRICE_EXACT,
+    PRICE_FROM,
     toContent,
     toFieldErrors,
     toFormValues,
@@ -491,6 +497,178 @@ export function SectionForm({ editor }: SectionFormProps) {
                                 hint: t('admin.homeSections.fields.skillsHint'),
                             },
                         ],
+                    },
+                ];
+            case 'pricing':
+                return [
+                    text('title'),
+                    description,
+                    {
+                        type: 'repeater',
+                        name: 'items',
+                        label: t('admin.homeSections.fields.plans'),
+                        maxItems: MAX_PLANS,
+                        newItem: () => ({
+                            name: '',
+                            price: '',
+                            currency: CURRENCIES[0],
+                            priceMode: PRICE_EXACT,
+                            period: '',
+                            description: '',
+                            features: '',
+                            highlighted: HIGHLIGHT_NO,
+                            actionTarget: NONE,
+                            actionLabel: '',
+                            actionPageId: '',
+                        }),
+                        labels: {
+                            add: t('admin.homeSections.fields.planAdd'),
+                            item: (position) =>
+                                t('admin.homeSections.fields.planItem', {
+                                    position,
+                                }),
+                        },
+                        itemFields: [
+                            {
+                                type: 'text',
+                                name: 'name',
+                                label: t('admin.homeSections.fields.planName'),
+                                required: true,
+                            },
+                            {
+                                type: 'text',
+                                name: 'price',
+                                label: t('admin.homeSections.fields.price'),
+                                hint: t('admin.homeSections.fields.priceHint'),
+                            },
+                            {
+                                type: 'select',
+                                name: 'currency',
+                                label: t('admin.homeSections.fields.currency'),
+                                required: true,
+                                options: CURRENCIES.map((currency) => ({
+                                    value: currency,
+                                    label: currency,
+                                })),
+                            },
+                            {
+                                type: 'select',
+                                name: 'priceMode',
+                                label: t('admin.homeSections.fields.priceMode'),
+                                required: true,
+                                options: [
+                                    {
+                                        value: PRICE_EXACT,
+                                        label: t(
+                                            'admin.homeSections.fields.priceExact',
+                                        ),
+                                    },
+                                    {
+                                        value: PRICE_FROM,
+                                        label: t(
+                                            'admin.homeSections.fields.priceStarting',
+                                        ),
+                                    },
+                                ],
+                            },
+                            {
+                                type: 'text',
+                                name: 'period',
+                                label: t('admin.homeSections.fields.period'),
+                                hint: t('admin.homeSections.fields.periodHint'),
+                            },
+                            {
+                                type: 'textarea',
+                                name: 'description',
+                                label: t(
+                                    'admin.homeSections.fields.itemDescription',
+                                ),
+                                rows: 2,
+                            },
+                            {
+                                type: 'textarea',
+                                name: 'features',
+                                label: t(
+                                    'admin.homeSections.fields.planFeatures',
+                                ),
+                                hint: t(
+                                    'admin.homeSections.fields.planFeaturesHint',
+                                ),
+                                rows: 4,
+                            },
+                            {
+                                type: 'select',
+                                name: 'highlighted',
+                                label: t(
+                                    'admin.homeSections.fields.highlighted',
+                                ),
+                                required: true,
+                                options: [
+                                    {
+                                        value: HIGHLIGHT_NO,
+                                        label: t(
+                                            'admin.homeSections.fields.highlightedNo',
+                                        ),
+                                    },
+                                    {
+                                        value: HIGHLIGHT_YES,
+                                        label: t(
+                                            'admin.homeSections.fields.highlightedYes',
+                                        ),
+                                    },
+                                ],
+                            },
+                            {
+                                type: 'select',
+                                name: 'actionTarget',
+                                label: t(
+                                    'admin.homeSections.fields.planActionTarget',
+                                ),
+                                options: [
+                                    {
+                                        value: NONE,
+                                        label: t(
+                                            'admin.homeSections.fields.targetNone',
+                                        ),
+                                    },
+                                    ...linkTargets.map((value) => ({
+                                        value,
+                                        label: t(
+                                            `admin.homeSections.targets.${value}`,
+                                        ),
+                                    })),
+                                ],
+                            },
+                            {
+                                type: 'text',
+                                name: 'actionLabel',
+                                label: t(
+                                    'admin.homeSections.fields.planActionLabel',
+                                ),
+                            },
+                            {
+                                type: 'select',
+                                name: 'actionPageId',
+                                label: t(
+                                    'admin.homeSections.fields.planActionPage',
+                                ),
+                                hint: t(
+                                    'admin.homeSections.fields.planActionPageHint',
+                                ),
+                                placeholder: t(
+                                    'admin.homeSections.fields.pagePlaceholder',
+                                ),
+                                options: pages.map((page) => ({
+                                    value: String(page.id),
+                                    label: page.title,
+                                })),
+                            },
+                        ],
+                    },
+                    {
+                        type: 'text',
+                        name: 'note',
+                        label: t('admin.homeSections.fields.note'),
                     },
                 ];
         }
