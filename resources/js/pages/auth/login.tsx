@@ -49,6 +49,10 @@ export default function Login({ status, canResetPassword }: Props) {
         });
     }
 
+    // Also on the <form>: a submit before hydration posts to the same
+    // endpoint instead of a GET that would put the password in the URL.
+    const formTarget = getLocalizedLoginForm(locale, defaultLocale);
+
     return (
         <>
             <Head title={t('auth.login.title')} />
@@ -63,7 +67,12 @@ export default function Login({ status, canResetPassword }: Props) {
 
                 <PasskeyVerify />
 
-                <form onSubmit={submit} noValidate>
+                <form
+                    method={formTarget.method}
+                    action={formTarget.action}
+                    onSubmit={submit}
+                    noValidate
+                >
                     <Stack gap="default">
                         <TextField
                             id="email"
