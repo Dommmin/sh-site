@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-type TextVariant = 'lead' | 'body' | 'label' | 'caption' | 'code';
+type TextVariant = 'lead' | 'body' | 'label' | 'caption' | 'code' | 'figure';
 type TextTone =
     | 'default'
     | 'muted'
@@ -28,6 +28,8 @@ const variantMap: Record<TextVariant, string> = {
     label: 'text-xs sm:text-sm font-medium tracking-normal',
     caption: 'text-xs font-normal text-muted-foreground',
     code: 'font-mono text-xs sm:text-sm',
+    /** A key number (price, statistic): large display type, steady digits. */
+    figure: 'font-serif text-3xl sm:text-4xl font-bold tracking-tight tabular-nums leading-none',
 };
 
 const toneMap: Record<TextTone, string> = {
@@ -35,7 +37,7 @@ const toneMap: Record<TextTone, string> = {
     muted: 'text-muted-foreground',
     subtle: 'text-text-subtle',
     primary: 'text-primary',
-    inverted: 'text-surface-inverted-foreground',
+    inverted: 'text-surface-emphasis-foreground',
     success: 'text-status-success',
     danger: 'text-destructive',
 };

@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 /** One modern-format `<source>` of a responsive picture (e.g. AVIF, WebP). */
 export type ImageSource = {
     /** MIME type, e.g. `image/avif`. */
@@ -32,8 +34,21 @@ export type ImageProps = {
     priority?: boolean;
     /** `intrinsic` scales down within its container; `cover` fills a sized frame. */
     fit?: ImageFit;
+    /**
+     * `wide` renders the image in a full-width 16:9 frame and `square` in a
+     * full-width 1:1 frame (portraits, thumbnails); both crop it to fill
+     * (`cover`), so images of mixed proportions keep one height.
+     */
+    frame?: ImageFrame;
     className?: never;
     style?: never;
+};
+
+type ImageFrame = 'wide' | 'square';
+
+const frameMap: Record<ImageFrame, string> = {
+    wide: 'aspect-video',
+    square: 'aspect-square',
 };
 
 const fitMap: Record<ImageFit, string> = {
@@ -43,7 +58,8 @@ const fitMap: Record<ImageFit, string> = {
 
 /**
  * Responsive image with mandatory dimensions and alternative text. Renders a
- * `<picture>` when modern sources are given, with the fallback `<img>` last.
+ * `<picture>` when modern sources are given, with the fallback `<img>` last;
+ * `frame` wraps it in a fixed-ratio frame.
  */
 export function Image({
     src,
@@ -55,7 +71,31 @@ export function Image({
     sizes,
     priority = false,
     fit = 'intrinsic',
+    frame,
 }: ImageProps) {
+    if (frame) {
+        return (
+            <span
+                className={cn(
+                    'bg-surface-subtle block w-full overflow-hidden rounded-lg',
+                    frameMap[frame],
+                )}
+            >
+                <Image
+                    src={src}
+                    srcset={srcset}
+                    sources={sources}
+                    width={width}
+                    height={height}
+                    alt={alt}
+                    sizes={sizes}
+                    priority={priority}
+                    fit="cover"
+                />
+            </span>
+        );
+    }
+
     const image = (
         <img
             src={src}

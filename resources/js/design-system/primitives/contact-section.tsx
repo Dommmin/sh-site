@@ -2,9 +2,11 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Alert } from './alert';
 import { Button } from './button';
 import { ErrorSummary, type ErrorSummaryItem } from './error-summary';
+import { Grid } from './grid';
 import { Heading } from './heading';
 import { Section } from './section';
 import { Stack } from './stack';
+import { Surface } from './surface';
 import { Text } from './text';
 import { TextField } from './text-field';
 import { TextareaField } from './textarea-field';
@@ -38,6 +40,8 @@ export type ContactSectionSpamTrap = {
 };
 
 export type ContactSectionProps = {
+    /** Short label above the title. */
+    eyebrow?: string;
     title: string;
     description?: string;
     labels: ContactSectionLabels;
@@ -55,9 +59,18 @@ export type ContactSectionProps = {
     isPending?: boolean;
     /** Rendered instead of the form after a successful submission. */
     success?: ReactNode;
+    /**
+     * Supporting content (e.g. a reply promise and the next steps) under the
+     * heading. With it the heading column sits beside the form on large
+     * screens and the form gets a raised panel.
+     */
+    aside?: ReactNode;
+    /** Band background, e.g. to alternate with the neighbouring sections. */
+    tone?: 'default' | 'subtle';
 };
 
 export function ContactSection({
+    eyebrow,
     title,
     description,
     labels,
@@ -71,6 +84,8 @@ export function ContactSection({
     submitLabel,
     isPending = false,
     success,
+    aside,
+    tone = 'default',
 }: ContactSectionProps) {
     const reactId = useId();
     const nameFieldId = `${reactId}-name`;
@@ -120,104 +135,130 @@ export function ContactSection({
         isPending,
     );
 
-    return (
-        <Section spacing="default" container="reading">
-            <Stack gap="default">
-                <Stack gap="tight">
-                    <Heading level={2} align="center">
-                        {title}
-                    </Heading>
-                    {description && (
-                        <Text variant="lead" tone="muted" align="center">
-                            {description}
-                        </Text>
-                    )}
-                </Stack>
-                {hasSuccess ? (
-                    <div
-                        ref={successRef}
-                        role="status"
+    const align = aside ? 'start' : 'center';
+    const heading = (
+        <Stack gap="tight">
+            {eyebrow && (
+                <Text variant="label" tone="primary" align={align}>
+                    {eyebrow}
+                </Text>
+            )}
+            <Heading
+                level={2}
+                variant={aside ? 'page' : 'section'}
+                align={align}
+            >
+                {title}
+            </Heading>
+            {description && (
+                <Text variant="lead" tone="muted" align={align}>
+                    {description}
+                </Text>
+            )}
+        </Stack>
+    );
+    const content = hasSuccess ? (
+        <div
+            ref={successRef}
+            role="status"
+            tabIndex={-1}
+            className="focus-visible:ring-ring rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+            {success}
+        </div>
+    ) : (
+        <form
+            onSubmit={(event) => {
+                event.preventDefault();
+                if (isPending) {
+                    return;
+                }
+                markSubmitted();
+                onSubmit();
+            }}
+            className="flex flex-col gap-4"
+            noValidate
+        >
+            {formError && <Alert title={formError} tone="danger" />}
+            <ErrorSummary title={errorSummaryTitle} items={summaryItems} />
+            <TextField
+                id={nameFieldId}
+                name="name"
+                label={labels.name}
+                value={values.name}
+                onChange={(name) => onChange({ ...values, name })}
+                error={errors.name}
+                autoComplete="name"
+                disabled={isPending}
+                required
+            />
+            <TextField
+                id={emailFieldId}
+                name="email"
+                type="email"
+                label={labels.email}
+                value={values.email}
+                onChange={(email) => onChange({ ...values, email })}
+                error={errors.email}
+                autoComplete="email"
+                disabled={isPending}
+                required
+            />
+            <TextareaField
+                id={messageFieldId}
+                name="message"
+                label={labels.message}
+                value={values.message}
+                onChange={(message) => onChange({ ...values, message })}
+                error={errors.message}
+                disabled={isPending}
+                required
+            />
+            {spamTrap && (
+                <div aria-hidden="true" className="sr-only">
+                    <label htmlFor={`${reactId}-${spamTrap.name}`}>
+                        {spamTrap.label}
+                    </label>
+                    <input
+                        id={`${reactId}-${spamTrap.name}`}
+                        type="text"
+                        name={spamTrap.name}
+                        value={spamTrap.value}
+                        onChange={(event) =>
+                            spamTrap.onChange(event.target.value)
+                        }
                         tabIndex={-1}
-                        className="focus-visible:ring-ring rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                    >
-                        {success}
-                    </div>
-                ) : (
-                    <form
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            if (isPending) {
-                                return;
-                            }
-                            markSubmitted();
-                            onSubmit();
-                        }}
-                        className="flex flex-col gap-4"
-                        noValidate
-                    >
-                        {formError && <Alert title={formError} tone="danger" />}
-                        <ErrorSummary
-                            title={errorSummaryTitle}
-                            items={summaryItems}
-                        />
-                        <TextField
-                            id={nameFieldId}
-                            name="name"
-                            label={labels.name}
-                            value={values.name}
-                            onChange={(name) => onChange({ ...values, name })}
-                            error={errors.name}
-                            autoComplete="name"
-                            disabled={isPending}
-                            required
-                        />
-                        <TextField
-                            id={emailFieldId}
-                            name="email"
-                            type="email"
-                            label={labels.email}
-                            value={values.email}
-                            onChange={(email) => onChange({ ...values, email })}
-                            error={errors.email}
-                            autoComplete="email"
-                            disabled={isPending}
-                            required
-                        />
-                        <TextareaField
-                            id={messageFieldId}
-                            name="message"
-                            label={labels.message}
-                            value={values.message}
-                            onChange={(message) =>
-                                onChange({ ...values, message })
-                            }
-                            error={errors.message}
-                            disabled={isPending}
-                            required
-                        />
-                        {spamTrap && (
-                            <div aria-hidden="true" className="sr-only">
-                                <label htmlFor={`${reactId}-${spamTrap.name}`}>
-                                    {spamTrap.label}
-                                </label>
-                                <input
-                                    id={`${reactId}-${spamTrap.name}`}
-                                    type="text"
-                                    name={spamTrap.name}
-                                    value={spamTrap.value}
-                                    onChange={(event) =>
-                                        spamTrap.onChange(event.target.value)
-                                    }
-                                    tabIndex={-1}
-                                    autoComplete="off"
-                                />
-                            </div>
-                        )}
-                        <Button type="submit" isPending={isPending}>
-                            {submitLabel}
-                        </Button>
-                    </form>
-                )}
+                        autoComplete="off"
+                    />
+                </div>
+            )}
+            <Button type="submit" size="lg" isPending={isPending}>
+                {submitLabel}
+            </Button>
+        </form>
+    );
+
+    if (aside) {
+        return (
+            <Section spacing="relaxed" tone={tone} container="wide">
+                <Grid layout="split-asymmetric" gap="relaxed">
+                    <Stack gap="relaxed">
+                        {heading}
+                        {aside}
+                    </Stack>
+                    <Surface tone="raised" radius="lg" padding="default">
+                        {content}
+                    </Surface>
+                </Grid>
+            </Section>
+        );
+    }
+
+    return (
+        <Section spacing="default" tone={tone} container="reading">
+            <Stack gap="default">
+                {heading}
+                {content}
             </Stack>
         </Section>
     );

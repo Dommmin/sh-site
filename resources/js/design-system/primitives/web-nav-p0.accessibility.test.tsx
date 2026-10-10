@@ -1,11 +1,16 @@
 import type { Page, PageProps, SharedPageProps } from '@inertiajs/core';
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '@/i18n';
 import { BrandLogo } from './brand-logo';
 import { Footer } from './footer';
 import { MobileNav } from './mobile-nav';
+
+vi.mock('@inertiajs/react', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@inertiajs/react')>()),
+    usePage: () => ({ url: '/', props: {} }),
+}));
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 
@@ -190,7 +195,8 @@ describe('Footer', () => {
         expect(container.querySelector('a[href="/pricing"]')?.textContent).toBe(
             'Pricing',
         );
-        expect(container.textContent).toContain('footer.contact');
+        // Contact details lead the brand block instead of a titled column.
+        expect(container.textContent).not.toContain('footer.contact');
         expect(
             container.querySelector('a[href="mailto:hello@example.test"]'),
         ).not.toBeNull();
@@ -210,6 +216,66 @@ describe('Footer', () => {
         expect(social?.textContent).toContain('LinkedIn');
 
         expect(container.textContent).toContain('© 2026 Acme');
+    });
+
+    it('gathers top-level plain links in one quick links column', async () => {
+        const container = await render(
+            <Footer
+                copyright="© 2026 Acme"
+                groups={[
+                    {
+                        id: 'privacy',
+                        kind: 'internal',
+                        label: 'Privacy policy',
+                        href: '/privacy',
+                    },
+                    {
+                        id: 'terms',
+                        kind: 'internal',
+                        label: 'Terms',
+                        href: '/terms',
+                    },
+                ]}
+            />,
+        );
+
+        // Column titles are headings, so screen readers can jump between them.
+        const headings = Array.from(container.querySelectorAll('h2')).map(
+            (heading) => heading.textContent,
+        );
+        expect(headings).toContain('footer.links');
+        expect(headings).not.toContain('Privacy policy');
+        expect(container.querySelectorAll('ul')).toHaveLength(1);
+        expect(
+            Array.from(container.querySelectorAll('ul a')).map((link) =>
+                link.getAttribute('href'),
+            ),
+        ).toEqual(['/privacy', '/terms']);
+    });
+
+    it('leads with the brand promise and all contact details beside the link columns', async () => {
+        const container = await render(
+            <Footer
+                copyright="© 2026 Acme"
+                description="Websites that work."
+                contact={{
+                    email: 'hello@acme.example',
+                    phone: '+48 600 000 000',
+                    address: 'Main St 1',
+                }}
+            />,
+        );
+        const mail = container.querySelector('a[href^="mailto:"]');
+
+        expect(container.textContent).toContain('Websites that work.');
+        expect(mail?.getAttribute('href')).toBe('mailto:hello@acme.example');
+        expect(mail?.closest('ul')).toBeNull();
+        expect(
+            container.querySelector('a[href^="tel:"]')?.closest('ul'),
+        ).toBeNull();
+        expect(container.querySelector('address')?.textContent).toBe(
+            'Main St 1',
+        );
     });
 
     it('omits the columns row when there are no groups, contact or social links', async () => {

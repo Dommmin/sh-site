@@ -59,8 +59,8 @@ const variantMap: Record<ButtonVariant, string> = {
     secondary:
         'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.99]',
     outline:
-        'border border-border-subtle bg-transparent text-foreground hover:bg-surface-subtle active:scale-[0.99]',
-    ghost: 'bg-transparent text-foreground hover:bg-surface-subtle active:scale-[0.99]',
+        'border border-border-subtle bg-transparent text-foreground hover:bg-surface-subtle active:scale-[0.99] in-data-[tone=inverted]:border-surface-emphasis-foreground/40 in-data-[tone=inverted]:text-surface-emphasis-foreground in-data-[tone=inverted]:hover:bg-surface-emphasis-foreground/10',
+    ghost: 'bg-transparent text-foreground hover:bg-surface-subtle active:scale-[0.99] in-data-[tone=inverted]:text-surface-emphasis-foreground in-data-[tone=inverted]:hover:bg-surface-emphasis-foreground/10',
     destructive:
         'bg-destructive text-destructive-foreground hover:opacity-90 active:scale-[0.99]',
     link: 'bg-transparent text-primary underline-offset-4 hover:underline p-0 min-h-0 min-w-0 shadow-none',
@@ -68,10 +68,11 @@ const variantMap: Record<ButtonVariant, string> = {
 
 // WCAG 2.2 AA target size compliance: all buttons have minimum 44x44px touch targets.
 const sizeMap: Record<ButtonSize, string> = {
-    sm: 'min-h-[44px] min-w-[44px] px-3.5 py-1.5 text-xs rounded-full gap-1.5',
-    default: 'min-h-[44px] min-w-[44px] px-5 py-2.5 text-sm rounded-full gap-2',
-    lg: 'min-h-[48px] min-w-[48px] px-8 py-3 text-base rounded-full gap-2.5 shadow-md',
-    icon: 'min-h-[44px] min-w-[44px] p-2.5 rounded-full',
+    sm: 'min-h-[44px] min-w-[44px] px-3.5 py-1.5 text-xs rounded-(--control-radius) gap-1.5',
+    default:
+        'min-h-[44px] min-w-[44px] px-5 py-2.5 text-sm rounded-(--control-radius) gap-2',
+    lg: 'min-h-[48px] min-w-[48px] px-8 py-3 text-base rounded-(--control-radius) gap-2.5 shadow-md',
+    icon: 'min-h-[44px] min-w-[44px] p-2.5 rounded-(--control-radius)',
 };
 
 export function Button({
@@ -97,6 +98,8 @@ export function Button({
         'disabled:pointer-events-none disabled:opacity-50',
         variantMap[variant],
         variant !== 'link' && sizeMap[size],
+        // Icon-only below `sm`: keep the 44 px touch target a circle.
+        responsiveLabel && 'max-sm:px-0',
     );
 
     const content = (
@@ -108,7 +111,7 @@ export function Button({
                 />
             )}
             {responsiveLabel ? (
-                <span className="inline-flex items-center gap-1.5 [&>*:not(svg)]:hidden sm:[&>*:not(svg)]:inline">
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap [&>*:not(svg)]:hidden sm:[&>*:not(svg)]:inline">
                     {children}
                 </span>
             ) : (
