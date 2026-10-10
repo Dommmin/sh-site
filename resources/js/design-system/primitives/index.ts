@@ -45,6 +45,7 @@ export * from './icon-button';
 export * from './image';
 export * from './image-picker-field';
 export * from './inline';
+export * from './item-list';
 export * from './link';
 export * from './locale-switcher';
 export * from './maintenance';

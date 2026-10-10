@@ -10,6 +10,7 @@ import {
     Heading,
     Icon,
     Inline,
+    ItemList,
     Link,
     PageHeader,
     Stack,
@@ -369,55 +370,45 @@ export function DashboardOverview({
                                 </Text>
                             </Inline>
                         ) : (
-                            <Stack as="ul" gap="tight">
-                                {attentionRows.map((row) => (
-                                    <li key={row.id}>
-                                        <Inline
-                                            gap="default"
-                                            align="center"
-                                            justify="between"
-                                        >
-                                            <Inline gap="tight" align="center">
-                                                {row.count === undefined ? (
-                                                    <Icon
-                                                        icon={AlertTriangle}
-                                                        tone={
-                                                            row.severity ===
-                                                            'danger'
-                                                                ? 'danger'
-                                                                : 'primary'
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <Badge
-                                                        tone={
-                                                            row.severity ===
-                                                            'danger'
-                                                                ? 'danger'
-                                                                : 'primary'
-                                                        }
-                                                    >
-                                                        {formatNumber(
-                                                            row.count,
-                                                        )}
-                                                    </Badge>
-                                                )}
-                                                <Text>{row.text}</Text>
-                                            </Inline>
-                                            <Button
-                                                href={row.href}
-                                                size="sm"
-                                                variant="ghost"
-                                                ariaLabel={`${t('admin.overview.attention.review')}: ${row.text}${row.count === undefined ? '' : ` (${row.count})`}`}
+                            <ItemList
+                                items={attentionRows.map((row) => ({
+                                    id: row.id,
+                                    lead:
+                                        row.count === undefined ? (
+                                            <Icon
+                                                icon={AlertTriangle}
+                                                tone={
+                                                    row.severity === 'danger'
+                                                        ? 'danger'
+                                                        : 'primary'
+                                                }
+                                            />
+                                        ) : (
+                                            <Badge
+                                                tone={
+                                                    row.severity === 'danger'
+                                                        ? 'danger'
+                                                        : 'primary'
+                                                }
                                             >
-                                                {t(
-                                                    'admin.overview.attention.review',
-                                                )}
-                                            </Button>
-                                        </Inline>
-                                    </li>
-                                ))}
-                            </Stack>
+                                                {formatNumber(row.count)}
+                                            </Badge>
+                                        ),
+                                    content: row.text,
+                                    end: (
+                                        <Button
+                                            href={row.href}
+                                            size="sm"
+                                            variant="ghost"
+                                            ariaLabel={`${t('admin.overview.attention.review')}: ${row.text}${row.count === undefined ? '' : ` (${row.count})`}`}
+                                        >
+                                            {t(
+                                                'admin.overview.attention.review',
+                                            )}
+                                        </Button>
+                                    ),
+                                }))}
+                            />
                         )}
                     </Stack>
                 </Surface>
@@ -584,34 +575,29 @@ export function DashboardOverview({
                                     {t('admin.overview.activity.empty')}
                                 </Text>
                             ) : (
-                                <Stack as="ul" gap="tight">
-                                    {groupActivity(recentActivity).map(
-                                        ({ entry, count }) => (
-                                            <li key={entry.id}>
-                                                <Inline
-                                                    gap="default"
-                                                    align="baseline"
-                                                    justify="between"
-                                                >
-                                                    <Text>
-                                                        {t(
-                                                            'admin.overview.activity.entry',
-                                                            {
-                                                                actor:
-                                                                    entry.actorName ??
-                                                                    t(
-                                                                        'admin.audit.system',
-                                                                    ),
-                                                                action: actionLabel(
-                                                                    entry.action,
+                                <ItemList
+                                    items={groupActivity(recentActivity).map(
+                                        ({ entry, count }) => ({
+                                            id: String(entry.id),
+                                            content: (
+                                                <>
+                                                    {t(
+                                                        'admin.overview.activity.entry',
+                                                        {
+                                                            actor:
+                                                                entry.actorName ??
+                                                                t(
+                                                                    'admin.audit.system',
                                                                 ),
-                                                                subject:
-                                                                    subjectLabel(
-                                                                        entry,
-                                                                    ),
-                                                            },
-                                                        )}
-                                                    </Text>
+                                                            action: actionLabel(
+                                                                entry.action,
+                                                            ),
+                                                            subject:
+                                                                subjectLabel(
+                                                                    entry,
+                                                                ),
+                                                        },
+                                                    )}
                                                     {count > 1 && (
                                                         <Badge tone="neutral">
                                                             {t(
@@ -620,28 +606,17 @@ export function DashboardOverview({
                                                             )}
                                                         </Badge>
                                                     )}
-                                                    <Text
-                                                        variant="caption"
-                                                        tone="muted"
-                                                        as="span"
-                                                    >
-                                                        {entry.createdAt
-                                                            ? formatDate(
-                                                                  entry.createdAt,
-                                                                  {
-                                                                      dateStyle:
-                                                                          'medium',
-                                                                      timeStyle:
-                                                                          'short',
-                                                                  },
-                                                              )
-                                                            : '—'}
-                                                    </Text>
-                                                </Inline>
-                                            </li>
-                                        ),
+                                                </>
+                                            ),
+                                            end: entry.createdAt
+                                                ? formatDate(entry.createdAt, {
+                                                      dateStyle: 'medium',
+                                                      timeStyle: 'short',
+                                                  })
+                                                : '—',
+                                        }),
                                     )}
-                                </Stack>
+                                />
                             )}
                             <Link href={auditIndex()} tone="muted">
                                 {t('admin.overview.activity.all')}

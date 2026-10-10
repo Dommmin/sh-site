@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BarChart } from './bar-chart';
 import { DistributionBar } from './distribution-bar';
+import { ItemList } from './item-list';
 import { StatTile } from './stat-tile';
 
 vi.mock('@inertiajs/react', () => ({
@@ -179,5 +180,28 @@ describe('DistributionBar and StatTile', () => {
         expect(link?.getAttribute('href')).toBe('/admin/contact');
         expect(link?.getAttribute('aria-label')).toBe('Messages: 12');
         expect(link?.textContent).toContain('-3 vs last week');
+    });
+});
+
+describe('ItemList', () => {
+    it('keeps a start slot on every row once any row has one', async () => {
+        const container = await render(
+            <ItemList
+                items={[
+                    {
+                        id: 'a',
+                        lead: <b>10</b>,
+                        content: 'Failed',
+                        end: 'Review',
+                    },
+                    { id: 'b', content: 'Optional 2FA', end: 'Review' },
+                ]}
+            />,
+        );
+        const rows = container.querySelectorAll('li');
+
+        expect(rows).toHaveLength(2);
+        expect(rows[1].children).toHaveLength(3);
+        expect(rows[1].textContent).toBe('Optional 2FAReview');
     });
 });

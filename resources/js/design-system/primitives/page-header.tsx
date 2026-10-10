@@ -38,7 +38,7 @@ export function PageHeader({
             <div className="flex flex-col gap-3 pt-2 pb-2 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                 <Stack gap="tight">
                     {badge && <div>{badge}</div>}
-                    <Heading level={1} variant="section">
+                    <Heading level={1} variant="subsection">
                         {title}
                     </Heading>
                     {description && <Text tone="muted">{description}</Text>}
