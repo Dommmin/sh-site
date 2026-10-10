@@ -6,6 +6,7 @@ import { Stack } from './stack';
 import { Text } from './text';
 
 type PageHeaderAlign = 'start' | 'center';
+type PageHeaderDensity = 'default' | 'compact';
 
 export type PageHeaderProps = {
     title: ReactNode;
@@ -13,6 +14,11 @@ export type PageHeaderProps = {
     badge?: ReactNode;
     actions?: ReactNode;
     align?: PageHeaderAlign;
+    /**
+     * `compact` (panel screens): smaller title with the actions on the
+     * same row at the end, so content starts higher.
+     */
+    density?: PageHeaderDensity;
     className?: never;
     style?: never;
 };
@@ -23,8 +29,28 @@ export function PageHeader({
     badge,
     actions,
     align = 'start',
+    density = 'default',
 }: PageHeaderProps) {
     const isCenter = align === 'center';
+
+    if (density === 'compact') {
+        return (
+            <div className="flex flex-col gap-3 pt-2 pb-2 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+                <Stack gap="tight">
+                    {badge && <div>{badge}</div>}
+                    <Heading level={1} variant="section">
+                        {title}
+                    </Heading>
+                    {description && <Text tone="muted">{description}</Text>}
+                </Stack>
+                {actions && (
+                    <Inline gap="tight" align="center" wrap>
+                        {actions}
+                    </Inline>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div
