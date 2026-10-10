@@ -26,10 +26,11 @@ use Closure;
 use Spatie\LaravelData\Data;
 
 /**
- * Placeholder content of the software house showcase home page in Polish,
- * English and German (other locales get the English copy). Names, figures, prices,
- * projects and testimonials are samples marked as such: replace them in the
- * admin panel before publishing.
+ * Example content of the software house showcase home page in Polish,
+ * English and German (other locales get the English copy). Clients, people,
+ * figures, results, prices and testimonials are fictional but realistic, so
+ * the layout can be judged with believable copy: replace every one of them
+ * with real data in the admin panel before publishing.
  */
 final class SoftwareHouseContent
 {
@@ -43,9 +44,6 @@ final class SoftwareHouseContent
     {
         $t = fn (string $polish, string $english, string $german): string => self::pick($locale, $polish, $english, $german);
         $currency = $locale === 'pl' ? 'PLN' : 'EUR';
-        $sampleProject = $t('Projekt przykładowy: zastąp własną realizacją.', 'Sample project: replace it with your own work.', 'Beispielprojekt: durch eine eigene Arbeit ersetzen.');
-        $sampleQuote = $t('Przykładowa opinia: zastąp prawdziwą referencją klienta w panelu.', 'Sample testimonial: replace it with a real client reference in the panel.', 'Beispielbewertung: im Panel durch eine echte Kundenreferenz ersetzen.');
-        $sampleClient = $t('Przykładowy klient', 'Sample client', 'Beispielkunde');
         $askForQuote = $t('Zapytaj o wycenę', 'Ask for a quote', 'Angebot anfragen');
 
         return [
@@ -58,11 +56,12 @@ final class SoftwareHouseContent
                     'Wir gestalten, entwickeln und betreuen Firmenwebsites, Onlineshops und Webanwendungen. Vom ersten Gespräch bis zum Launch und darüber hinaus.',
                 ),
                 primaryAction: new HomeActionData(label: $t('Porozmawiajmy o projekcie', 'Let’s talk about your project', 'Sprechen wir über Ihr Projekt'), target: HomeLinkTarget::Contact),
+                secondaryAction: new HomeActionData(label: $t('Zobacz realizacje', 'See our work', 'Projekte ansehen'), target: HomeLinkTarget::Portfolio),
                 imageId: $imageId('hero'),
                 stats: [
-                    new HeroStatData(value: '120+', label: $t('projektów (przykład)', 'projects (sample)', 'Projekte (Beispiel)')),
-                    new HeroStatData(value: '10', label: $t('lat doświadczenia (przykład)', 'years of experience (sample)', 'Jahre Erfahrung (Beispiel)')),
-                    new HeroStatData(value: '98%', label: $t('zadowolonych klientów (przykład)', 'happy clients (sample)', 'zufriedene Kunden (Beispiel)')),
+                    new HeroStatData(value: '140+', label: $t('zrealizowanych projektów', 'projects delivered', 'umgesetzte Projekte')),
+                    new HeroStatData(value: '12', label: $t('lat na rynku', 'years in business', 'Jahre am Markt')),
+                    new HeroStatData(value: '98%', label: $t('zostaje na opiekę', 'stay for support', 'bleiben in Betreuung')),
                 ],
             )],
             HomeSectionType::Features->value => ['enabled' => true, 'content' => new FeaturesContentData(
@@ -79,32 +78,36 @@ final class SoftwareHouseContent
             )],
             HomeSectionType::Portfolio->value => ['enabled' => true, 'content' => new PortfolioContentData(
                 items: [
-                    new PortfolioItemData(title: $t('Strona firmy usługowej', 'Service company website', 'Website eines Dienstleisters'), category: $t('Strona internetowa', 'Website', 'Website'), description: $sampleProject, imageId: $imageId('project-1')),
-                    new PortfolioItemData(title: $t('Sklep z odzieżą', 'Clothing shop', 'Modeshop'), category: $t('Sklep internetowy', 'Online shop', 'Onlineshop'), description: $sampleProject, imageId: $imageId('project-2')),
-                    new PortfolioItemData(title: $t('Panel klienta', 'Client portal', 'Kundenportal'), category: $t('Aplikacja webowa', 'Web application', 'Webanwendung'), description: $sampleProject, imageId: $imageId('project-3')),
-                    new PortfolioItemData(title: $t('Identyfikacja marki', 'Brand identity', 'Markenidentität'), category: $t('Projekt graficzny', 'Graphic design', 'Grafikdesign'), description: $sampleProject, imageId: $imageId('project-4')),
-                    new PortfolioItemData(title: $t('System rezerwacji', 'Booking system', 'Buchungssystem'), category: $t('Aplikacja webowa', 'Web application', 'Webanwendung'), description: $sampleProject, imageId: $imageId('project-5')),
-                    new PortfolioItemData(title: $t('Strona fundacji', 'Foundation website', 'Website einer Stiftung'), category: $t('Strona internetowa', 'Website', 'Website'), description: $sampleProject, imageId: $imageId('project-6')),
+                    new PortfolioItemData(title: $t('Logibox: panel klienta', 'Logibox: client portal', 'Logibox: Kundenportal'), category: $t('Aplikacja webowa', 'Web application', 'Webanwendung'), description: $t('Śledzenie przesyłek, faktury i zgłoszenia w jednym miejscu. Obsługa klienta odpowiada o 60% szybciej.', 'Shipment tracking, invoices and support tickets in one place. Customer service now replies 60% faster.', 'Sendungsverfolgung, Rechnungen und Supportanfragen an einem Ort. Der Kundenservice antwortet 60 % schneller.'), imageId: $imageId('project-3')),
+                    new PortfolioItemData(title: $t('Wróbel & Partnerzy', 'Wróbel & Partners', 'Wróbel & Partner'), category: $t('Strona internetowa', 'Website', 'Website'), description: $t('Strona kancelarii z blogiem eksperckim. Dwa razy więcej zapytań w pierwszym kwartale.', 'A law firm website with an expert blog. Twice as many enquiries in the first quarter.', 'Kanzleiwebsite mit Fachblog. Doppelt so viele Anfragen im ersten Quartal.'), imageId: $imageId('project-1')),
+                    new PortfolioItemData(title: $t('Norrå: sklep z odzieżą', 'Norrå: clothing shop', 'Norrå: Modeshop'), category: $t('Sklep internetowy', 'Online shop', 'Onlineshop'), description: $t('1 200 produktów i szybki checkout. Konwersja wzrosła z 1,1% do 2,3%.', '1,200 products and a fast checkout. Conversion rose from 1.1% to 2.3%.', '1.200 Produkte und ein schneller Checkout. Die Conversion stieg von 1,1 % auf 2,3 %.'), imageId: $imageId('project-2')),
+                    new PortfolioItemData(title: $t('Klinika Dentica', 'Dentica clinic', 'Klinik Dentica'), category: $t('System rezerwacji', 'Booking system', 'Buchungssystem'), description: $t('Wizyta umówiona w trzech krokach i przypomnienia SMS. O 40% mniej telefonów na recepcji.', 'Appointments booked in three steps with SMS reminders. 40% fewer calls to the front desk.', 'Termine in drei Schritten mit SMS-Erinnerung. 40 % weniger Anrufe am Empfang.'), imageId: $imageId('project-5')),
+                    new PortfolioItemData(title: $t('Piekarnia Zakwas', 'Zakwas bakery', 'Bäckerei Zakwas'), category: $t('Identyfikacja wizualna', 'Brand identity', 'Markenidentität'), description: $t('Logo, paleta i opakowania dla rodzinnej piekarni z trzema lokalami.', 'Logo, palette and packaging for a family bakery with three shops.', 'Logo, Farbpalette und Verpackungen für eine Familienbäckerei mit drei Filialen.'), imageId: $imageId('project-4')),
+                    new PortfolioItemData(title: $t('Fundacja Otwarte Drzwi', 'Open Doors Foundation', 'Stiftung Offene Türen'), category: $t('Strona internetowa', 'Website', 'Website'), description: $t('Dostępna strona (WCAG 2.2 AA) z darowiznami online i kalendarzem wydarzeń.', 'An accessible site (WCAG 2.2 AA) with online donations and an events calendar.', 'Barrierefreie Website (WCAG 2.2 AA) mit Onlinespenden und Veranstaltungskalender.'), imageId: $imageId('project-6')),
                 ],
                 title: 'Portfolio',
-                description: $t('Wybrane realizacje dla firm, sklepów i organizacji.', 'Selected work for companies, shops and organisations.', 'Ausgewählte Projekte für Unternehmen, Shops und Organisationen.'),
+                description: $t('Sześć projektów, mierzalne efekty dla naszych klientów.', 'Six projects, measurable results for our clients.', 'Sechs Projekte, messbare Ergebnisse für unsere Kunden.'),
             )],
             HomeSectionType::Team->value => ['enabled' => true, 'content' => new TeamContentData(
                 items: [
-                    new TeamMemberData(name: $t('Imię Nazwisko', 'First Last', 'Vorname Nachname'), role: 'Backend developer', bio: $t('Przykładowy opis: architektura, integracje i bezpieczeństwo aplikacji.', 'Sample bio: architecture, integrations and application security.', 'Beispielprofil: Architektur, Integrationen und Anwendungssicherheit.'), photoId: $imageId('person-1'), skills: ['PHP', 'Laravel', 'PostgreSQL', 'Docker']),
-                    new TeamMemberData(name: $t('Imię Nazwisko', 'First Last', 'Vorname Nachname'), role: 'Frontend developer', bio: $t('Przykładowy opis: szybkie i dostępne interfejsy.', 'Sample bio: fast and accessible interfaces.', 'Beispielprofil: schnelle und barrierefreie Oberflächen.'), photoId: $imageId('person-2'), skills: ['TypeScript', 'React', 'Tailwind CSS', 'WCAG']),
-                    new TeamMemberData(name: $t('Imię Nazwisko', 'First Last', 'Vorname Nachname'), role: 'UI/UX designer', bio: $t('Przykładowy opis: makiety, identyfikacja wizualna i testy z użytkownikami.', 'Sample bio: wireframes, visual identity and user testing.', 'Beispielprofil: Wireframes, Corporate Design und Nutzertests.'), photoId: $imageId('person-3'), skills: ['Figma', 'Adobe Illustrator', 'Design systems']),
+                    new TeamMemberData(name: 'Michał Kowalczyk', role: 'Backend developer', bio: $t('Projektuje architekturę i integracje: płatności, ERP, kurierzy. Dba o to, żeby nic nie padło w piątek wieczorem.', 'Designs the architecture and integrations: payments, ERP, couriers. Makes sure nothing breaks on a Friday night.', 'Entwirft Architektur und Integrationen: Zahlungen, ERP, Versand. Sorgt dafür, dass freitagabends nichts ausfällt.'), skills: ['PHP', 'Laravel', 'PostgreSQL', 'Docker']),
+                    new TeamMemberData(name: 'Julia Zielińska', role: 'Frontend developer', bio: $t('Buduje szybkie, dostępne interfejsy, które działają tak samo dobrze na telefonie, jak na monitorze.', 'Builds fast, accessible interfaces that work as well on a phone as on a desktop.', 'Baut schnelle, barrierefreie Oberflächen, die auf dem Smartphone genauso gut funktionieren wie am Desktop.'), skills: ['TypeScript', 'React', 'Tailwind CSS', 'WCAG']),
+                    new TeamMemberData(name: 'Ola Nowicka', role: 'UI/UX designer', bio: $t('Zaczyna od rozmów z użytkownikami, kończy na makietach, które da się od razu wdrożyć.', 'Starts with user interviews and ends with designs that are ready to build.', 'Beginnt mit Nutzerinterviews und endet mit Entwürfen, die sofort umsetzbar sind.'), skills: ['Figma', 'Research', 'Design systems']),
                 ],
                 title: $t('Zespół', 'Team', 'Team'),
                 description: $t('Ludzie, z którymi będziesz pracować na co dzień.', 'The people you will work with every day.', 'Die Menschen, mit denen Sie täglich zusammenarbeiten.'),
             )],
             HomeSectionType::Testimonials->value => ['enabled' => true, 'content' => new TestimonialsContentData(
                 items: [
-                    new TestimonialItemData(author: $sampleClient, quote: $sampleQuote, role: $t('Branża usługowa', 'Services', 'Dienstleistungen')),
-                    new TestimonialItemData(author: $sampleClient, quote: $sampleQuote, role: $t('Handel online', 'E-commerce', 'Onlinehandel')),
-                    new TestimonialItemData(author: $sampleClient, quote: $sampleQuote, role: $t('Organizacja pozarządowa', 'Non-profit', 'Gemeinnützige Organisation')),
+                    new TestimonialItemData(author: 'Marta Wiśniewska', quote: $t('Przyszliśmy z chaotycznym Excelem, a dostaliśmy panel, z którego nasi klienci naprawdę korzystają. Kontakt bez korporacyjnych procedur.', 'We came with a messy spreadsheet and got a portal our customers actually use. No corporate red tape along the way.', 'Wir kamen mit einer chaotischen Tabelle und bekamen ein Portal, das unsere Kunden wirklich nutzen. Ganz ohne Konzernbürokratie.'), role: $t('Dyrektorka operacyjna, Logibox', 'Head of Operations, Logibox', 'Leiterin Operations, Logibox')),
+                    new TestimonialItemData(author: 'Tomasz Wróbel', quote: $t('Strona wreszcie sprowadza klientów, a nie tylko ładnie wygląda. Konkretne terminy i zero niespodzianek na fakturze.', 'The site finally brings in clients instead of just looking nice. Clear deadlines and no surprises on the invoice.', 'Die Website bringt endlich Mandanten, statt nur gut auszusehen. Klare Termine und keine Überraschungen auf der Rechnung.'), role: $t('Partner zarządzający, Wróbel & Partnerzy', 'Managing Partner, Wróbel & Partners', 'Geschäftsführender Partner, Wróbel & Partner')),
+                    new TestimonialItemData(author: 'Anna Lis', quote: $t('Recepcja odetchnęła już w pierwszym tygodniu. Pacjenci sami umawiają wizyty, także w nocy.', 'The front desk could breathe again within a week. Patients book on their own, even at night.', 'Der Empfang war schon in der ersten Woche entlastet. Patienten buchen selbst, auch nachts.'), role: $t('Właścicielka, Klinika Dentica', 'Owner, Dentica clinic', 'Inhaberin, Klinik Dentica')),
                 ],
                 title: $t('Referencje', 'Testimonials', 'Referenzen'),
+                stats: [
+                    new HeroStatData(value: $t('4,9/5', '4.9/5', '4,9/5'), label: $t('w Google · 37 opinii', 'on Google · 37 reviews', 'bei Google · 37 Rezensionen')),
+                    new HeroStatData(value: '24 h', label: $t('na pierwszą odpowiedź', 'to our first reply', 'bis zur ersten Antwort')),
+                ],
             )],
             HomeSectionType::Pricing->value => ['enabled' => true, 'content' => new PricingContentData(
                 items: [
@@ -152,13 +155,13 @@ final class SoftwareHouseContent
                 ],
                 title: $t('Cennik', 'Pricing', 'Preise'),
                 description: $t('Orientacyjne ceny, abyś wiedział, czego się spodziewać.', 'Indicative prices so you know what to expect.', 'Richtpreise, damit Sie wissen, womit Sie rechnen können.'),
-                note: $t('Ceny przykładowe, netto. Dokładną wycenę przygotujemy po krótkiej rozmowie.', 'Sample net prices. We prepare an exact quote after a short call.', 'Beispielpreise, netto. Ein genaues Angebot erstellen wir nach einem kurzen Gespräch.'),
+                note: $t('Ceny orientacyjne netto. Dokładną wycenę przygotujemy po krótkiej rozmowie.', 'Indicative net prices. We prepare an exact quote after a short call.', 'Richtpreise, netto. Ein genaues Angebot erstellen wir nach einem kurzen Gespräch.'),
             )],
-            HomeSectionType::LatestArticles->value => ['enabled' => true, 'content' => new LatestArticlesContentData(
+            HomeSectionType::LatestArticles->value => ['enabled' => false, 'content' => new LatestArticlesContentData(
                 limit: 3,
                 title: 'Blog',
             )],
-            HomeSectionType::Cta->value => ['enabled' => true, 'content' => new CtaContentData(
+            HomeSectionType::Cta->value => ['enabled' => false, 'content' => new CtaContentData(
                 title: $t('Masz pomysł na projekt?', 'Have a project in mind?', 'Haben Sie eine Projektidee?'),
                 description: $t('Napisz kilka zdań o swoim pomyśle. Odpowiemy w ciągu jednego dnia roboczego.', 'Tell us a few words about your idea. We reply within one business day.', 'Schreiben Sie uns ein paar Sätze zu Ihrer Idee. Wir antworten innerhalb eines Werktags.'),
                 primaryAction: new HomeActionData(label: $t('Napisz do nas', 'Write to us', 'Schreiben Sie uns'), target: HomeLinkTarget::Contact),

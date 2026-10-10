@@ -1059,6 +1059,7 @@ return [
         ],
         'targets' => [
             'contact' => 'Formularz kontaktowy na tej stronie',
+            'portfolio' => 'Portfolio na tej stronie',
             'articles' => 'Lista artykułów',
             'login' => 'Logowanie',
             'register' => 'Rejestracja',

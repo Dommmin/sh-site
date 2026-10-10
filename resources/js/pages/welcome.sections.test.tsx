@@ -116,6 +116,7 @@ const sections: Section[] = [
         content: {
             title: 'People say',
             items: [{ author: 'Ada', role: 'Engineer', quote: 'Great kit.' }],
+            stats: [{ value: '4.9/5', label: 'Average rating' }],
         },
     },
     {
@@ -210,6 +211,8 @@ describe('HomeSections', () => {
             'Why?',
             'Great kit.',
             'Engineer',
+            '4.9/5',
+            'Average rating',
             'Launch',
             'Talk to us',
             'Ready?',
@@ -344,7 +347,8 @@ describe('HomeSections', () => {
         expect(container.querySelector('#hero dl dt')?.textContent).toBe(
             'Projects',
         );
-        expect(container.querySelector('#hero dl dd')?.textContent).toBe(
+        // The counting figure keeps its final value readable to assistive technology.
+        expect(container.querySelector('#hero dl dd')?.textContent).toContain(
             '300+',
         );
     });

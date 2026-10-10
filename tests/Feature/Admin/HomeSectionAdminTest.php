@@ -5,6 +5,7 @@ use App\Data\Home\HeroContentData;
 use App\Data\Home\PortfolioContentData;
 use App\Data\Home\PricingContentData;
 use App\Data\Home\TeamContentData;
+use App\Data\Home\TestimonialsContentData;
 use App\Enums\AuditAction;
 use App\Enums\HomeLinkTarget;
 use App\Enums\HomeSectionType;
@@ -154,7 +155,7 @@ test('the edit screen exposes the typed content, link targets and published page
             ->where('section.updatedAt', $hero->updated_at?->toIso8601String())
             ->where('section.content.title', 'Hero')
             ->where('locale.code', 'en')
-            ->where('linkTargets', ['contact', 'articles', 'login', 'register', 'page'])
+            ->where('linkTargets', ['contact', 'portfolio', 'articles', 'login', 'register', 'page'])
             ->where('pages', [['id' => $published->page_id, 'title' => 'About us']])
         );
 });
@@ -248,6 +249,25 @@ test('the hero stores its stats and a usable DAM image', function () {
     expect($content)->toBeInstanceOf(HeroContentData::class)
         ->and($content?->imageId)->toBe($image->id)
         ->and($content?->stats[0]->value)->toBe('300+');
+});
+
+test('testimonials store their proof figures', function () {
+    $editor = User::factory()->editor()->create();
+    $testimonials = HomeSection::factory()->ofType(HomeSectionType::Testimonials)->create();
+
+    $this->actingAs($editor)->put(route('admin.home-sections.update', $testimonials), [
+        'updated_at' => $testimonials->updated_at?->toIso8601String(),
+        'content' => [
+            'title' => 'Clients',
+            'items' => [['author' => 'Anna', 'role' => null, 'quote' => 'Great work.']],
+            'stats' => [['value' => '4.9/5', 'label' => 'Google rating']],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $content = $testimonials->fresh()?->content;
+    expect($content)->toBeInstanceOf(TestimonialsContentData::class)
+        ->and($content?->stats[0]->value)->toBe('4.9/5')
+        ->and($content?->stats[0]->label)->toBe('Google rating');
 });
 
 test('the hero rejects an image that is not a usable DAM image', function () {
@@ -457,6 +477,8 @@ test('limits and plain text are enforced', function (string $type, array $conten
     'too many team members' => ['team', ['items' => array_fill(0, 9, ['name' => 'N', 'role' => 'R', 'bio' => null, 'photoId' => null, 'skills' => []])], 'content.items'],
     'too many plans' => ['pricing', ['items' => array_fill(0, 5, pricingPlan())], 'content.items'],
     'too many testimonials' => ['testimonials', ['items' => array_fill(0, 7, ['author' => 'A', 'role' => null, 'quote' => 'Q'])], 'content.items'],
+    'too many testimonial stats' => ['testimonials', ['items' => [], 'stats' => array_fill(0, 5, ['value' => '1', 'label' => 'L'])], 'content.stats'],
+    'markup in testimonial stat' => ['testimonials', ['items' => [], 'stats' => [['value' => '<b>5</b>', 'label' => 'L']]], 'content.stats.0.value'],
     'too many hero stats' => ['hero', ['title' => 'T', 'stats' => array_fill(0, 5, ['value' => '1', 'label' => 'L'])], 'content.stats'],
     'long hero stat value' => ['hero', ['title' => 'T', 'stats' => [['value' => str_repeat('9', 13), 'label' => 'L']]], 'content.stats.0.value'],
     'long hero title' => ['hero', ['title' => str_repeat('a', 121)], 'content.title'],

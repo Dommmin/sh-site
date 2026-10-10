@@ -1057,6 +1057,7 @@ return [
         ],
         'targets' => [
             'contact' => 'Contact form on this page',
+            'portfolio' => 'Portfolio on this page',
             'articles' => 'Article list',
             'login' => 'Log in',
             'register' => 'Registration',

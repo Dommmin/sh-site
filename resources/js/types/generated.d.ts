@@ -781,6 +781,7 @@ declare namespace App {
             export type TestimonialsContentData = {
                 items: App.Data.Home.TestimonialItemData[];
                 title: string | null;
+                stats: App.Data.Home.HeroStatData[];
             };
         }
         namespace Listing {
@@ -920,6 +921,7 @@ declare namespace App {
             | 'globe';
         export type HomeLinkTarget =
             | 'contact'
+            | 'portfolio'
             | 'articles'
             | 'login'
             | 'register'

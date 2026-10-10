@@ -125,6 +125,7 @@ function LandingSection() {
             type: 'testimonials',
             content: {
                 title: demo('testimonialsTitle'),
+                stats: [],
                 items: isHomeEmpty
                     ? []
                     : [

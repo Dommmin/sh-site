@@ -13,6 +13,7 @@ export const MAX_TESTIMONIALS = 6;
 export const MAX_FAQ_LIMIT = 50;
 export const MAX_ARTICLES_LIMIT = 6;
 export const MAX_HERO_STATS = 4;
+export const MAX_TESTIMONIAL_STATS = 4;
 export const MAX_PROJECTS = 12;
 export const MAX_MEMBERS = 8;
 export const MAX_PLANS = 4;
@@ -132,6 +133,10 @@ export function toFormValues(section: Section): SectionFormValues {
                     author: item.author,
                     role: item.role ?? '',
                     quote: item.quote,
+                })),
+                stats: section.content.stats.map((stat) => ({
+                    value: stat.value,
+                    label: stat.label,
                 })),
             };
         case 'faq':
@@ -327,6 +332,10 @@ export function toContent(
                     author: item.author ?? '',
                     role: orNull(item.role ?? ''),
                     quote: item.quote ?? '',
+                })),
+                stats: values.stats.map((stat) => ({
+                    value: stat.value ?? '',
+                    label: stat.label ?? '',
                 })),
             };
         case 'faq':

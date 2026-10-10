@@ -15,14 +15,14 @@ export type RevealProps = {
 const SETTLE_MS = 1200;
 
 const transition = cn(
-    'transition-[opacity,translate] duration-500 ease-out',
-    '[&_.grid>*]:transition-[opacity,translate] [&_.grid>*]:duration-500 [&_.grid>*]:ease-out',
+    'transition-[opacity,translate] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
+    '[&_.grid>*]:transition-[opacity,translate] [&_.grid>*]:duration-700 [&_.grid>*]:ease-[cubic-bezier(0.22,1,0.36,1)]',
     '[&_.grid>*:nth-child(2)]:delay-[80ms] [&_.grid>*:nth-child(3)]:delay-[160ms] [&_.grid>*:nth-child(4)]:delay-[240ms]',
     '[&_.grid>*:nth-child(5)]:delay-[320ms] [&_.grid>*:nth-child(n+6)]:delay-[400ms]',
 );
 
 const hidden =
-    'translate-y-4 opacity-0 [&_.grid>*]:translate-y-4 [&_.grid>*]:opacity-0';
+    'translate-y-6 opacity-0 [&_.grid>*]:translate-y-8 [&_.grid>*]:opacity-0';
 
 /**
  * Fades and slides a block in once it scrolls into view; items of grids

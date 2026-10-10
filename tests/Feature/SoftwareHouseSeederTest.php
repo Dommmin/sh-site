@@ -79,7 +79,7 @@ test('the showcase seeder turns the demo into the software house home page', fun
         HomeSectionType::Cta,
         HomeSectionType::Contact,
         HomeSectionType::Faq,
-    ])->and(HomeSection::query()->where('locale', 'pl')->where('enabled', false)->pluck('type')->all())->toBe([HomeSectionType::Faq]);
+    ])->and(HomeSection::query()->where('locale', 'pl')->where('enabled', false)->orderBy('position')->pluck('type')->all())->toBe([HomeSectionType::LatestArticles, HomeSectionType::Cta, HomeSectionType::Faq]);
 
     $hero = HomeSection::query()->where('locale', 'pl')->where('type', HomeSectionType::Hero)->sole()->content;
     $portfolio = HomeSection::query()->where('locale', 'en')->where('type', HomeSectionType::Portfolio)->sole()->content;

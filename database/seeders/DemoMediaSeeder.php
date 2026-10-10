@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Geometry\Factories\EllipseFactory;
 use Intervention\Image\Geometry\Factories\RectangleFactory;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\ImageInterface;
 
 /**
  * Local sample DAM assets with real files generated offline with GD: images
@@ -150,6 +151,23 @@ class DemoMediaSeeder extends Seeder
             return self::logo($width, $definition['color'] ?? '27272a');
         }
 
+        $image = $this->placeholder($definition, $width, $height);
+
+        return match ($definition['mime']) {
+            'image/png' => $image->toPng()->toString(),
+            'image/webp' => $image->toWebp(80)->toString(),
+            default => $image->toJpeg(80)->toString(),
+        };
+    }
+
+    /**
+     * Placeholder picture of an image asset: a flat colour with two soft
+     * shapes. Subclasses may draw something closer to their content.
+     *
+     * @param  array{uuid: string, name: string, mime: string, width?: int, height?: int, color?: string, alt: string|null, status: MediaStatus}  $definition
+     */
+    protected function placeholder(array $definition, int $width, int $height): ImageInterface
+    {
         $image = ImageManager::gd()->create($width, $height)->fill($definition['color'] ?? '64748b');
 
         $image->drawEllipse(intdiv($width, 3), intdiv($height, 2), function (EllipseFactory $ellipse) use ($width, $height): void {
@@ -161,11 +179,7 @@ class DemoMediaSeeder extends Seeder
             $rectangle->background('00000033');
         });
 
-        return match ($definition['mime']) {
-            'image/png' => $image->toPng()->toString(),
-            'image/webp' => $image->toWebp(80)->toString(),
-            default => $image->toJpeg(80)->toString(),
-        };
+        return $image;
     }
 
     /**

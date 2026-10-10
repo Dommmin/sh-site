@@ -1,7 +1,13 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-type GridLayout = 'single' | 'split' | 'cards' | 'features';
+type GridLayout =
+    | 'single'
+    | 'split'
+    | 'split-asymmetric'
+    | 'cards'
+    | 'features'
+    | 'bento';
 type GridGap = 'tight' | 'default' | 'relaxed';
 type GridAlign = 'start' | 'center';
 
@@ -21,8 +27,16 @@ export type GridProps = {
 const layoutMap: Record<GridLayout, string> = {
     single: 'grid-cols-1',
     split: 'grid-cols-1 md:grid-cols-2',
+    // Narrow lead column (5/12, e.g. a section heading) that stays in view
+    // while the wide one (7/12) scrolls past it on large screens.
+    'split-asymmetric':
+        'grid-cols-1 lg:grid-cols-12 lg:[&>*:first-child]:sticky lg:[&>*:first-child]:top-24 lg:[&>*:first-child]:col-span-5 lg:[&>*:first-child]:self-start lg:[&>*:nth-child(2)]:col-span-7',
     cards: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
     features: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    // Zig-zag on large screens: every row pairs a wide tile (two columns)
+    // with a narrow one, alternating sides (see `isBentoWide`). DOM order
+    // stays the visual reading order; tablets and phones use plain columns.
+    bento: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:[&>*:nth-child(4n+1)]:col-span-2 lg:[&>*:nth-child(4n)]:col-span-2',
 };
 
 const gapMap: Record<GridGap, string> = {
@@ -30,6 +44,14 @@ const gapMap: Record<GridGap, string> = {
     default: 'gap-6 sm:gap-8',
     relaxed: 'gap-8 sm:gap-12',
 };
+
+/**
+ * Whether the item at `index` of a `bento` grid is a wide tile on large
+ * screens, so its content can use the extra width (e.g. `ProjectTile wide`).
+ */
+export function isBentoWide(index: number): boolean {
+    return index % 4 === 0 || index % 4 === 3;
+}
 
 export function Grid({
     children,
