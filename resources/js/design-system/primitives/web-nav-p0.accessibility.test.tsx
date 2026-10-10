@@ -195,7 +195,8 @@ describe('Footer', () => {
         expect(container.querySelector('a[href="/pricing"]')?.textContent).toBe(
             'Pricing',
         );
-        expect(container.textContent).toContain('footer.contact');
+        // Contact details lead the brand block instead of a titled column.
+        expect(container.textContent).not.toContain('footer.contact');
         expect(
             container.querySelector('a[href="mailto:hello@example.test"]'),
         ).not.toBeNull();
@@ -238,7 +239,8 @@ describe('Footer', () => {
             />,
         );
 
-        const headings = Array.from(container.querySelectorAll('p')).map(
+        // Column titles are headings, so screen readers can jump between them.
+        const headings = Array.from(container.querySelectorAll('h2')).map(
             (heading) => heading.textContent,
         );
         expect(headings).toContain('footer.links');
@@ -249,6 +251,31 @@ describe('Footer', () => {
                 link.getAttribute('href'),
             ),
         ).toEqual(['/privacy', '/terms']);
+    });
+
+    it('leads with the brand promise and all contact details beside the link columns', async () => {
+        const container = await render(
+            <Footer
+                copyright="© 2026 Acme"
+                description="Websites that work."
+                contact={{
+                    email: 'hello@acme.example',
+                    phone: '+48 600 000 000',
+                    address: 'Main St 1',
+                }}
+            />,
+        );
+        const mail = container.querySelector('a[href^="mailto:"]');
+
+        expect(container.textContent).toContain('Websites that work.');
+        expect(mail?.getAttribute('href')).toBe('mailto:hello@acme.example');
+        expect(mail?.closest('ul')).toBeNull();
+        expect(
+            container.querySelector('a[href^="tel:"]')?.closest('ul'),
+        ).toBeNull();
+        expect(container.querySelector('address')?.textContent).toBe(
+            'Main St 1',
+        );
     });
 
     it('omits the columns row when there are no groups, contact or social links', async () => {

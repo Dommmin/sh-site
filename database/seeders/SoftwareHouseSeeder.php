@@ -3,12 +3,18 @@
 namespace Database\Seeders;
 
 use App\Actions\Home\EnsureHomeSections;
+use App\Actions\Settings\UpdateSiteSettings;
+use App\Data\Settings\SiteSettingsInputData;
+use App\Data\Settings\SiteSettingTranslationInputData;
 use App\Enums\HomeSectionAnchor;
 use App\Enums\MenuItemType;
 use App\Enums\MenuLocation;
 use App\Models\AuditLog;
 use App\Models\HomeSection;
 use App\Models\MenuItem;
+use App\Models\PageTranslation;
+use App\Models\SiteSetting;
+use App\Models\User;
 use App\Services\Localization\LocalizationConfig;
 use App\Services\Navigation\PublicNavigation;
 use Illuminate\Database\Seeder;
@@ -27,12 +33,16 @@ use Spatie\LaravelData\Data;
  * {@see DemoMediaSeeder}. Idempotent and safe for edits: a locale is
  * rewritten only while none of its sections was changed by a person (every
  * panel edit, toggle and reorder is audited; seeders never are) or each
- * still holds seeded content, and its header menu only while no item has an
- * author.
+ * still holds seeded content, its header and footer menus only while no
+ * item has an author, and the site settings only while the contact e-mail
+ * is the demo or showcase one.
  */
 class SoftwareHouseSeeder extends Seeder
 {
-    public function run(LocalizationConfig $config, EnsureHomeSections $ensure, PublicNavigation $navigation): void
+    /** Fictional showcase contact address (reserved example domain). */
+    public const string CONTACT_EMAIL = 'hello@punkt.example';
+
+    public function run(LocalizationConfig $config, EnsureHomeSections $ensure, PublicNavigation $navigation, UpdateSiteSettings $settings): void
     {
         if (! app()->environment('local')) {
             throw new RuntimeException('SoftwareHouseSeeder seeds placeholder media without a malware scan and runs only in the local environment.');
@@ -46,7 +56,10 @@ class SoftwareHouseSeeder extends Seeder
         foreach ($config->getPublicLocales() as $locale) {
             $this->seedSections($locale, SoftwareHouseContent::sections($locale, $imageId));
             $this->seedHeaderMenu($locale);
+            $this->seedFooterMenu($locale);
         }
+
+        $this->seedSiteSettings($config, $settings);
 
         $navigation->forget();
     }
@@ -73,6 +86,38 @@ class SoftwareHouseSeeder extends Seeder
             ['type' => MenuItemType::ArticleIndex, 'label' => 'Blog'],
             $anchor(HomeSectionAnchor::Contact, 'Kontakt', 'Contact', 'Kontakt'),
         ];
+    }
+
+    /**
+     * Footer menu of one locale: link groups of the showcase (offer and
+     * company, which ends with the privacy policy when its page exists in
+     * the locale).
+     *
+     * @return list<array{label: string, children: list<array{type: MenuItemType, label?: string, anchor?: string, page_id?: int}>}>
+     */
+    public static function footerMenu(string $locale): array
+    {
+        $t = fn (string $polish, string $english, string $german): string => SoftwareHouseContent::pick($locale, $polish, $english, $german);
+        $anchor = fn (HomeSectionAnchor $anchor, string $label): array => ['type' => MenuItemType::Anchor, 'anchor' => $anchor->value, 'label' => $label];
+        $privacyPageId = NavigationMenuSeeder::privacyPolicyPageId();
+        $legal = $privacyPageId !== null && PageTranslation::query()->where('page_id', $privacyPageId)->where('locale', $locale)->exists()
+            ? [['type' => MenuItemType::Page, 'page_id' => $privacyPageId]]
+            : [];
+
+        return array_values(array_filter([
+            ['label' => $t('Oferta', 'Offer', 'Angebot'), 'children' => [
+                $anchor(HomeSectionAnchor::Features, $t('Usługi', 'Services', 'Leistungen')),
+                $anchor(HomeSectionAnchor::Portfolio, 'Portfolio'),
+                $anchor(HomeSectionAnchor::Pricing, $t('Cennik', 'Pricing', 'Preise')),
+            ]],
+            ['label' => $t('Firma', 'Company', 'Unternehmen'), 'children' => [
+                $anchor(HomeSectionAnchor::Team, $t('Zespół', 'Team', 'Team')),
+                $anchor(HomeSectionAnchor::Testimonials, $t('Opinie', 'Testimonials', 'Referenzen')),
+                ['type' => MenuItemType::ArticleIndex, 'label' => 'Blog'],
+                $anchor(HomeSectionAnchor::Contact, $t('Kontakt', 'Contact', 'Kontakt')),
+                ...$legal,
+            ]],
+        ], fn (array $group): bool => $group['children'] !== []));
     }
 
     /**
@@ -161,5 +206,106 @@ class SoftwareHouseSeeder extends Seeder
                 ]);
             }
         });
+    }
+
+    /**
+     * Footer menu of a locale, rewritten only while no item has an author
+     * and it differs from the showcase.
+     */
+    private function seedFooterMenu(string $locale): void
+    {
+        $items = MenuItem::query()
+            ->where('location', MenuLocation::Footer->value)
+            ->where('locale', $locale);
+
+        if ((clone $items)->where(fn ($query) => $query->whereNotNull('created_by')->orWhereNotNull('updated_by'))->exists()) {
+            return;
+        }
+
+        $groups = self::footerMenu($locale);
+        $current = (clone $items)->whereNull('parent_id')->orderBy('position')->with(['children' => fn ($query) => $query->orderBy('position')])->get()
+            ->map(fn (MenuItem $item): array => [$item->label, $item->children->map(fn (MenuItem $child): array => [$child->type, $child->anchor, $child->page_id])->all()])
+            ->all();
+        $showcase = array_map(fn (array $group): array => [$group['label'], array_map(fn (array $child): array => [$child['type'], $child['anchor'] ?? null, $child['page_id'] ?? null], $group['children'])], $groups);
+
+        if ($current === $showcase) {
+            return;
+        }
+
+        DB::transaction(function () use ($items, $locale, $groups): void {
+            (clone $items)->whereNotNull('parent_id')->delete();
+            (clone $items)->delete();
+
+            foreach ($groups as $index => $group) {
+                $parent = MenuItem::query()->create([
+                    'type' => MenuItemType::Group,
+                    'label' => $group['label'],
+                    'location' => MenuLocation::Footer,
+                    'locale' => $locale,
+                    'position' => $index + 1,
+                ]);
+
+                foreach ($group['children'] as $position => $child) {
+                    MenuItem::query()->create([
+                        ...$child,
+                        'parent_id' => $parent->id,
+                        'location' => MenuLocation::Footer,
+                        'locale' => $locale,
+                        'position' => $position + 1,
+                    ]);
+                }
+            }
+        });
+    }
+
+    /**
+     * Brand promise, contact details and social links of the showcase,
+     * stored through the audited settings action. Skipped once a person
+     * saved a real contact e-mail (one outside the reserved example domains
+     * used by the demo and this showcase).
+     */
+    private function seedSiteSettings(LocalizationConfig $config, UpdateSiteSettings $settings): void
+    {
+        $current = SiteSetting::query()->find(SiteSetting::SINGLETON_ID);
+
+        $email = $current?->contact_email;
+
+        if ($email !== null && ! str_ends_with($email, '@example.com') && ! str_ends_with($email, '.example')) {
+            return;
+        }
+
+        $translations = [];
+        foreach ($config->getPublicLocales() as $locale) {
+            $t = fn (string $polish, string $english, string $german): string => SoftwareHouseContent::pick($locale, $polish, $english, $german);
+            $translations[$locale] = new SiteSettingTranslationInputData(
+                tagline: $t('Projektujemy i budujemy strony oraz aplikacje, które pracują na Twój biznes.', 'We design and build websites and web apps that work for your business.', 'Wir gestalten und entwickeln Websites und Web-Apps, die für Ihr Unternehmen arbeiten.'),
+                footerText: $t('Punkt Startowy. Wszystkie prawa zastrzeżone.', 'Punkt Startowy. All rights reserved.', 'Punkt Startowy. Alle Rechte vorbehalten.'),
+                seoTitle: $t('Software house: strony i aplikacje internetowe', 'Software house: websites and web apps', 'Softwarehaus: Websites und Web-Apps'),
+                seoDescription: $t('Projektujemy, budujemy i utrzymujemy strony firmowe, sklepy i aplikacje webowe.', 'We design, build and maintain company websites, online shops and web apps.', 'Wir gestalten, entwickeln und betreuen Firmenwebsites, Onlineshops und Web-Apps.'),
+            );
+        }
+
+        $settings->handle(
+            new SiteSettingsInputData(
+                siteName: 'Punkt Startowy',
+                logoMediaId: null,
+                ogImageMediaId: SoftwareHouseMediaSeeder::assetId('hero'),
+                contactEmail: self::CONTACT_EMAIL,
+                contactPhone: '+48 600 000 000',
+                addressLine: 'ul. Przykładowa 12',
+                postalCode: '00-001',
+                city: 'Warszawa',
+                countryCode: null,
+                contactRecipientEmail: 'skrzynka@example.com',
+                socialLinks: [
+                    'linkedin' => 'https://www.linkedin.com/company/example',
+                    'github' => 'https://github.com/example',
+                    'instagram' => 'https://www.instagram.com/example',
+                ],
+                translations: $translations,
+            ),
+            User::query()->where('email', DemoContent::USER_EMAIL)->first(),
+            $current?->updated_at?->toIso8601String(),
+        );
     }
 }

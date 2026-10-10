@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\HomeSections\HomeSectionContentRules;
 use App\Jobs\GenerateImageVariants;
 use App\Models\HomeSection;
 use App\Models\MenuItem;
+use App\Models\SiteSetting;
 use App\Models\User;
 use App\Services\Media\ImageVariantGenerator;
 use Database\Seeders\DatabaseSeeder;
@@ -96,6 +97,36 @@ test('the showcase seeder turns the demo into the software house home page', fun
         ->and(HomeSection::query()->where('locale', 'de')->where('type', HomeSectionType::Pricing)->sole()->content->title)->toBe('Preise');
 
     $this->get('/pl')->assertOk();
+});
+
+test('the showcase seeder fills the footer menu and the demo site settings', function () {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+
+    $this->seed(SoftwareHouseSeeder::class);
+
+    $groups = MenuItem::query()
+        ->where('location', MenuLocation::Footer->value)
+        ->where('locale', 'pl')
+        ->whereNull('parent_id')
+        ->orderBy('position')
+        ->with(['children' => fn ($query) => $query->orderBy('position')])
+        ->get();
+    $settings = SiteSetting::query()->find(SiteSetting::SINGLETON_ID);
+
+    expect($groups->pluck('label')->all())->toBe(['Oferta', 'Firma'])
+        ->and($groups->first()?->children->pluck('anchor')->all())->toBe(['features', 'portfolio', 'pricing'])
+        ->and($settings?->contact_email)->toBe(SoftwareHouseSeeder::CONTACT_EMAIL);
+});
+
+test('a real contact e-mail saved by a person keeps the site settings', function () {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+    SiteSetting::query()->whereKey(SiteSetting::SINGLETON_ID)->update(['contact_email' => 'office@client.pl']);
+
+    $this->seed(SoftwareHouseSeeder::class);
+
+    expect(SiteSetting::query()->find(SiteSetting::SINGLETON_ID)?->contact_email)->toBe('office@client.pl');
 });
 
 test('a second run changes nothing', function () {
