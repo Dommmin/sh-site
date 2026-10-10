@@ -122,7 +122,7 @@ export function BarChart({
             aria-labelledby={`${id}-title`}
         >
             <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                     <Heading level={2} variant="group">
                         <span id={`${id}-title`}>{title}</span>
                     </Heading>

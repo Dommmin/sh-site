@@ -21,7 +21,7 @@ export type ItemListProps = {
  * Compact list of panel rows on one grid: a fixed start slot (centred
  * badge or icon), the text in small body type and an end column that never
  * wraps, so every row starts and ends on the same lines whatever the
- * width of its badge.
+ * width of its badge. On phones the end column moves under the text.
  */
 export function ItemList({ items }: ItemListProps) {
     const hasLead = items.some((item) => item.lead !== undefined);
@@ -34,8 +34,8 @@ export function ItemList({ items }: ItemListProps) {
                     className={cn(
                         'border-border-subtle grid items-center gap-x-3 border-t py-2.5 text-sm first:border-t-0 first:pt-0 last:pb-0',
                         hasLead
-                            ? 'grid-cols-[2.5rem_minmax(0,1fr)_auto]'
-                            : 'grid-cols-[minmax(0,1fr)_auto]',
+                            ? 'grid-cols-[2.5rem_minmax(0,1fr)] sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]'
+                            : 'grid-cols-[minmax(0,1fr)] sm:grid-cols-[minmax(0,1fr)_auto]',
                     )}
                 >
                     {hasLead && (
@@ -44,7 +44,14 @@ export function ItemList({ items }: ItemListProps) {
                     <span className="text-foreground flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                         {item.content}
                     </span>
-                    <span className="text-muted-foreground text-xs whitespace-nowrap tabular-nums">
+                    <span
+                        className={cn(
+                            'text-muted-foreground text-xs whitespace-nowrap tabular-nums',
+                            // Phones: under the text, so the text keeps the width.
+                            hasLead && 'col-start-2 sm:col-start-auto',
+                            'max-sm:mt-1',
+                        )}
+                    >
                         {item.end}
                     </span>
                 </li>
