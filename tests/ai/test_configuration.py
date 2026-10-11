@@ -33,6 +33,8 @@ class AiConfigurationTest(unittest.TestCase):
         self.assertIn('git diff --cached --check', lefthook)
         self.assertIn('npx commitlint --edit {1}', lefthook)
         self.assertNotIn('stage_fixed: true', lefthook)
+        # In lefthook `dir/**/*` skips files directly in `dir`; use `dir/**`.
+        self.assertNotIn('/**/*', lefthook)
 
         pre_commit = (ROOT / ".githooks/pre-commit").read_text()
         self.assertIn('gitleaks git --staged --redact', pre_commit)
