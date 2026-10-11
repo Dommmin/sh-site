@@ -197,6 +197,8 @@ describe('CookieConsent', () => {
             ),
         ).toEqual(['Settings', 'Reject', 'Accept all']);
         expect(button('Reject').className).toBe(button('Accept all').className);
+        // Floating controls (back to top) keep clear of the banner by this marker.
+        expect(region?.hasAttribute('data-bottom-bar')).toBe(true);
         expect(region?.querySelector('a')?.getAttribute('href')).toBe(
             '/privacy-policy',
         );
