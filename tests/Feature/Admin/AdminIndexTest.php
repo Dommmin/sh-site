@@ -78,6 +78,7 @@ test('administrators find the technical status on its own page', function () {
             ->where('system.appName', config('app.name'))
             ->where('security.requireTwoFactorForAdmin', (bool) config('fortify.require_two_factor_for_admin', false))
             ->has('modules', 4)
+            ->where('modules.2', ['key' => 'media', 'status' => 'active'])
             ->has('i18n.messages.admin.systemStatus')
         );
 });

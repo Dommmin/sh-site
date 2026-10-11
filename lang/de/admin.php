@@ -152,7 +152,7 @@ return [
         ],
         'media' => [
             'title' => 'Medienverwaltung (DAM)',
-            'description' => 'Privater Speicher, Virenprüfung und WebP-Transformationen.',
+            'description' => 'Privater Speicher, Virenprüfung, Quarantäne und AVIF/WebP-Varianten.',
         ],
         'audit' => [
             'title' => 'Audit & Überwachung',

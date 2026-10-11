@@ -152,7 +152,7 @@ return [
         ],
         'media' => [
             'title' => 'Biblioteka Mediów (DAM)',
-            'description' => 'Prywatny magazyn zasobów, skanowanie antywirusowe i transformacje WebP.',
+            'description' => 'Prywatny magazyn zasobów, skanowanie antywirusowe, kwarantanna i warianty AVIF/WebP.',
         ],
         'audit' => [
             'title' => 'Dziennik Audytu i Zdarzeń',

@@ -152,7 +152,7 @@ return [
         ],
         'media' => [
             'title' => 'Media Asset Manager (DAM)',
-            'description' => 'Private storage, virus scanning, quarantined assets, and WebP transformations.',
+            'description' => 'Private storage, virus scanning, quarantined assets, and AVIF/WebP variants.',
         ],
         'audit' => [
             'title' => 'Audit & Observability',
