@@ -151,6 +151,7 @@ export function CookieConsentBanner({
     return (
         <section
             aria-labelledby={titleId}
+            data-bottom-bar
             className="sticky bottom-0 z-40 order-last p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4"
         >
             <div className="bg-background border-border-subtle mx-auto flex max-w-5xl flex-col gap-4 rounded-lg border p-4 shadow-lg sm:p-5 lg:flex-row lg:items-center lg:gap-8">
