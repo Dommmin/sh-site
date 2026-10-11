@@ -1,12 +1,4 @@
-import {
-    lazy,
-    Suspense,
-    useCallback,
-    useEffect,
-    useId,
-    useRef,
-    useState,
-} from 'react';
+import { lazy, Suspense, useCallback, useEffect, useId, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { Button } from './button';
 import { Link } from './link';
@@ -133,10 +125,16 @@ export type CookieConsentBannerProps = {
 };
 
 /**
- * Non-modal consent bar fixed to the bottom of the viewport. Accepting and
+ * Non-modal consent bar stuck to the bottom of the viewport. Accepting and
  * rejecting carry the same weight (no nudging); the settings open the
- * per-category choice. Place it early in the DOM (after the header) so
- * keyboard and screen reader users reach it before the page content.
+ * per-category choice.
+ *
+ * Render it as a direct child of a full-height flex column (`PublicChrome`)
+ * and early in the DOM, right after the header, so keyboard and screen
+ * reader users reach it before the page content. `order-last` moves it
+ * below the footer in the layout and `sticky` keeps it on screen, so at the
+ * end of the page it takes its own space and covers nothing, without
+ * measuring it or styling the document.
  */
 export function CookieConsentBanner({
     title,
@@ -150,40 +148,10 @@ export function CookieConsentBanner({
     onSettings,
 }: CookieConsentBannerProps) {
     const titleId = useId();
-    const bannerRef = useRef<HTMLElement>(null);
-
-    // Reserve the banner's height below the page while it is shown, so the
-    // end of the footer (theme switcher, cookie link) scrolls above it.
-    useEffect(() => {
-        const banner = bannerRef.current;
-
-        if (!banner) {
-            return;
-        }
-
-        const body = document.body;
-        const reserve = () => {
-            body.style.paddingBottom = `${banner.offsetHeight}px`;
-        };
-        reserve();
-
-        const observer =
-            typeof ResizeObserver === 'undefined'
-                ? null
-                : new ResizeObserver(reserve);
-        observer?.observe(banner);
-
-        return () => {
-            observer?.disconnect();
-            body.style.paddingBottom = '';
-        };
-    }, []);
-
     return (
         <section
-            ref={bannerRef}
             aria-labelledby={titleId}
-            className="fixed inset-x-0 bottom-0 z-40 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4"
+            className="sticky bottom-0 z-40 order-last p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4"
         >
             <div className="bg-background border-border-subtle mx-auto flex max-w-5xl flex-col gap-4 rounded-lg border p-4 shadow-lg sm:p-5 lg:flex-row lg:items-center lg:gap-8">
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
