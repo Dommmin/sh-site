@@ -221,17 +221,15 @@ describe('CookieConsent', () => {
         expect(script?.src).toBe('https://plausible.io/js/script.js');
     });
 
-    it('keeps the end of the page reachable above the banner until a choice is made', async () => {
-        vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(
-            150,
-        );
+    it('keeps the page reachable through layout alone, without styling the document', async () => {
         await render(<Harness consent={consentData()} />);
 
-        expect(document.body.style.paddingBottom).toBe('150px');
+        expect(document.body.getAttribute('style')).toBeNull();
+        expect(document.documentElement.getAttribute('style')).toBeNull();
 
         await click('Reject');
 
-        expect(document.body.style.paddingBottom).toBe('');
+        expect(document.body.getAttribute('style')).toBeNull();
     });
 
     it('stores a rejection without loading any script', async () => {
