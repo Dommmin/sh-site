@@ -34,7 +34,7 @@ class SystemStatusController extends Controller
             'modules' => [
                 ['key' => 'identity', 'status' => 'active'],
                 ['key' => 'content', 'status' => 'active'],
-                ['key' => 'media', 'status' => 'planned'],
+                ['key' => 'media', 'status' => 'active'],
                 ['key' => 'audit', 'status' => 'ready'],
             ],
             'adminSettings' => [
