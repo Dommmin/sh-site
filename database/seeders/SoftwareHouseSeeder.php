@@ -24,7 +24,8 @@ use Spatie\LaravelData\Data;
 
 /**
  * Turn the local demo into the software house showcase: placeholder images,
- * home sections in the showcase order ({@see SoftwareHouseContent}, Polish,
+ * blog articles ({@see SoftwareHouseArticleSeeder}), FAQs
+ * ({@see SoftwareHouseFaqSeeder}), home sections in the showcase order ({@see SoftwareHouseContent}, Polish,
  * English and German copy) and a header menu of section anchors in every
  * public locale.
  *
@@ -48,7 +49,7 @@ class SoftwareHouseSeeder extends Seeder
             throw new RuntimeException('SoftwareHouseSeeder seeds placeholder media without a malware scan and runs only in the local environment.');
         }
 
-        $this->call(SoftwareHouseMediaSeeder::class);
+        $this->call([SoftwareHouseMediaSeeder::class, SoftwareHouseArticleSeeder::class, SoftwareHouseFaqSeeder::class]);
         $ensure->handle();
 
         $imageId = fn (string $key): ?int => SoftwareHouseMediaSeeder::assetId($key);
@@ -104,7 +105,7 @@ class SoftwareHouseSeeder extends Seeder
             ? [['type' => MenuItemType::Page, 'page_id' => $privacyPageId]]
             : [];
 
-        return array_values(array_filter([
+        return [
             ['label' => $t('Oferta', 'Offer', 'Angebot'), 'children' => [
                 $anchor(HomeSectionAnchor::Features, $t('Usługi', 'Services', 'Leistungen')),
                 $anchor(HomeSectionAnchor::Portfolio, 'Portfolio'),
@@ -113,11 +114,12 @@ class SoftwareHouseSeeder extends Seeder
             ['label' => $t('Firma', 'Company', 'Unternehmen'), 'children' => [
                 $anchor(HomeSectionAnchor::Team, $t('Zespół', 'Team', 'Team')),
                 $anchor(HomeSectionAnchor::Testimonials, $t('Opinie', 'Testimonials', 'Referenzen')),
+                $anchor(HomeSectionAnchor::Faq, 'FAQ'),
                 ['type' => MenuItemType::ArticleIndex, 'label' => 'Blog'],
                 $anchor(HomeSectionAnchor::Contact, $t('Kontakt', 'Contact', 'Kontakt')),
                 ...$legal,
             ]],
-        ], fn (array $group): bool => $group['children'] !== []));
+        ];
     }
 
     /**

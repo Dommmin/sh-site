@@ -115,7 +115,7 @@ final class DemoDocument
     /**
      * @return array<string, mixed>
      */
-    private static function paragraph(string $text): array
+    public static function paragraph(string $text): array
     {
         return ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => $text]]];
     }
@@ -123,7 +123,7 @@ final class DemoDocument
     /**
      * @return array<string, mixed>
      */
-    private static function heading(int $level, string $text): array
+    public static function heading(int $level, string $text): array
     {
         return ['type' => 'heading', 'attrs' => ['level' => $level], 'content' => [['type' => 'text', 'text' => $text]]];
     }
@@ -133,7 +133,7 @@ final class DemoDocument
      * @param  list<string>  $items
      * @return array<string, mixed>
      */
-    private static function list(string $type, array $items): array
+    public static function list(string $type, array $items): array
     {
         return [
             'type' => $type,

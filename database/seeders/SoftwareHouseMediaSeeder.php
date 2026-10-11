@@ -10,9 +10,10 @@ use Intervention\Image\Interfaces\ImageInterface;
 
 /**
  * Local placeholder images of the software house showcase, generated
- * offline with GD like {@see DemoMediaSeeder}: a hero image and six 16:9
- * project thumbnails drawn as interface mock-ups (browser window, layout
- * blocks) in one warm palette, so the page reads like a real portfolio.
+ * offline with GD like {@see DemoMediaSeeder}: a hero image, six 16:9
+ * project thumbnails and five 16:9 blog covers drawn as interface mock-ups
+ * (browser window, layout blocks, code editor) in one warm palette, so the
+ * page reads like a real portfolio.
  * Team members have no photo and show their initials. Replace the images
  * with real screenshots in the media library before publishing.
  */
@@ -29,6 +30,11 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
         'project-4' => ['uuid' => 'a5000000-0000-4000-a000-000000000214', 'name' => 'sh-project-4.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => 'c2410c', 'alt' => 'Placeholder: identyfikacja wizualna', 'status' => MediaStatus::Clean],
         'project-5' => ['uuid' => 'a5000000-0000-4000-a000-000000000215', 'name' => 'sh-project-5.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => 'ece6dc', 'alt' => 'Placeholder: system rezerwacji', 'status' => MediaStatus::Clean],
         'project-6' => ['uuid' => 'a5000000-0000-4000-a000-000000000216', 'name' => 'sh-project-6.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => '292524', 'alt' => 'Placeholder: strona fundacji', 'status' => MediaStatus::Clean],
+        'article-mvp' => ['uuid' => 'a5000000-0000-4000-a000-000000000301', 'name' => 'sh-article-mvp.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => 'e7ece4', 'alt' => 'Placeholder: aplikacja do rezerwacji w wersji MVP', 'status' => MediaStatus::Clean],
+        'article-cost' => ['uuid' => 'a5000000-0000-4000-a000-000000000302', 'name' => 'sh-article-cost.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => 'f3e8dc', 'alt' => 'Placeholder: makieta strony firmowej', 'status' => MediaStatus::Clean],
+        'article-stack' => ['uuid' => 'a5000000-0000-4000-a000-000000000303', 'name' => 'sh-article-stack.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => '292524', 'alt' => 'Placeholder: edytor kodu z projektem Laravel', 'status' => MediaStatus::Clean],
+        'article-speed' => ['uuid' => 'a5000000-0000-4000-a000-000000000304', 'name' => 'sh-article-speed.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => 'e2e8f0', 'alt' => 'Placeholder: panel z wynikami wydajności strony', 'status' => MediaStatus::Clean],
+        'article-shop' => ['uuid' => 'a5000000-0000-4000-a000-000000000305', 'name' => 'sh-article-shop.jpg', 'mime' => 'image/jpeg', 'width' => 1600, 'height' => 900, 'color' => 'efe4d6', 'alt' => 'Placeholder: lista produktów sklepu internetowego', 'status' => MediaStatus::Clean],
     ];
 
     /**
@@ -44,6 +50,11 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
         'a5000000-0000-4000-a000-000000000214' => ['layout' => 'identity', 'accent' => 'fff7ed'],
         'a5000000-0000-4000-a000-000000000215' => ['layout' => 'booking', 'accent' => '4d7c0f'],
         'a5000000-0000-4000-a000-000000000216' => ['layout' => 'website', 'accent' => 'ea580c'],
+        'a5000000-0000-4000-a000-000000000301' => ['layout' => 'booking', 'accent' => '4d7c0f'],
+        'a5000000-0000-4000-a000-000000000302' => ['layout' => 'website', 'accent' => 'b45309'],
+        'a5000000-0000-4000-a000-000000000303' => ['layout' => 'code', 'accent' => 'ea580c'],
+        'a5000000-0000-4000-a000-000000000304' => ['layout' => 'dashboard', 'accent' => '15803d'],
+        'a5000000-0000-4000-a000-000000000305' => ['layout' => 'shop', 'accent' => 'c2410c'],
     ];
 
     private const string INK = '1c1917';
@@ -85,6 +96,7 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
             'shop' => $this->shop($image, $x, $y, $w, $h, $accent),
             'dashboard' => $this->dashboard($image, $x, $y, $w, $h, $accent),
             'booking' => $this->booking($image, $x, $y, $w, $h, $accent),
+            'code' => $this->code($image, $x, $y, $w, $h, $accent),
             default => $this->website($image, $x, $y, $w, $h, $accent),
         };
     }
@@ -223,6 +235,32 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
 
         foreach (range(0, 4) as $slot) {
             $this->rect($image, $panelX + 24, $y + 30 + $slot * intdiv($h, 6), $panelWidth - 48, intdiv($h, 9), $slot === 1 ? $accent : self::PAPER);
+        }
+    }
+
+    /** Code editor: file tree on the left, indented lines of highlighted code. */
+    private function code(ImageInterface $image, int $x, int $y, int $w, int $h, string $accent): void
+    {
+        $tree = (int) ($w * 0.22);
+        $this->rect($image, $x, $y, $tree, $h, self::MUTED);
+
+        foreach (range(0, 7) as $file) {
+            $this->rect($image, $x + 18 + ($file % 3 === 0 ? 0 : 18), $y + 22 + $file * intdiv($h, 10), (int) ($tree * ($file === 2 ? 0.5 : 0.45)), intdiv($h, 40), $file === 2 ? $accent : self::LINE);
+        }
+
+        $codeX = $x + $tree + intdiv($w, 24);
+        $lineHeight = intdiv($h, 14);
+        $lines = [[0, 0.32, 'ink'], [0, 0.5, 'accent'], [1, 0.42, 'line'], [1, 0.56, 'ink'], [2, 0.36, 'accent'], [2, 0.48, 'line'], [1, 0.22, 'ink'], [0, 0.12, 'ink'], [0, 0.44, 'accent'], [1, 0.38, 'line'], [1, 0.3, 'ink']];
+
+        foreach ($lines as $index => [$indent, $ratio, $tone]) {
+            $lineY = $y + 16 + $index * $lineHeight;
+            $this->rect($image, $codeX, $lineY, intdiv($w, 40), intdiv($h, 50), self::LINE);
+            $color = match ($tone) {
+                'accent' => $accent,
+                'line' => self::LINE,
+                default => self::INK.'b3',
+            };
+            $this->rect($image, $codeX + intdiv($w, 18) + $indent * intdiv($w, 22), $lineY, (int) (($x + $w - $codeX) * $ratio), intdiv($h, 40), $color);
         }
     }
 

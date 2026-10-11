@@ -7,12 +7,17 @@ use App\Enums\HomeSectionType;
 use App\Enums\MenuLocation;
 use App\Http\Requests\Admin\HomeSections\HomeSectionContentRules;
 use App\Jobs\GenerateImageVariants;
+use App\Models\ArticleTranslation;
+use App\Models\Faq;
 use App\Models\HomeSection;
 use App\Models\MenuItem;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Services\Media\ImageVariantGenerator;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\DemoContent;
+use Database\Seeders\SoftwareHouseArticleSeeder;
+use Database\Seeders\SoftwareHouseFaqSeeder;
 use Database\Seeders\SoftwareHouseMediaSeeder;
 use Database\Seeders\SoftwareHouseSeeder;
 use Illuminate\Support\Facades\Notification;
@@ -78,9 +83,9 @@ test('the showcase seeder turns the demo into the software house home page', fun
         HomeSectionType::Pricing,
         HomeSectionType::LatestArticles,
         HomeSectionType::Cta,
-        HomeSectionType::Contact,
         HomeSectionType::Faq,
-    ])->and(HomeSection::query()->where('locale', 'pl')->where('enabled', false)->orderBy('position')->pluck('type')->all())->toBe([HomeSectionType::LatestArticles, HomeSectionType::Cta, HomeSectionType::Faq]);
+        HomeSectionType::Contact,
+    ])->and(HomeSection::query()->where('locale', 'pl')->where('enabled', false)->orderBy('position')->pluck('type')->all())->toBe([HomeSectionType::Cta]);
 
     $hero = HomeSection::query()->where('locale', 'pl')->where('type', HomeSectionType::Hero)->sole()->content;
     $portfolio = HomeSection::query()->where('locale', 'en')->where('type', HomeSectionType::Portfolio)->sole()->content;
@@ -135,12 +140,16 @@ test('a second run changes nothing', function () {
     $this->seed(SoftwareHouseSeeder::class);
     $sections = HomeSection::query()->orderBy('id')->get()->toArray();
     $menu = MenuItem::query()->orderBy('id')->get()->toArray();
+    $articles = ArticleTranslation::query()->orderBy('id')->get()->toArray();
+    $faqs = Faq::query()->orderBy('id')->get()->toArray();
 
     $this->travel(1)->minute();
     $this->seed(SoftwareHouseSeeder::class);
 
     expect(HomeSection::query()->orderBy('id')->get()->toArray())->toBe($sections)
-        ->and(MenuItem::query()->orderBy('id')->get()->toArray())->toBe($menu);
+        ->and(MenuItem::query()->orderBy('id')->get()->toArray())->toBe($menu)
+        ->and(ArticleTranslation::query()->orderBy('id')->get()->toArray())->toBe($articles)
+        ->and(Faq::query()->orderBy('id')->get()->toArray())->toBe($faqs);
 });
 
 test('outdated seeded content nobody edited is replaced', function () {
@@ -190,3 +199,35 @@ test('the showcase content passes the admin validation of every section', functi
         expect($validator->errors()->all())->toBe([], "{$section->type->value} in {$locale}");
     }
 })->with(['pl', 'en', 'de']);
+
+test('the showcase blog and FAQ replace the unedited samples', function (string $locale) {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+
+    $this->seed(SoftwareHouseSeeder::class);
+
+    $published = ArticleTranslation::query()->published()->where('locale', $locale)->with('article')->get();
+    $showcaseSlugs = array_map(fn (array $article): string => $article['translations'][$locale][0], SoftwareHouseArticleSeeder::ARTICLES);
+    $faqSection = HomeSection::query()->where('locale', $locale)->where('type', HomeSectionType::Faq)->sole();
+
+    expect($published->pluck('slug')->sort()->values()->all())->toBe(collect($showcaseSlugs)->sort()->values()->all())
+        ->and($published->every(fn (ArticleTranslation $translation): bool => $translation->article->cover_media_id !== null))->toBeTrue()
+        ->and(Faq::query()->where('locale', $locale)->where('published', true)->orderBy('position')->pluck('question')->all())
+        ->toBe(array_column(SoftwareHouseFaqSeeder::FAQS[$locale], 0))
+        ->and($faqSection->enabled)->toBeTrue();
+})->with(['pl', 'en', 'de']);
+
+test('samples edited by a person stay published', function () {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+    $article = ArticleTranslation::query()->where('locale', 'en')->where('slug', DemoContent::ARTICLES['welcome']['en'])->sole();
+    $article->forceFill(['title' => 'Edited by a person', 'updated_at' => now()->addMinute()])->save();
+    $faq = Faq::query()->where('locale', 'en')->where('published', true)->firstOrFail();
+    $faq->forceFill(['answer' => 'Edited by a person', 'updated_at' => now()->addMinute()])->save();
+
+    $this->seed(SoftwareHouseSeeder::class);
+
+    expect($article->refresh()->isPublished())->toBeTrue()
+        ->and($faq->refresh()->published)->toBeTrue()
+        ->and(ArticleTranslation::query()->where('slug', DemoContent::ARTICLES['history']['en'])->sole()->isPublished())->toBeFalse();
+});

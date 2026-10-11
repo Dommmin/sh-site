@@ -157,7 +157,7 @@ final class SoftwareHouseContent
                 description: $t('Orientacyjne ceny, abyś wiedział, czego się spodziewać.', 'Indicative prices so you know what to expect.', 'Richtpreise, damit Sie wissen, womit Sie rechnen können.'),
                 note: $t('Ceny orientacyjne netto. Dokładną wycenę przygotujemy po krótkiej rozmowie.', 'Indicative net prices. We prepare an exact quote after a short call.', 'Richtpreise, netto. Ein genaues Angebot erstellen wir nach einem kurzen Gespräch.'),
             )],
-            HomeSectionType::LatestArticles->value => ['enabled' => false, 'content' => new LatestArticlesContentData(
+            HomeSectionType::LatestArticles->value => ['enabled' => true, 'content' => new LatestArticlesContentData(
                 limit: 3,
                 title: 'Blog',
             )],
@@ -166,12 +166,13 @@ final class SoftwareHouseContent
                 description: $t('Napisz kilka zdań o swoim pomyśle. Odpowiemy w ciągu jednego dnia roboczego.', 'Tell us a few words about your idea. We reply within one business day.', 'Schreiben Sie uns ein paar Sätze zu Ihrer Idee. Wir antworten innerhalb eines Werktags.'),
                 primaryAction: new HomeActionData(label: $t('Napisz do nas', 'Write to us', 'Schreiben Sie uns'), target: HomeLinkTarget::Contact),
             )],
+            HomeSectionType::Faq->value => ['enabled' => true, 'content' => new FaqContentData(
+                title: $t('Najczęstsze pytania', 'Frequently asked questions', 'Häufige Fragen'),
+                description: $t('Nie ma tu Twojego pytania? Napisz do nas przez formularz poniżej.', 'Your question is not here? Write to us using the form below.', 'Ihre Frage ist nicht dabei? Schreiben Sie uns über das Formular unten.'),
+            )],
             HomeSectionType::Contact->value => ['enabled' => true, 'content' => new ContactContentData(
                 title: $t('Kontakt', 'Contact', 'Kontakt'),
                 description: $t('Opisz krótko swój projekt, a my wrócimy z pytaniami i propozycją kolejnych kroków.', 'Briefly describe your project and we will get back with questions and next steps.', 'Beschreiben Sie kurz Ihr Projekt, und wir melden uns mit Fragen und den nächsten Schritten.'),
-            )],
-            HomeSectionType::Faq->value => ['enabled' => false, 'content' => new FaqContentData(
-                title: $t('Najczęstsze pytania', 'Frequently asked questions', 'Häufige Fragen'),
             )],
         ];
     }
