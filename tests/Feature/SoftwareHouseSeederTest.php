@@ -231,3 +231,13 @@ test('samples edited by a person stay published', function () {
         ->and($faq->refresh()->published)->toBeTrue()
         ->and(ArticleTranslation::query()->where('slug', DemoContent::ARTICLES['history']['en'])->sole()->isPublished())->toBeFalse();
 });
+
+test('an unedited sample missing one of its translations is hidden too', function () {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+    ArticleTranslation::query()->where('locale', 'de')->where('slug', DemoContent::ARTICLES['welcome']['de'])->delete();
+
+    $this->seed(SoftwareHouseSeeder::class);
+
+    expect(ArticleTranslation::query()->where('locale', 'pl')->where('slug', DemoContent::ARTICLES['welcome']['pl'])->sole()->isPublished())->toBeFalse();
+});

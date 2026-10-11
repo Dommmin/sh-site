@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Enums\PublicationStatus;
 use App\Models\Article;
 use App\Models\ArticleTranslation;
-use App\Support\DemoContent\DemoArticles;
 use Illuminate\Database\Seeder;
 
 /**
@@ -171,7 +170,7 @@ class SoftwareHouseArticleSeeder extends Seeder
         ]],
     ];
 
-    public function run(DemoArticles $demoArticles): void
+    public function run(): void
     {
         $now = now();
 
@@ -204,7 +203,7 @@ class SoftwareHouseArticleSeeder extends Seeder
             });
         }
 
-        $this->hideUneditedSamples($demoArticles);
+        $this->hideUneditedSamples();
     }
 
     /**
@@ -238,17 +237,29 @@ class SoftwareHouseArticleSeeder extends Seeder
 
     /**
      * Turn the published translations of unedited edge-case samples into
-     * drafts without touching their timestamps.
+     * drafts without touching their timestamps. A sample matches by any of
+     * its registered slugs (a translation may have been deleted or never
+     * seeded in a locale) and counts as edited once the article or any of
+     * its translations changed after creation.
      */
-    private function hideUneditedSamples(DemoArticles $demoArticles): void
+    private function hideUneditedSamples(): void
     {
-        $ids = [];
+        $slugs = [];
 
-        foreach ($demoArticles->records() as $article) {
-            if (! $demoArticles->isModifiedSinceSeed($article)) {
-                $ids[] = $article->getKey();
-            }
+        foreach (DemoContent::ARTICLES as $translations) {
+            array_push($slugs, ...array_values($translations));
         }
+
+        $ids = Article::query()
+            ->whereHas('translations', fn ($query) => $query->whereIn('slug', $slugs))
+            ->with('translations')
+            ->get()
+            ->reject(fn (Article $article): bool => collect([$article, ...$article->translations->all()])->contains(
+                fn (Article|ArticleTranslation $model): bool => $model->updated_at !== null
+                    && $model->created_at !== null
+                    && $model->updated_at->gt($model->created_at),
+            ))
+            ->modelKeys();
 
         ArticleTranslation::query()
             ->whereIn('article_id', $ids)
