@@ -35,7 +35,7 @@ export function Avatar({ name, src, fallback, size = 'default' }: AvatarProps) {
             )}
             <AvatarPrimitive.Fallback
                 delayMs={src ? 400 : 0}
-                className="bg-muted text-muted-foreground flex size-full items-center justify-center rounded-full font-medium"
+                className="bg-muted text-muted-foreground ring-muted-foreground/30 flex size-full items-center justify-center rounded-full font-medium ring-1 ring-inset"
             >
                 {fallback}
             </AvatarPrimitive.Fallback>

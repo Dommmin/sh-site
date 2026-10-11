@@ -3,6 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { Button } from './button';
 import { IconButton } from './icon-button';
+import {
+    ImagePickerField,
+    type ImagePickerFieldLabels,
+} from './image-picker-field';
+import type { RichTextImagePicker } from './rich-text-document';
 import { SelectField, type SelectFieldOption } from './select-field';
 import { TextField } from './text-field';
 import { TextareaField } from './textarea-field';
@@ -36,6 +41,16 @@ export type RepeaterItemField =
           required?: boolean;
           options: SelectFieldOption[];
           placeholder?: string;
+      }
+    | {
+          /** One DAM image; the item value is the asset id as a string (`''` = none). */
+          type: 'image';
+          name: string;
+          label: string;
+          hint?: string;
+          required?: boolean;
+          picker: RichTextImagePicker;
+          labels: ImagePickerFieldLabels;
       };
 
 export type RepeaterFieldLabels = {
@@ -380,6 +395,23 @@ export function RepeaterField({
                                                     placeholder={
                                                         field.placeholder
                                                     }
+                                                />
+                                            );
+                                        case 'image':
+                                            return (
+                                                <ImagePickerField
+                                                    key={field.name}
+                                                    id={common.id}
+                                                    name={common.name}
+                                                    label={common.label}
+                                                    hint={common.description}
+                                                    error={common.error}
+                                                    required={common.required}
+                                                    disabled={disabled}
+                                                    value={common.value}
+                                                    onChange={common.onChange}
+                                                    picker={field.picker}
+                                                    labels={field.labels}
                                                 />
                                             );
                                     }

@@ -7,6 +7,7 @@ return [
         'secondPart' => 'Startowy',
     ],
     'a11y' => [
+        'backToTop' => 'Zurück nach oben',
         'skipToContent' => 'Zum Hauptinhalt springen',
         'mainNavigation' => 'Hauptnavigation',
         'userMenu' => 'Benutzermenü',
@@ -35,6 +36,7 @@ return [
         'submenu' => 'Untermenü: :label',
     ],
     'footer' => [
+        'links' => 'Informationen',
         'contact' => 'Kontakt',
         'social' => 'Soziale Medien',
     ],
