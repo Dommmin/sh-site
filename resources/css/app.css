@@ -5,7 +5,6 @@
 @source '../views';
 /* Compiled Blade views (e.g. Laravel error pages) are build noise, not UI sources. */
 @source not '../../storage';
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @custom-variant dark (&:is(.dark *));
 
