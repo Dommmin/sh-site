@@ -27,6 +27,7 @@ use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoContent;
 use Database\Seeders\DemoMediaSeeder;
 use Database\Seeders\HomeSectionSeeder;
+use Database\Seeders\LegalPageSeeder;
 use Database\Seeders\NavigationMenuSeeder;
 use Database\Seeders\PageSeeder;
 use Illuminate\Support\Facades\Artisan;
@@ -418,7 +419,7 @@ test('missing values are asked for interactively', function () {
 
 test('a user page that shares one sample slug is kept', function () {
     $page = Page::factory()->create();
-    PageTranslation::factory()->published()->for($page)->create(['locale' => 'en', 'slug' => DemoContent::PAGES['privacy']['en']]);
+    PageTranslation::factory()->published()->for($page)->create(['locale' => 'en', 'slug' => DemoContent::PAGES['about']['en']]);
 
     runInit(['--remove-demo' => true]);
 
@@ -510,7 +511,8 @@ test('--remove-demo removes the whole local sample data set', function () {
         ->and(substr_count($output, 'kept'))->toBe(2)
         ->and(substr_count($output, 'Demo media: "'))->toBe(2)
         ->and(User::query()->pluck('email')->all())->toBe(['owner@example.test'])
-        ->and(Page::query()->exists())->toBeFalse()
+        // Legal pages are not demo content and survive --remove-demo.
+        ->and(Page::query()->count())->toBe(count(LegalPageSeeder::SLUGS))
         ->and(Article::query()->exists())->toBeFalse()
         ->and(MediaAsset::query()->pluck('id')->sort()->values()->all())->toBe(collect([SiteSetting::query()->value('logo_media_id'), SiteSetting::query()->value('og_image_media_id')])->sort()->values()->all())
         ->and(Faq::query()->exists())->toBeFalse()
