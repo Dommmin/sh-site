@@ -7,6 +7,7 @@ use App\Enums\ContactWebhookStatus;
 use App\Jobs\DeliverContactWebhook;
 use App\Jobs\SendContactAutoReply;
 use App\Jobs\SendContactMessage;
+use App\Models\ContactForm;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\DB;
 
@@ -19,13 +20,18 @@ use Illuminate\Support\Facades\DB;
  */
 class SubmitContactMessage
 {
-    public function handle(string $name, string $email, string $message, string $locale): ContactMessage
+    /**
+     * @param  array<string, string|bool>  $fields  Validated extra values of `$form`.
+     */
+    public function handle(string $name, string $email, string $message, string $locale, ?ContactForm $form = null, array $fields = []): ContactMessage
     {
         $contactMessage = DB::transaction(fn (): ContactMessage => ContactMessage::query()->create([
             'name' => $name,
             'email' => $email,
             'message' => $message,
             'locale' => $locale,
+            'contact_form_id' => $form?->id,
+            'fields' => $fields === [] ? null : $fields,
             'status' => ContactMessageStatus::Pending,
             'webhook_status' => DeliverContactWebhook::isConfigured() ? ContactWebhookStatus::Pending : null,
         ]));

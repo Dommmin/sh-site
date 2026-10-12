@@ -379,7 +379,7 @@ function LandingSection() {
                     </Stack>
                     <HomeSections
                         sections={homeSections}
-                        contactForm={{ token: '' }}
+                        contactForm={{ token: '', form: null }}
                         fallbackTitle={demo('homeFallbackTitle')}
                     />
                 </ShowcaseState>

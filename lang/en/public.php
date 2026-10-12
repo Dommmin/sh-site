@@ -75,6 +75,7 @@ return [
         'paginationSummary' => 'Page :page of :total',
     ],
     'contact' => [
+        'selectPlaceholder' => 'Choose…',
         'title' => 'Contact us',
         'description' => 'Send us a message and we will get back to you by email.',
         'fields' => [

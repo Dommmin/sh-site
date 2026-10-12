@@ -98,6 +98,12 @@ declare namespace App {
                     createdAt: string | null;
                     webhookStatus: App.Enums.ContactWebhookStatus | null;
                     webhookAttempts: number;
+                    formTitle: string | null;
+                    extraFields: App.Data.Admin.Contact.ContactMessageExtraFieldData[];
+                };
+                export type ContactMessageExtraFieldData = {
+                    label: string;
+                    value: string;
                 };
                 export type ContactMessageIndexData = {
                     items: App.Data.Admin.Contact.ContactMessageListItemData[];
@@ -128,6 +134,41 @@ declare namespace App {
                 export type ContactMessageShowData = {
                     contactMessage: App.Data.Admin.Contact.ContactMessageDetailData;
                     can: App.Data.Admin.Contact.ContactMessageAbilitiesData;
+                };
+            }
+            namespace ContactForms {
+                export type ContactFormEditorData = {
+                    form: App.Data.Admin.ContactForms.ContactFormFormData;
+                    locales: App.Data.Content.ContentLocalesData;
+                    canDelete: boolean;
+                    maxFields: number;
+                    maxOptions: number;
+                };
+                export type ContactFormFieldFormData = {
+                    key: string;
+                    type: App.Enums.ContactFieldType;
+                    required: boolean;
+                    label: Record<string, string>;
+                    options: string;
+                };
+                export type ContactFormFormData = {
+                    id: number | null;
+                    updatedAt: string | null;
+                    key: string;
+                    enabled: boolean;
+                    title: Record<string, string>;
+                    fields: App.Data.Admin.ContactForms.ContactFormFieldFormData[];
+                };
+                export type ContactFormIndexData = {
+                    items: App.Data.Admin.ContactForms.ContactFormListItemData[];
+                    canCreate: boolean;
+                };
+                export type ContactFormListItemData = {
+                    id: number;
+                    key: string;
+                    title: string;
+                    enabled: boolean;
+                    fieldsCount: number;
                 };
             }
             namespace Dashboard {
@@ -220,6 +261,10 @@ declare namespace App {
                 };
             }
             namespace HomeSections {
+                export type HomeContactFormOptionData = {
+                    key: string;
+                    title: string;
+                };
                 export type HomePageOptionData = {
                     id: number;
                     title: string;
@@ -234,6 +279,7 @@ declare namespace App {
                     linkTargets: App.Enums.HomeLinkTarget[];
                     pages: App.Data.Admin.HomeSections.HomePageOptionData[];
                     can: App.Data.Admin.HomeSections.HomeSectionAbilitiesData;
+                    contactForms: App.Data.Admin.HomeSections.HomeContactFormOptionData[];
                 };
                 export type HomeSectionFormData = {
                     id: number;
@@ -588,6 +634,23 @@ declare namespace App {
         namespace Contact {
             export type ContactFormData = {
                 token: string;
+                form: App.Data.Contact.PublicContactFormData | null;
+            };
+            export type PublicContactFieldData = {
+                key: string;
+                type: App.Enums.ContactFieldType;
+                label: string;
+                required: boolean;
+                options: App.Data.Contact.PublicContactFieldOptionData[];
+            };
+            export type PublicContactFieldOptionData = {
+                value: string;
+                label: string;
+            };
+            export type PublicContactFormData = {
+                key: string;
+                title: string;
+                fields: App.Data.Contact.PublicContactFieldData[];
             };
         }
         namespace Content {
@@ -660,6 +723,7 @@ declare namespace App {
             export type ContactContentData = {
                 title: string;
                 description: string | null;
+                formKey: string | null;
             };
             export type CtaContentData = {
                 title: string;
@@ -991,8 +1055,16 @@ declare namespace App {
             | 'navigation.reordered'
             | 'home_section.updated'
             | 'home_section.toggled'
-            | 'home_section.reordered';
+            | 'home_section.reordered'
+            | 'contact_form.created'
+            | 'contact_form.updated'
+            | 'contact_form.deleted';
         export type ConsentCategory = 'analytics' | 'marketing';
+        export type ContactFieldType =
+            | 'text'
+            | 'textarea'
+            | 'select'
+            | 'checkbox';
         export type ContactMessageStatus = 'pending' | 'sent' | 'failed';
         export type ContactWebhookStatus = 'pending' | 'delivered' | 'failed';
         export type ContentPreviewState = 'draft' | 'scheduled' | 'published';

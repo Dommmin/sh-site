@@ -75,6 +75,7 @@ return [
         'paginationSummary' => 'Strona :page z :total',
     ],
     'contact' => [
+        'selectPlaceholder' => 'Wybierz…',
         'title' => 'Skontaktuj się z nami',
         'description' => 'Wyślij wiadomość, a odpowiemy na podany adres e-mail.',
         'fields' => [

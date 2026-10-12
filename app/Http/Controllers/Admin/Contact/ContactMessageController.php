@@ -21,6 +21,7 @@ use App\Http\Requests\Admin\Contact\ListContactMessagesRequest;
 use App\Models\ContactMessage;
 use App\Models\User;
 use App\Repositories\Contact\ContactMessageRepository;
+use App\Services\Localization\LocalizationConfig;
 use App\Support\Csv\CsvCell;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -81,7 +82,7 @@ class ContactMessageController extends Controller
         $validated = $request->validated();
         $maxRows = config()->integer('exports.contact.max_rows', self::EXPORT_MAX_ROWS);
 
-        $query = $listQuery->apply($this->contactMessages->adminListQuery()->addSelect('message'), $validated);
+        $query = $listQuery->apply($this->contactMessages->adminListQuery()->addSelect(['message', 'contact_form_id', 'fields'])->with('form.fields'), $validated);
         $rows = (clone $query)->reorder()->count();
 
         if ($rows > $maxRows) {
@@ -112,7 +113,11 @@ class ContactMessageController extends Controller
                 __('admin.contact.fields.locale'),
                 __('admin.contact.fields.status'),
                 __('admin.contact.fields.message'),
+                __('admin.contact.fields.form'),
+                __('admin.contact.fields.extraFields'),
             ], escape: '');
+            $locale = app()->getLocale();
+            $fallback = app(LocalizationConfig::class)->getPublicFallback();
 
             foreach ($query->lazy(500)->take($maxRows) as $contactMessage) {
                 /** @var ContactMessage $contactMessage */
@@ -124,6 +129,11 @@ class ContactMessageController extends Controller
                     CsvCell::safe($contactMessage->locale),
                     CsvCell::safe(__("admin.contact.statuses.{$contactMessage->status->value}")),
                     CsvCell::safe($contactMessage->message),
+                    CsvCell::safe($contactMessage->form?->key),
+                    CsvCell::safe(implode('; ', array_map(
+                        fn (array $row): string => "{$row['label']}: {$row['value']}",
+                        $contactMessage->extraFieldRows($locale, $fallback),
+                    ))),
                 ], escape: '');
             }
 
@@ -141,7 +151,11 @@ class ContactMessageController extends Controller
         $user = $request->user();
 
         return Inertia::render('admin/contact/show', new ContactMessageShowData(
-            contactMessage: ContactMessageDetailData::fromModel($contactMessage),
+            contactMessage: ContactMessageDetailData::fromModel(
+                $contactMessage->load('form.fields'),
+                app()->getLocale(),
+                app(LocalizationConfig::class)->getPublicFallback(),
+            ),
             can: new ContactMessageAbilitiesData(
                 retry: $contactMessage->status === ContactMessageStatus::Failed
                     && ($user?->can('retry', $contactMessage) ?? false),

@@ -259,8 +259,30 @@ export function SectionForm({ editor }: SectionFormProps) {
                     },
                 ];
             case 'cta':
-            case 'contact':
                 return [text('title', true), description];
+            case 'contact':
+                return [
+                    text('title', true),
+                    description,
+                    {
+                        type: 'select',
+                        name: 'formKey',
+                        label: t('admin.homeSections.fields.contactForm'),
+                        hint: t('admin.homeSections.fields.contactFormHelp'),
+                        options: [
+                            {
+                                value: NONE,
+                                label: t(
+                                    'admin.homeSections.fields.contactFormDefault',
+                                ),
+                            },
+                            ...editor.contactForms.map((option) => ({
+                                value: option.key,
+                                label: option.title,
+                            })),
+                        ],
+                    },
+                ];
             case 'features':
                 return [
                     text('title'),

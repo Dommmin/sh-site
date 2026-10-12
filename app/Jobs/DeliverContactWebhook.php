@@ -59,7 +59,7 @@ class DeliverContactWebhook implements ShouldBeUnique, ShouldQueue
 
     public function handle(HostResolver $resolver): void
     {
-        $contactMessage = ContactMessage::query()->find($this->contactMessageId);
+        $contactMessage = ContactMessage::query()->with('form.fields')->find($this->contactMessageId);
 
         if ($contactMessage === null || $contactMessage->webhook_delivered_at !== null || ! self::isConfigured()) {
             return;
@@ -121,6 +121,8 @@ class DeliverContactWebhook implements ShouldBeUnique, ShouldQueue
             'name' => $contactMessage->name,
             'email' => $contactMessage->email,
             'message' => $contactMessage->message,
+            'form' => $contactMessage->form?->key,
+            'fields' => (object) ($contactMessage->fields ?? []),
         ];
     }
 }

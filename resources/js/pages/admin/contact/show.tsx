@@ -130,6 +130,22 @@ export default function AdminContactShow() {
                                 ? formatDate(contactMessage.sentAt)
                                 : null,
                         },
+                        ...(contactMessage.formTitle
+                            ? [
+                                  {
+                                      id: 'form',
+                                      label: t('admin.contact.fields.form'),
+                                      value: contactMessage.formTitle,
+                                  },
+                              ]
+                            : []),
+                        ...contactMessage.extraFields.map(
+                            (field, position) => ({
+                                id: `extra-${position}`,
+                                label: field.label,
+                                value: field.value,
+                            }),
+                        ),
                         ...(contactMessage.webhookStatus
                             ? [
                                   {

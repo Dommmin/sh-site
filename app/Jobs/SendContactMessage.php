@@ -57,7 +57,7 @@ class SendContactMessage implements ShouldBeUnique, ShouldQueue
 
     public function handle(LocalizationConfig $localization, SiteSettingsRepository $siteSettings): void
     {
-        $contactMessage = ContactMessage::query()->find($this->contactMessageId);
+        $contactMessage = ContactMessage::query()->with('form.fields')->find($this->contactMessageId);
 
         if ($contactMessage === null || $contactMessage->status === ContactMessageStatus::Sent) {
             return;
