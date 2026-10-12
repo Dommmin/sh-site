@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { TypographyPreview } from './typography-preview';
 
 describe('TypographyPreview', () => {
-    it('sets data-typography only for a non-default preset', () => {
+    it('always sets the preset, so default overrides the page preset', () => {
         expect(
             renderToStaticMarkup(
                 <TypographyPreview preset="classic">Heading</TypographyPreview>,
@@ -13,6 +13,6 @@ describe('TypographyPreview', () => {
             renderToStaticMarkup(
                 <TypographyPreview preset="default">Heading</TypographyPreview>,
             ),
-        ).toBe('<div>Heading</div>');
+        ).toBe('<div data-typography="default">Heading</div>');
     });
 });

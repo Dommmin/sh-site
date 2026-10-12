@@ -11,15 +11,12 @@ export type TypographyPreviewProps = {
 /**
  * Applies a typography preset of the site settings to its children only,
  * the same way `<html data-typography>` does for the whole page, so the
- * design-system showcase can compare presets side by side.
+ * design-system showcase can compare presets side by side. The attribute is
+ * always set, so `default` also overrides a non-default page preset.
  */
 export function TypographyPreview({
     preset,
     children,
 }: TypographyPreviewProps) {
-    return (
-        <div data-typography={preset === 'default' ? undefined : preset}>
-            {children}
-        </div>
-    );
+    return <div data-typography={preset}>{children}</div>;
 }

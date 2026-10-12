@@ -175,7 +175,15 @@
     --accent-l: -0.045;
 }
 
-/* Typography preset (App\Enums\TypographyPreset): serif headings. */
+/* Typography presets (App\Enums\TypographyPreset). <html> renders only a
+   non-default preset; `default` resets a nested TypographyPreview. */
+[data-typography='default'] {
+    --font-heading:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+}
+
 [data-typography='classic'] {
     --font-heading: 'Fraunces', ui-serif, Georgia, Cambria, serif;
 }
