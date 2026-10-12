@@ -531,6 +531,18 @@ declare namespace App {
                     label: string;
                 };
             }
+            namespace System {
+                export type LaunchCheckData = {
+                    key: App.Enums.LaunchCheck;
+                    done: boolean;
+                };
+                export type SiteLaunchData = {
+                    comingSoon: boolean;
+                    noindex: boolean;
+                    checklist: App.Data.Admin.System.LaunchCheckData[];
+                    testMailRecipient: string;
+                };
+            }
             namespace Users {
                 export type UserAbilitiesData = {
                     delete: boolean;
@@ -579,6 +591,9 @@ declare namespace App {
                 publishedAt: string | null;
                 cover: App.Data.Media.MediaImageData | null;
                 coverAlt: string;
+            };
+            export type ComingSoonPageData = {
+                contactEmail: string | null;
             };
             export type ContentLocaleData = {
                 code: string;
@@ -1013,6 +1028,11 @@ declare namespace App {
             | 'portfolio'
             | 'team'
             | 'pricing';
+        export type LaunchCheck =
+            | 'admin_two_factor'
+            | 'test_mail'
+            | 'search_console'
+            | 'legal_pages';
         export type MediaStatus = 'quarantine' | 'clean' | 'rejected';
         export type MenuItemType =
             | 'page'

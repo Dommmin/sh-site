@@ -33,6 +33,8 @@ use Illuminate\Validation\ValidationException;
  *   settings were never saved).
  * - updateSiteName(): partial update of the brand name only, without a
  *   version check (console / init-project; `$actor` = null).
+ * - updatePublication(): the coming soon and noindex switches of the
+ *   System page, without a version check.
  */
 class UpdateSiteSettings
 {
@@ -58,6 +60,8 @@ class UpdateSiteSettings
         'map_url',
         'opening_hours',
         'google_site_verification',
+        'coming_soon',
+        'noindex',
     ];
 
     private const array TRANSLATION_FIELDS = ['tagline', 'footer_text', 'seo_title', 'seo_description'];
@@ -135,6 +139,18 @@ class UpdateSiteSettings
 
         return $this->persist($actor, function (SiteSetting $settings) use ($siteName): array {
             $settings->site_name = $siteName;
+
+            return $this->settingChanges($settings);
+        });
+    }
+
+    /**
+     * Turn the coming soon page and the site-wide noindex on or off.
+     */
+    public function updatePublication(bool $comingSoon, bool $noindex, User $actor): SiteSetting
+    {
+        return $this->persist($actor, function (SiteSetting $settings) use ($comingSoon, $noindex): array {
+            $settings->forceFill(['coming_soon' => $comingSoon, 'noindex' => $noindex]);
 
             return $this->settingChanges($settings);
         });

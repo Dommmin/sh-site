@@ -95,6 +95,12 @@ return [
             'formExpired' => 'Formularz wygasł. Odśwież stronę i spróbuj ponownie.',
         ],
     ],
+    'comingSoon' => [
+        'title' => 'Wkrótce',
+        'heading' => 'Wkrótce startujemy',
+        'description' => 'Nasza nowa strona jest prawie gotowa. Zajrzyj do nas za kilka dni.',
+        'contact' => 'Masz pytania? Napisz na :email.',
+    ],
     'site' => [
         'defaultTitle' => 'Punkt Startowy — Strony i aplikacje dla małych firm',
         'defaultDescription' => 'Punkt Startowy projektuje i buduje czytelne, szybkie strony oraz proste aplikacje internetowe dla małych firm.',

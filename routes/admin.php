@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\HomeSections\HomeSectionController;
 use App\Http\Controllers\Admin\Media\MediaAssetController;
 use App\Http\Controllers\Admin\Navigation\MenuItemController;
 use App\Http\Controllers\Admin\Pages\PageController;
+use App\Http\Controllers\Admin\Settings\SitePublicationController;
 use App\Http\Controllers\Admin\Settings\SiteSettingsController;
 use App\Http\Controllers\Admin\SystemStatusController;
 use App\Http\Controllers\Admin\UserIndexController;
@@ -35,6 +36,13 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::get('/system', [SystemStatusController::class, 'index'])
             ->name('system.index')
             ->can('view', SiteSetting::class);
+        Route::put('/system/publication', [SitePublicationController::class, 'update'])
+            ->name('system.publication.update')
+            ->can('update', SiteSetting::class);
+        Route::post('/system/test-mail', [SitePublicationController::class, 'sendTestMail'])
+            ->name('system.test-mail.store')
+            ->can('update', SiteSetting::class)
+            ->middleware('throttle:3,1');
         Route::get('/users', [UserIndexController::class, 'index'])
             ->name('users.index')
             ->can('viewAny', User::class);

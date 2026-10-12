@@ -248,6 +248,14 @@ class SiteSettingsRepository
     }
 
     /**
+     * The site-wide noindex switch alone (without the coming soon page).
+     */
+    public function isNoindexSwitchOn(): bool
+    {
+        return $this->snapshot()['noindex'];
+    }
+
+    /**
      * Whether an administrator has saved the settings at least once.
      */
     public function exists(): bool

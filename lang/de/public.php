@@ -95,6 +95,12 @@ return [
             'formExpired' => 'Das Formular ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.',
         ],
     ],
+    'comingSoon' => [
+        'title' => 'Demnächst',
+        'heading' => 'Wir starten in Kürze',
+        'description' => 'Unsere neue Website ist fast fertig. Schauen Sie in ein paar Tagen wieder vorbei.',
+        'contact' => 'Fragen? Schreiben Sie an :email.',
+    ],
     'site' => [
         'defaultTitle' => 'Punkt Startowy — Websites und Web-Apps für kleine Unternehmen',
         'defaultDescription' => 'Punkt Startowy gestaltet und entwickelt klare, schnelle Websites und einfache Web-Apps für kleine Unternehmen.',

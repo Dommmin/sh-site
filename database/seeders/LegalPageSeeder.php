@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\PublicationStatus;
 use App\Models\Page;
 use App\Models\PageTranslation;
+use App\Support\Content\LegalPages;
 use Illuminate\Database\Seeder;
 
 /**
@@ -25,11 +26,7 @@ class LegalPageSeeder extends Seeder
      *
      * @var array<string, array<string, string>>
      */
-    public const array SLUGS = [
-        'privacy' => ['pl' => 'polityka-prywatnosci', 'en' => 'privacy-policy', 'de' => 'datenschutz'],
-        'cookies' => ['pl' => 'polityka-cookies', 'en' => 'cookie-policy', 'de' => 'cookie-richtlinie'],
-        'terms' => ['pl' => 'regulamin', 'en' => 'terms-of-service', 'de' => 'agb'],
-    ];
+    public const array SLUGS = LegalPages::SLUGS;
 
     /**
      * Title, meta description and sections (`heading => paragraphs`) per
