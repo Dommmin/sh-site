@@ -356,6 +356,7 @@ export function ResourceTable<Row>({
         <Stack gap="default">
             {header && (
                 <PageHeader
+                    density="compact"
                     title={header.title}
                     description={header.description}
                     actions={header.actions}
@@ -445,55 +446,66 @@ export function ResourceTable<Row>({
                     {bulkActions && (
                         <>
                             {/*
-                             * Always rendered while bulk actions exist, so the
-                             * first selection does not shift the table under
-                             * the pointer; actions stay disabled until a row
-                             * is selected.
+                             * The count is always announced from a live
+                             * region; the actions float over the bottom of
+                             * the viewport once a row is selected, so the
+                             * table never shifts under the pointer and no
+                             * idle destructive button sits above the list.
                              */}
-                            <div
-                                role="toolbar"
-                                aria-label={bulkActions.label}
-                                className="bg-surface-subtle border-border-subtle rounded-lg border px-4 py-2"
+                            <span
+                                role="status"
+                                aria-live="polite"
+                                className="sr-only"
                             >
-                                <Inline gap="tight" align="center" wrap>
-                                    <span
-                                        role="status"
-                                        aria-live="polite"
-                                        className="text-foreground me-auto text-sm font-medium"
-                                    >
-                                        {bulkActions.selectedSummary(
-                                            selection.size,
-                                        )}
-                                    </span>
-                                    {bulkActions.actions.map((action) => (
+                                {bulkActions.selectedSummary(selection.size)}
+                            </span>
+                            {selection.size > 0 && (
+                                <div
+                                    role="toolbar"
+                                    aria-label={bulkActions.label}
+                                    className="bg-popover text-popover-foreground border-border-subtle motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:fade-in fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-xl items-center gap-2 rounded-xl border px-4 py-2 shadow-xl"
+                                >
+                                    <Inline gap="tight" align="center" wrap>
+                                        <span
+                                            aria-hidden="true"
+                                            className="text-foreground me-auto text-sm font-medium"
+                                        >
+                                            {bulkActions.selectedSummary(
+                                                selection.size,
+                                            )}
+                                        </span>
+
+                                        {bulkActions.actions.map((action) => (
+                                            <Button
+                                                key={action.id}
+                                                size="sm"
+                                                variant={
+                                                    action.tone ===
+                                                    'destructive'
+                                                        ? 'destructive'
+                                                        : 'outline'
+                                                }
+                                                disabled={selection.size === 0}
+                                                onClick={() =>
+                                                    setConfirming(action)
+                                                }
+                                            >
+                                                {action.label}
+                                            </Button>
+                                        ))}
                                         <Button
-                                            key={action.id}
                                             size="sm"
-                                            variant={
-                                                action.tone === 'destructive'
-                                                    ? 'destructive'
-                                                    : 'outline'
-                                            }
+                                            variant="ghost"
                                             disabled={selection.size === 0}
                                             onClick={() =>
-                                                setConfirming(action)
+                                                setSelectedKeys(new Set())
                                             }
                                         >
-                                            {action.label}
+                                            {bulkActions.clearLabel}
                                         </Button>
-                                    ))}
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        disabled={selection.size === 0}
-                                        onClick={() =>
-                                            setSelectedKeys(new Set())
-                                        }
-                                    >
-                                        {bulkActions.clearLabel}
-                                    </Button>
-                                </Inline>
-                            </div>
+                                    </Inline>
+                                </div>
+                            )}
                             {confirming && (
                                 <ConfirmDialog
                                     open

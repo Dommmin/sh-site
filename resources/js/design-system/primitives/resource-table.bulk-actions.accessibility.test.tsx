@@ -117,13 +117,14 @@ function buttonByText(text: string): HTMLButtonElement | undefined {
 }
 
 function expectNothingSelected(container: HTMLElement): void {
-    const toolbar = container.querySelector('[role="toolbar"]');
-
-    expect(toolbar?.getAttribute('aria-label')).toBe('Bulk actions');
-    expect(toolbar?.querySelector('[role="status"]')?.textContent).toBe(
+    // The count stays announced; the floating toolbar appears only with a selection.
+    expect(container.querySelector('[role="status"]')?.textContent).toBe(
         'Nothing selected',
     );
-    expect(buttonByText('Delete selected')?.disabled).toBe(true);
+    expect(container.querySelector('[role="toolbar"]')).toBeNull();
+    // No idle (destructive) actions until a row is selected.
+    expect(buttonByText('Delete selected')).toBeUndefined();
+    expect(buttonByText('Clear selection')).toBeUndefined();
 }
 
 async function click(element: HTMLElement | undefined): Promise<void> {
