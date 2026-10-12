@@ -95,6 +95,12 @@ return [
             'formExpired' => 'This form has expired. Please reload the page and try again.',
         ],
     ],
+    'comingSoon' => [
+        'title' => 'Coming soon',
+        'heading' => 'We are launching soon',
+        'description' => 'Our new website is almost ready. Please come back in a few days.',
+        'contact' => 'Questions? Write to :email.',
+    ],
     'site' => [
         'defaultTitle' => 'Punkt Startowy — Websites and web apps for small businesses',
         'defaultDescription' => 'Punkt Startowy designs and builds clear, fast websites and simple web apps for small businesses.',

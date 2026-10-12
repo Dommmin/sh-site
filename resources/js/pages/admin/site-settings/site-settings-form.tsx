@@ -20,6 +20,27 @@ import {
 
 type EditorData = App.Data.Admin.Settings.SiteSettingsEditorData;
 type SocialNetwork = App.Enums.SocialNetwork;
+type Weekday = App.Enums.Weekday;
+
+const WEEKDAYS: Weekday[] = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+];
+
+const ACCENTS: App.Enums.AccentColor[] = [
+    'default',
+    'blue',
+    'violet',
+    'rose',
+    'green',
+];
+const TYPOGRAPHY_PRESETS: App.Enums.TypographyPreset[] = ['default', 'classic'];
+const THEMES: App.Enums.ThemePreference[] = ['system', 'light', 'dark'];
 
 /** Request keys of the settings shared by every language. */
 const SHARED_FIELDS = [
@@ -33,6 +54,13 @@ const SHARED_FIELDS = [
     'city',
     'country_code',
     'contact_recipient_email',
+    'accent',
+    'typography',
+    'default_theme',
+    'favicon_media_id',
+    'tax_id',
+    'map_url',
+    'google_site_verification',
 ] as const;
 
 /** Request keys of the texts of one language (`translations.{locale}.*`). */
@@ -47,9 +75,12 @@ type SharedField = (typeof SHARED_FIELDS)[number];
 type TranslationField = (typeof TRANSLATION_FIELDS)[number];
 type TranslationState = Record<TranslationField, string>;
 
+type OpeningHoursState = Record<Weekday, { opens: string; closes: string }>;
+
 type SiteSettingsFormState = Record<SharedField, string> & {
     social_links: Record<SocialNetwork, string>;
     translations: Record<string, TranslationState>;
+    opening_hours: OpeningHoursState;
 };
 
 /**
@@ -60,6 +91,10 @@ type TabValues = Record<string, string>;
 
 function socialField(network: SocialNetwork): string {
     return `social_links.${network}`;
+}
+
+function hoursField(day: Weekday, edge: 'opens' | 'closes'): string {
+    return `opening_hours.${day}.${edge}`;
 }
 
 function translationPrefix(locale: string): string {
@@ -113,6 +148,17 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
         city: settings.city ?? '',
         country_code: settings.countryCode ?? '',
         contact_recipient_email: settings.contactRecipientEmail ?? '',
+        accent: settings.accent ?? '',
+        typography: settings.typography ?? '',
+        default_theme: settings.defaultTheme,
+        favicon_media_id:
+            settings.faviconMediaId === null
+                ? ''
+                : String(settings.faviconMediaId),
+        tax_id: settings.taxId ?? '',
+        map_url: settings.mapUrl ?? '',
+        google_site_verification: settings.googleSiteVerification ?? '',
+        opening_hours: { ...settings.openingHours },
         social_links: { ...settings.socialLinks },
         translations: Object.fromEntries(
             locales.available.map((locale) => [
@@ -131,6 +177,10 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
     const inlineKeys = new Set<string>([
         ...SHARED_FIELDS,
         ...socialNetworks.map((option) => socialField(option.network)),
+        ...WEEKDAYS.flatMap((day) => [
+            hoursField(day, 'opens'),
+            hoursField(day, 'closes'),
+        ]),
         ...locales.available.flatMap((locale) =>
             TRANSLATION_FIELDS.map(
                 (field) => `${translationPrefix(locale.code)}${field}`,
@@ -168,6 +218,21 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
     }, [form.isDirty, t]);
 
     function handleChange(code: string, name: string, value: string) {
+        if (name.startsWith('opening_hours.')) {
+            const [, day, edge] = name.split('.') as [
+                string,
+                Weekday,
+                'opens' | 'closes',
+            ];
+
+            form.setData('opening_hours', {
+                ...form.data.opening_hours,
+                [day]: { ...form.data.opening_hours[day], [edge]: value },
+            });
+
+            return;
+        }
+
         if (name.startsWith('social_links.')) {
             const network = name.slice('social_links.'.length) as SocialNetwork;
 
@@ -211,6 +276,17 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
             city: nullable(data.city),
             country_code: nullable(data.country_code),
             contact_recipient_email: nullable(data.contact_recipient_email),
+            accent: nullable(data.accent),
+            typography: nullable(data.typography),
+            default_theme: data.default_theme,
+            favicon_media_id:
+                data.favicon_media_id === ''
+                    ? null
+                    : Number(data.favicon_media_id),
+            tax_id: nullable(data.tax_id),
+            map_url: nullable(data.map_url),
+            google_site_verification: nullable(data.google_site_verification),
+            opening_hours: data.opening_hours,
             social_links: data.social_links,
             translations: data.translations,
         }));
@@ -314,6 +390,62 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                 ],
             },
             {
+                id: 'appearance',
+                title: t('admin.siteSettings.sections.appearance.title'),
+                description: t(
+                    'admin.siteSettings.sections.appearance.description',
+                ),
+                fields: [
+                    {
+                        type: 'select',
+                        name: 'accent',
+                        label: t('admin.siteSettings.fields.accent'),
+                        hint: t('admin.siteSettings.fields.accentHelp'),
+                        placeholder: t(
+                            'admin.siteSettings.fields.accentFromConfig',
+                        ),
+                        options: ACCENTS.map((accent) => ({
+                            value: accent,
+                            label: t(`admin.siteSettings.accents.${accent}`),
+                        })),
+                    },
+                    {
+                        type: 'select',
+                        name: 'typography',
+                        label: t('admin.siteSettings.fields.typography'),
+                        hint: t('admin.siteSettings.fields.typographyHelp'),
+                        placeholder: t(
+                            'admin.siteSettings.typographyPresets.default',
+                        ),
+                        options: TYPOGRAPHY_PRESETS.map((preset) => ({
+                            value: preset,
+                            label: t(
+                                `admin.siteSettings.typographyPresets.${preset}`,
+                            ),
+                        })),
+                    },
+                    {
+                        type: 'select',
+                        name: 'default_theme',
+                        label: t('admin.siteSettings.fields.defaultTheme'),
+                        hint: t('admin.siteSettings.fields.defaultThemeHelp'),
+                        required: true,
+                        options: THEMES.map((theme) => ({
+                            value: theme,
+                            label: t(`admin.siteSettings.themes.${theme}`),
+                        })),
+                    },
+                    {
+                        type: 'image',
+                        name: 'favicon_media_id',
+                        label: t('admin.siteSettings.fields.favicon'),
+                        hint: t('admin.siteSettings.fields.faviconHelp'),
+                        picker,
+                        labels: imageLabels,
+                    },
+                ],
+            },
+            {
                 id: 'contact',
                 title: t('admin.siteSettings.sections.contact.title'),
                 description: t(
@@ -360,7 +492,44 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                         label: t('admin.siteSettings.fields.countryCode'),
                         hint: t('admin.siteSettings.fields.countryCodeHelp'),
                     },
+                    {
+                        type: 'text',
+                        name: 'tax_id',
+                        label: t('admin.siteSettings.fields.taxId'),
+                        hint: t('admin.siteSettings.fields.taxIdHelp'),
+                    },
+                    {
+                        type: 'text',
+                        name: 'map_url',
+                        inputType: 'url',
+                        label: t('admin.siteSettings.fields.mapUrl'),
+                        hint: t('admin.siteSettings.fields.mapUrlHelp'),
+                        placeholder: 'https://',
+                    },
                 ],
+            },
+            {
+                id: 'hours',
+                title: t('admin.siteSettings.sections.hours.title'),
+                description: t('admin.siteSettings.sections.hours.description'),
+                fields: WEEKDAYS.flatMap((day) => [
+                    {
+                        type: 'text' as const,
+                        name: hoursField(day, 'opens'),
+                        label: t('admin.siteSettings.fields.opens', {
+                            day: t(`weekdays.${day}`),
+                        }),
+                        placeholder: '09:00',
+                    },
+                    {
+                        type: 'text' as const,
+                        name: hoursField(day, 'closes'),
+                        label: t('admin.siteSettings.fields.closes', {
+                            day: t(`weekdays.${day}`),
+                        }),
+                        placeholder: '17:00',
+                    },
+                ]),
             },
             {
                 id: 'social',
@@ -391,6 +560,16 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                         hint: t('admin.siteSettings.fields.ogImageHelp'),
                         picker,
                         labels: imageLabels,
+                    },
+                    {
+                        type: 'text',
+                        name: 'google_site_verification',
+                        label: t(
+                            'admin.siteSettings.fields.googleVerification',
+                        ),
+                        hint: t(
+                            'admin.siteSettings.fields.googleVerificationHelp',
+                        ),
                     },
                 ],
             },
@@ -496,6 +675,18 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                             socialNetworks.map((option) => [
                                 socialField(option.network),
                                 form.data.social_links[option.network] ?? '',
+                            ]),
+                        ),
+                        ...Object.fromEntries(
+                            WEEKDAYS.flatMap((day) => [
+                                [
+                                    hoursField(day, 'opens'),
+                                    form.data.opening_hours[day].opens,
+                                ],
+                                [
+                                    hoursField(day, 'closes'),
+                                    form.data.opening_hours[day].closes,
+                                ],
                             ]),
                         ),
                         ...form.data.translations[code],

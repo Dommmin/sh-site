@@ -214,6 +214,7 @@ class HandleInertiaRequests extends Middleware
                     ? $siteLogo->src
                     : (is_string($organizationLogo) && $organizationLogo !== '' ? url($organizationLogo) : null),
             ),
+            noindex: $this->siteSettings->isNoindex(),
         );
     }
 }

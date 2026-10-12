@@ -37,11 +37,8 @@ final class DemoContent
      * @var array<string, array<string, string>>
      */
     public const array PAGES = [
-        'privacy' => ['en' => 'privacy-policy', 'pl' => 'polityka-prywatnosci'],
         'upcoming' => ['en' => 'upcoming-offer'],
         'about' => ['de' => 'ueber-uns', 'en' => 'about-us', 'pl' => 'o-nas'],
-        'terms' => ['en' => 'terms-of-service', 'pl' => 'regulamin'],
-        'cookies' => ['pl' => 'polityka-cookies'],
         'contact-details' => ['en' => 'contact-details', 'pl' => 'dane-kontaktowe'],
         'careers' => ['en' => 'careers', 'pl' => 'kariera'],
         'accessibility' => ['en' => 'accessibility-statement', 'pl' => 'deklaracja-dostepnosci'],

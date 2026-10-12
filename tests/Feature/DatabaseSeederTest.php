@@ -23,6 +23,7 @@ use Database\Seeders\ArticleSeeder;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoUserSeeder;
 use Database\Seeders\HomeSectionSeeder;
+use Database\Seeders\LegalPageSeeder;
 use Database\Seeders\PageSeeder;
 use Database\Seeders\SiteSettingsSeeder;
 use Illuminate\Support\Carbon;
@@ -148,14 +149,15 @@ test('the local seed keeps a site name that is already saved', function () {
         ->and(SiteSetting::query()->value('contact_email'))->not->toBeNull();
 });
 
-test('outside the local environment only menus and home sections are seeded', function (string $environment) {
+test('outside the local environment only legal page drafts, menus and home sections are seeded', function (string $environment) {
     $this->app['env'] = $environment;
 
     $this->artisan('db:seed', ['--class' => DatabaseSeeder::class, '--force' => true])->assertSuccessful();
 
     expect(User::query()->exists())->toBeFalse()
         ->and(MediaAsset::query()->exists())->toBeFalse()
-        ->and(Page::query()->exists())->toBeFalse()
+        ->and(Page::query()->count())->toBe(count(LegalPageSeeder::SLUGS))
+        ->and(PageTranslation::query()->where('status', '!=', PublicationStatus::Draft->value)->exists())->toBeFalse()
         ->and(Article::query()->exists())->toBeFalse()
         ->and(Faq::query()->exists())->toBeFalse()
         ->and(ContactMessage::query()->exists())->toBeFalse()

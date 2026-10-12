@@ -512,10 +512,35 @@ declare namespace App {
                         string,
                         App.Data.Admin.Settings.SiteSettingTranslationFormData
                     >;
+                    accent: App.Enums.AccentColor | null;
+                    typography: App.Enums.TypographyPreset | null;
+                    defaultTheme: App.Enums.ThemePreference;
+                    faviconMediaId: number | null;
+                    taxId: string | null;
+                    mapUrl: string | null;
+                    openingHours: {
+                        [day in App.Enums.Weekday]: {
+                            opens: string;
+                            closes: string;
+                        };
+                    };
+                    googleSiteVerification: string | null;
                 };
                 export type SocialNetworkOptionData = {
                     network: App.Enums.SocialNetwork;
                     label: string;
+                };
+            }
+            namespace System {
+                export type LaunchCheckData = {
+                    key: App.Enums.LaunchCheck;
+                    done: boolean;
+                };
+                export type SiteLaunchData = {
+                    comingSoon: boolean;
+                    noindex: boolean;
+                    checklist: App.Data.Admin.System.LaunchCheckData[];
+                    testMailRecipient: string;
                 };
             }
             namespace Users {
@@ -567,6 +592,9 @@ declare namespace App {
                 cover: App.Data.Media.MediaImageData | null;
                 coverAlt: string;
             };
+            export type ComingSoonPageData = {
+                contactEmail: string | null;
+            };
             export type ContentLocaleData = {
                 code: string;
                 name: string;
@@ -613,6 +641,7 @@ declare namespace App {
             export type WelcomePageData = {
                 contactForm: App.Data.Contact.ContactFormData;
                 sections: App.Data.Home.HomeSectionData[];
+                organizationJsonLd: Record<string, unknown>;
             };
         }
         namespace Errors {
@@ -882,6 +911,7 @@ declare namespace App {
                 defaultTitle: string;
                 defaultDescription: string | null;
                 organization: App.Data.Seo.SeoOrganizationData;
+                noindex: boolean;
             };
             export type SeoOrganizationData = {
                 name: string;
@@ -890,10 +920,18 @@ declare namespace App {
             };
         }
         namespace Settings {
+            export type OpeningHoursDayData = {
+                day: App.Enums.Weekday;
+                opens: string | null;
+                closes: string | null;
+            };
             export type SiteContactData = {
                 email: string | null;
                 phone: string | null;
                 address: string | null;
+                taxId: string | null;
+                mapUrl: string | null;
+                openingHours: App.Data.Settings.OpeningHoursDayData[] | null;
             };
             export type SiteSettingsData = {
                 name: string;
@@ -990,6 +1028,11 @@ declare namespace App {
             | 'portfolio'
             | 'team'
             | 'pricing';
+        export type LaunchCheck =
+            | 'admin_two_factor'
+            | 'test_mail'
+            | 'search_console'
+            | 'legal_pages';
         export type MediaStatus = 'quarantine' | 'clean' | 'rejected';
         export type MenuItemType =
             | 'page'
@@ -1008,7 +1051,17 @@ declare namespace App {
             | 'youtube'
             | 'tiktok'
             | 'github';
+        export type ThemePreference = 'light' | 'dark' | 'system';
+        export type TypographyPreset = 'default' | 'classic';
         export type UserRole = 'admin' | 'editor';
+        export type Weekday =
+            | 'monday'
+            | 'tuesday'
+            | 'wednesday'
+            | 'thursday'
+            | 'friday'
+            | 'saturday'
+            | 'sunday';
     }
 }
 declare namespace Illuminate {
