@@ -101,3 +101,4 @@ export * from './text-field';
 export * from './textarea-field';
 export * from './theme-switcher';
 export * from './tooltip';
+export * from './typography-preview';

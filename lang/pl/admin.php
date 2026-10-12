@@ -1269,6 +1269,7 @@ return [
                 'longLabel' => 'Celowo długa etykieta pozycji nawigacji',
             ],
             'navigation' => [
+                'companyDetails' => 'Dane firmy: NIP, link do mapy i pogrupowane godziny otwarcia',
                 'title' => 'WEB-01 — Nawigacja',
                 'description' => 'PublicChrome, PublicHeader, MobileNav, BrandLogo i Footer ze wszystkimi rodzajami NavItem.',
                 'headerInContext' => 'Nagłówek i stopka tej strony to żywe demo: podmenu z rodzicem-linkiem, grupa, link wewnętrzny, link zewnętrzny otwierany w nowej karcie i długa etykieta.',
@@ -1282,6 +1283,12 @@ return [
                 'address' => "ul. Przykładowa 1\n00-001 Warszawa",
             ],
             'landing' => [
+                'typography' => [
+                    'default' => 'Domyślny — nagłówki bezszeryfowe',
+                    'classic' => 'Klasyczny — nagłówki Fraunces',
+                    'heading' => 'Świeże pieczywo każdego ranka',
+                    'body' => 'Tekst treści zostaje w Instrument Sans w obu presetach.',
+                ],
                 'title' => 'WEB-02 — Landing',
                 'description' => 'Hero, FeatureGrid, CTA i sekcje strony głównej z danymi i bez.',
                 'primaryAction' => 'Skontaktuj się',

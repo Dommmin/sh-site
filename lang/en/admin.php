@@ -1267,6 +1267,7 @@ return [
                 'longLabel' => 'A deliberately long navigation label',
             ],
             'navigation' => [
+                'companyDetails' => 'Company details: tax ID, map link and grouped opening hours',
                 'title' => 'WEB-01 — Navigation',
                 'description' => 'PublicChrome, PublicHeader, MobileNav, BrandLogo and Footer with every NavItem kind.',
                 'headerInContext' => 'The header and footer of this page are the live demo: a submenu with a linked parent, a group, an internal link, an external link opening in a new tab and a long label.',
@@ -1280,6 +1281,12 @@ return [
                 'address' => "Demo Street 1\n00-001 Warsaw",
             ],
             'landing' => [
+                'typography' => [
+                    'default' => 'Default — sans-serif headings',
+                    'classic' => 'Classic — Fraunces headings',
+                    'heading' => 'Fresh bread every morning',
+                    'body' => 'Body text stays in Instrument Sans in both presets.',
+                ],
                 'title' => 'WEB-02 — Landing',
                 'description' => 'Hero, FeatureGrid, CTA and the home page sections with and without data.',
                 'primaryAction' => 'Get in touch',

@@ -5,11 +5,13 @@ import {
     Button,
     CTA,
     FeatureGrid,
+    Heading,
     Hero,
     Image,
     Stack,
     StatList,
     Text,
+    TypographyPreview,
     type FeatureGridItem,
     type StatListItem,
 } from '@/design-system/primitives';
@@ -175,6 +177,32 @@ function LandingSection() {
 
     return (
         <Stack gap="default">
+            <ShowcaseComponent
+                name="TypographyPreview · --font-heading"
+                layout="wide"
+                notApplicable={['loading', 'empty', 'error', 'disabled']}
+            >
+                {(['default', 'classic'] as const).map((preset) => (
+                    <ShowcaseState
+                        key={preset}
+                        state={preset === 'default' ? 'default' : 'variants'}
+                        detail={demo(`typography.${preset}`)}
+                    >
+                        <TypographyPreview preset={preset}>
+                            <Stack gap="tight">
+                                <Heading level={3} variant="section">
+                                    {demo('typography.heading')}
+                                </Heading>
+                                <Text variant="figure">128</Text>
+                                <Text tone="muted">
+                                    {demo('typography.body')}
+                                </Text>
+                            </Stack>
+                        </TypographyPreview>
+                    </ShowcaseState>
+                ))}
+            </ShowcaseComponent>
+
             <ShowcaseComponent
                 name="Hero"
                 layout="full"

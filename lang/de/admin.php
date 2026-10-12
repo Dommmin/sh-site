@@ -1267,6 +1267,7 @@ return [
                 'longLabel' => 'Eine absichtlich lange Navigationsbezeichnung',
             ],
             'navigation' => [
+                'companyDetails' => 'Firmendaten: Steuernummer, Kartenlink und gruppierte Öffnungszeiten',
                 'title' => 'WEB-01 — Navigation',
                 'description' => 'PublicChrome, PublicHeader, MobileNav, BrandLogo und Footer mit allen NavItem-Arten.',
                 'headerInContext' => 'Kopf- und Fußzeile dieser Seite sind die Live-Demo: Untermenü mit verlinktem Elternelement, Gruppe, interner Link, externer Link in neuem Tab und lange Bezeichnung.',
@@ -1280,6 +1281,12 @@ return [
                 'address' => "Beispielstraße 1\n10115 Berlin",
             ],
             'landing' => [
+                'typography' => [
+                    'default' => 'Standard — serifenlose Überschriften',
+                    'classic' => 'Klassisch — Fraunces-Überschriften',
+                    'heading' => 'Frisches Brot jeden Morgen',
+                    'body' => 'Der Fließtext bleibt in beiden Vorgaben in Instrument Sans.',
+                ],
                 'title' => 'WEB-02 — Landing',
                 'description' => 'Hero, FeatureGrid, CTA und die Startseitenbereiche mit und ohne Daten.',
                 'primaryAction' => 'Kontakt aufnehmen',
