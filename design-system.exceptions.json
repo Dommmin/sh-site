@@ -1,74 +1,16 @@
 [
     {
-        "id": "DS-EXC-UPSTREAM-COMPONENTS-INPUT-ERROR",
-        "rule": "ds/no-style-escape",
-        "file": "resources/js/components/input-error.tsx",
-        "contentHash": "sha256:131f7a8d772ae2ad4c9d2335db4d94f7ef58afe7d5f3fe94713cacdd449bbbcd",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
-        "scope": "className in component/layout markup",
-        "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit; zawężone 2026-09-30 (przegląd ekranów konta, PR #24), zatwierdzone przez właściciela 2026-10-01",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
-        "lineRanges": [
-            [
-                6,
-                6
-            ],
-            [
-                10,
-                10
-            ]
-        ]
-    },
-    {
-        "id": "DS-EXC-UPSTREAM-COMPONENTS-PASSWORD-INPUT",
-        "rule": "ds/no-style-escape",
-        "file": "resources/js/components/password-input.tsx",
-        "contentHash": "sha256:948b23a312dd5c8894acabdb6e0612fed8ea84d0129efcaeb5881427f6d38913",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
-        "scope": "className in component/layout markup",
-        "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit; zawężone 2026-09-30 (przegląd ekranów konta, PR #24), zatwierdzone przez właściciela 2026-10-01",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
-        "lineRanges": [
-            [
-                17,
-                17
-            ],
-            [
-                20,
-                20
-            ],
-            [
-                27,
-                27
-            ],
-            [
-                36,
-                36
-            ],
-            [
-                38,
-                38
-            ]
-        ]
-    },
-    {
         "id": "DS-EXC-UPSTREAM-COMPONENTS-UI-AVATAR",
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/ui/avatar.tsx",
         "contentHash": "sha256:1e8837e409f4ede09137c6a01d290047ac2c0c306991d4872cf499c77b9aff2a",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Vendorowana baza shadcn/Radix (ADR-019: baza implementacyjna, nie API ekranów); ekrany jej nie importują, korzystają z niej wyłącznie prymitywy DS",
+        "alternatives": "Przenieść do katalogu prymitywów jako wewnętrzną implementację albo zastąpić prymitywem DS, gdy powstanie odpowiednik",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 13,
@@ -89,13 +31,13 @@
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/ui/dialog.tsx",
         "contentHash": "sha256:ca9fc2582c30924a90f294d1a11b3cc39a2acb0c0224f2704eb9a2167a557c54",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Vendorowana baza shadcn/Radix (ADR-019: baza implementacyjna, nie API ekranów); ekrany jej nie importują, korzystają z niej wyłącznie prymitywy DS",
+        "alternatives": "Przenieść do katalogu prymitywów jako wewnętrzną implementację albo zastąpić prymitywem DS, gdy powstanie odpowiednik",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 38,
@@ -132,13 +74,13 @@
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/ui/dropdown-menu.tsx",
         "contentHash": "sha256:f5f8b2a584f42085b647fe59a009d6238ddfc61d1aa1325561cb543f95d1189a",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Vendorowana baza shadcn/Radix (ADR-019: baza implementacyjna, nie API ekranów); ekrany jej nie importują, korzystają z niej wyłącznie prymitywy DS",
+        "alternatives": "Przenieść do katalogu prymitywów jako wewnętrzną implementację albo zastąpić prymitywem DS, gdy powstanie odpowiednik",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 42,
@@ -191,59 +133,17 @@
         ]
     },
     {
-        "id": "DS-EXC-UPSTREAM-COMPONENTS-UI-INPUT",
-        "rule": "ds/no-style-escape",
-        "file": "resources/js/components/ui/input.tsx",
-        "contentHash": "sha256:17da6ceadd3932f8c4269c34e29fcdad73e490bff5bcf76b6c57d47656631695",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
-        "scope": "className in component/layout markup",
-        "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
-        "lineRanges": [
-            [
-                10,
-                10
-            ],
-            [
-                13,
-                13
-            ]
-        ]
-    },
-    {
-        "id": "DS-EXC-UPSTREAM-COMPONENTS-UI-LABEL",
-        "rule": "ds/no-style-escape",
-        "file": "resources/js/components/ui/label.tsx",
-        "contentHash": "sha256:883e35baf22dee1847066678ada2a6aabca32a91c1de4fdc074c6c48140498fe",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
-        "scope": "className in component/layout markup",
-        "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
-        "lineRanges": [
-            [
-                13,
-                13
-            ]
-        ]
-    },
-    {
         "id": "DS-EXC-UPSTREAM-COMPONENTS-UI-SELECT",
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/ui/select.tsx",
         "contentHash": "sha256:b4e61d449d531da0caf056862ecc214450672ca20c5abdd19f367962c3a0c3f5",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Vendorowana baza shadcn/Radix (ADR-019: baza implementacyjna, nie API ekranów); ekrany jej nie importują, korzystają z niej wyłącznie prymitywy DS",
+        "alternatives": "Przenieść do katalogu prymitywów jako wewnętrzną implementację albo zastąpić prymitywem DS, gdy powstanie odpowiednik",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 37,
@@ -304,13 +204,13 @@
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/ui/tooltip.tsx",
         "contentHash": "sha256:616e0392245fc59e083fda696ce3512c5fe395351550bfa54bd4b28fd33fd09a",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Vendorowana baza shadcn/Radix (ADR-019: baza implementacyjna, nie API ekranów); ekrany jej nie importują, korzystają z niej wyłącznie prymitywy DS",
+        "alternatives": "Przenieść do katalogu prymitywów jako wewnętrzną implementację albo zastąpić prymitywem DS, gdy powstanie odpowiednik",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 42,
@@ -327,13 +227,13 @@
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/user-info.tsx",
         "contentHash": "sha256:d94732380d4339fcfeed37799c406a2bf63f36d43046fc0302b209eec40d829e",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Menu konta w PublicHeader zbudowane na scaffoldzie starter kitu; brak prymitywu menu konta w publicznym API DS",
+        "alternatives": "Złożyć menu konta z prymitywów (Avatar, ActionMenu) w PublicHeader i usunąć oba pliki",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 16,
@@ -350,13 +250,13 @@
         "rule": "ds/no-style-escape",
         "file": "resources/js/components/user-menu-content.tsx",
         "contentHash": "sha256:c34337ce37a53a7801f698fd5f37be97fd6e87b4041c51e03006f09be8e4d92b",
-        "reason": "Upstream scaffold pending design system primitives refactoring",
-        "alternatives": "Refactor using design system primitives",
+        "reason": "Menu konta w PublicHeader zbudowane na scaffoldzie starter kitu; brak prymitywu menu konta w publicznym API DS",
+        "alternatives": "Złożyć menu konta z prymitywów (Avatar, ActionMenu) w PublicHeader i usunąć oba pliki",
         "scope": "className in component/layout markup",
         "owner": "starter-foundation",
-        "reviewRef": "ADR-019 full audit",
-        "expires": "2026-10-31",
-        "task": "P0-B Task 09",
+        "reviewRef": "Przegląd D9 2026-10-12 (docs/foundation/15-review-plan-2026-10-12.md, fala 2), decyzja właściciela: usunąć co się da, resztę przedłużyć z nowym terminem i powodem",
+        "expires": "2027-01-31",
+        "task": "Fala 2 D9: owinąć lub usunąć do 2027-01-31",
         "lineRanges": [
             [
                 34,
