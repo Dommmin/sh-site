@@ -39,6 +39,5 @@ CI (`.github/workflows/ci.yml`): `commit-convention`, `secrets`, `quality`, `tes
 
 ## Znane rozbieżności z dokumentami
 
-- `Password::defaults()` ma minimum 8 znaków, a [02](02-security-and-access.md) wymaga 15; decyzja D11 (rekomendacja 12) czeka na zmianę kodu.
 - CSP i bramka `composer audit`/`npm audit` są na gałęzi fali 1, jeszcze nie w `develop`.
 - Wsparcie MySQL istnieje tylko jako niezacommitowana praca na `feat/sh-showcase` (D8); ADR-004 pozostaje przy samym PostgreSQL.
