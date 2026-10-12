@@ -67,6 +67,9 @@ class AiConfigurationTest(unittest.TestCase):
         self.assertIn('name: commit-convention', ci)
         self.assertIn('name: secrets', ci)
         self.assertIn('name: quality', ci)
+        self.assertIn('name: audit', ci)
+        self.assertIn('composer audit --locked --no-dev --format=plain', ci)
+        self.assertIn('npm audit --omit=dev --audit-level=high', ci)
         self.assertIn('gitleaks/gitleaks-action@', ci)
         self.assertIn(
             'php artisan wayfinder:generate --with-form --no-interaction',
