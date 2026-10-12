@@ -314,7 +314,7 @@ Demo: lokalna strona publiczna [`/_design-system`](../../resources/js/pages/desi
 1. **Silniki techniczne i integracje** — komponenty budujemy własne. Ewentualne zależności techniczne dla dat/range, edycji treści, DnD, wykresów, wirtualizacji, realtime lub map wymagają osobnego wyboru, wersji, licencji i testu; nie są zakupem gotowego komponentu ani częścią jego publicznego API.
 2. **Tokeny `status-warning`/`status-info`** — brak w `resources/css/app.css`; potrzebne dla pełnego `Alert`/`Badge`, wymaga decyzji designowej per [05](05-design-system-and-frontend.md#rozszerzenie-i-wyjątek).
 3. **Uploady/DAM (ADM-06, APP-05)** — pozostają wyłączone w P0 zgodnie z [.claude/rules/security.md](../../.claude/rules/security.md); wymagają jawnej polityki przed jakimkolwiek kodem.
-4. **Migracja legacy komponentów** (`text-link.tsx`, `input-error.tsx`, `components/ui/sonner.tsx`) do zamkniętego API ADR-019 — istniejący dług, nie generowany w tej sesji, wymaga osobnego zadania i review.
+4. **Migracja legacy komponentów** do zamkniętego API ADR-019: `text-link.tsx` usunięty wcześniej; `input-error.tsx`, `password-input.tsx`, `ui/input.tsx` i `ui/label.tsx` usunięte 2026-10-12 (okno potwierdzenia hasła na `Dialog`/`PasswordField`, przegląd D9). Pozostaje `components/ui/sonner.tsx` i 7 wyjątków z terminem 2027-01-31 w `design-system.exceptions.json`.
 5. **Kontrakt backendowy formularza kontaktowego (WEB-05)** — nie istnieje endpoint mail/lead; `ContactSection` jest gotowy jako komponent prezentacyjny, ale nie jest podłączony do żadnej trasy.
 6. **Model treści bloga (WEB-04)** — nie zrealizowano w tej partii; wymaga `app/Models/Post` lub odpowiednika przed jakimkolwiek UI.
 
