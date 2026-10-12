@@ -7,6 +7,7 @@ return [
         'secondPart' => 'Startowy',
     ],
     'a11y' => [
+        'backToTop' => 'Wróć na górę strony',
         'skipToContent' => 'Przejdź do głównej treści',
         'mainNavigation' => 'Nawigacja główna',
         'userMenu' => 'Menu użytkownika',

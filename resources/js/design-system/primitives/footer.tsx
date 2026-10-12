@@ -36,6 +36,8 @@ export type FooterProps = {
     logo?: BrandLogoImage;
     /** One-tone text logo name; the catalog brand otherwise. */
     brandName?: string;
+    /** One-sentence brand promise under the logo, e.g. the site tagline. */
+    description?: string;
     /** Translated copyright line, e.g. "© 2026 Acme. All rights reserved." */
     copyright: string;
     /** Rendered after the copyright line, e.g. a LocaleSwitcher. */
@@ -56,9 +58,9 @@ function FooterColumn({
 }) {
     return (
         <div className="flex min-w-0 flex-col gap-3 wrap-anywhere">
-            <Text variant="label" as="p">
+            <h2 className="text-foreground text-xs font-medium sm:text-sm">
                 {title}
-            </Text>
+            </h2>
             <ul className="flex flex-col gap-2">{children}</ul>
         </div>
     );
@@ -74,14 +76,14 @@ export function Footer({
     social = [],
     logo,
     brandName,
+    description,
     copyright,
     trailing,
 }: FooterProps) {
     const { t } = useTranslation();
-    const hasContact = Boolean(
-        contact?.email || contact?.phone || contact?.address,
-    );
-    const hasColumns = groups.length > 0 || hasContact || social.length > 0;
+    // Contact details lead the brand block (the e-mail as the main way to
+    // get in touch); the columns hold navigation and social profiles only.
+    const hasColumns = groups.length > 0 || social.length > 0;
     const groupColumns = groups.filter(
         (group) => (group.children ?? []).length > 0,
     );
@@ -90,31 +92,46 @@ export function Footer({
         .filter(isNavLink);
 
     return (
-        <footer className="border-border-subtle border-t">
+        <footer className="bg-surface-subtle border-border-subtle border-t">
             <Container width="wide" padding="page">
-                <div className="flex flex-col gap-8 py-10 sm:py-12">
-                    {hasColumns && (
-                        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-                            {looseLinks.length > 0 && (
-                                <FooterColumn title={t('footer.links')}>
-                                    {looseLinks.map((link) => (
-                                        <li key={link.id}>
-                                            <NavItemLink
-                                                item={link}
-                                                classes={linkClasses}
-                                            />
-                                        </li>
-                                    ))}
-                                </FooterColumn>
+                <div className="flex flex-col gap-10 py-12 sm:py-16">
+                    <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
+                        <div className="flex max-w-md flex-col items-start gap-5 lg:col-span-5">
+                            <BrandLogo image={logo} name={brandName} />
+                            {description && (
+                                <Text tone="muted">{description}</Text>
                             )}
-                            {groupColumns.map((group) => (
-                                <FooterColumn
-                                    key={group.id}
-                                    title={group.label}
+                            {contact?.email && (
+                                <a
+                                    href={`mailto:${contact.email}`}
+                                    className="text-foreground hover:text-primary focus-visible:ring-ring decoration-primary/40 rounded-sm font-serif text-xl font-semibold tracking-tight wrap-anywhere underline underline-offset-8 transition-colors duration-150 hover:decoration-current focus-visible:ring-2 focus-visible:outline-none sm:text-2xl"
                                 >
-                                    {(group.children ?? [])
-                                        .filter(isNavLink)
-                                        .map((link) => (
+                                    {contact.email}
+                                </a>
+                            )}
+                            {(contact?.phone || contact?.address) && (
+                                <div className="flex flex-col gap-2">
+                                    {contact.phone && (
+                                        <a
+                                            href={telHref(contact.phone)}
+                                            className={linkClasses}
+                                        >
+                                            {contact.phone}
+                                        </a>
+                                    )}
+                                    {contact.address && (
+                                        <address className="text-muted-foreground text-sm whitespace-pre-line not-italic">
+                                            {contact.address}
+                                        </address>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        {hasColumns && (
+                            <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
+                                {looseLinks.length > 0 && (
+                                    <FooterColumn title={t('footer.links')}>
+                                        {looseLinks.map((link) => (
                                             <li key={link.id}>
                                                 <NavItemLink
                                                     item={link}
@@ -122,61 +139,47 @@ export function Footer({
                                                 />
                                             </li>
                                         ))}
-                                </FooterColumn>
-                            ))}
-                            {hasContact && contact && (
-                                <FooterColumn title={t('footer.contact')}>
-                                    {contact.email && (
-                                        <li>
-                                            <a
-                                                href={`mailto:${contact.email}`}
-                                                className={linkClasses}
-                                            >
-                                                {contact.email}
-                                            </a>
-                                        </li>
-                                    )}
-                                    {contact.phone && (
-                                        <li>
-                                            <a
-                                                href={telHref(contact.phone)}
-                                                className={linkClasses}
-                                            >
-                                                {contact.phone}
-                                            </a>
-                                        </li>
-                                    )}
-                                    {contact.address && (
-                                        <li>
-                                            <address className="text-muted-foreground text-sm whitespace-pre-line not-italic">
-                                                {contact.address}
-                                            </address>
-                                        </li>
-                                    )}
-                                </FooterColumn>
-                            )}
-                            {social.length > 0 && (
-                                <FooterColumn title={t('footer.social')}>
-                                    {social.map((link) => (
-                                        <li key={link.network}>
-                                            <NavItemLink
-                                                item={{
-                                                    id: link.network,
-                                                    label: link.label,
-                                                    href: link.url,
-                                                    kind: 'external',
-                                                    newTab: true,
-                                                }}
-                                                classes={linkClasses}
-                                            />
-                                        </li>
-                                    ))}
-                                </FooterColumn>
-                            )}
-                        </div>
-                    )}
+                                    </FooterColumn>
+                                )}
+                                {groupColumns.map((group) => (
+                                    <FooterColumn
+                                        key={group.id}
+                                        title={group.label}
+                                    >
+                                        {(group.children ?? [])
+                                            .filter(isNavLink)
+                                            .map((link) => (
+                                                <li key={link.id}>
+                                                    <NavItemLink
+                                                        item={link}
+                                                        classes={linkClasses}
+                                                    />
+                                                </li>
+                                            ))}
+                                    </FooterColumn>
+                                ))}
+                                {social.length > 0 && (
+                                    <FooterColumn title={t('footer.social')}>
+                                        {social.map((link) => (
+                                            <li key={link.network}>
+                                                <NavItemLink
+                                                    item={{
+                                                        id: link.network,
+                                                        label: link.label,
+                                                        href: link.url,
+                                                        kind: 'external',
+                                                        newTab: true,
+                                                    }}
+                                                    classes={linkClasses}
+                                                />
+                                            </li>
+                                        ))}
+                                    </FooterColumn>
+                                )}
+                            </div>
+                        )}
+                    </div>
                     <div className="border-border-subtle flex flex-col items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-center">
-                        <BrandLogo image={logo} name={brandName} />
                         <Text variant="caption" tone="muted">
                             {copyright}
                         </Text>

@@ -109,6 +109,7 @@ export function PublicChrome({
                 social={social}
                 logo={resolvedLogo}
                 brandName={brandName}
+                description={withoutNull(site?.tagline)}
                 trailing={
                     auth?.user ? undefined : <ThemeSwitcher variant="inline" />
                 }

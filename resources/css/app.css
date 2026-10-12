@@ -5,7 +5,6 @@
 @source '../views';
 /* Compiled Blade views (e.g. Laravel error pages) are build noise, not UI sources. */
 @source not '../../storage';
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -108,8 +107,10 @@
     --border: oklch(0.91 0.01 85);
     --input: oklch(0.6 0.01 85);
     --ring: oklch(0.62 0.17 var(--accent-hue));
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
+    /* Validated data-viz pair (dataviz six checks, light surface): the
+       same two entities keep their hues in both themes. */
+    --chart-1: #c2410c;
+    --chart-2: #3b6bc4;
     --chart-3: oklch(0.398 0.07 227.392);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
@@ -189,8 +190,9 @@
     --border: oklch(0.24 0.005 85);
     --input: oklch(0.52 0.01 85);
     --ring: oklch(0.66 0.17 var(--accent-hue));
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
+    /* Same entities as light, stepped for the dark surface (validated). */
+    --chart-1: #d45a17;
+    --chart-2: #5a8ae0;
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
