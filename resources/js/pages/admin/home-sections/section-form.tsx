@@ -18,6 +18,7 @@ import {
     MAX_FAQ_LIMIT,
     MAX_FEATURES,
     MAX_HERO_STATS,
+    MAX_TESTIMONIAL_STATS,
     CURRENCIES,
     HIGHLIGHT_NO,
     HIGHLIGHT_YES,
@@ -322,6 +323,37 @@ export function SectionForm({ editor }: SectionFormProps) {
             case 'testimonials':
                 return [
                     text('title'),
+                    {
+                        type: 'repeater',
+                        name: 'stats',
+                        label: t('admin.homeSections.fields.stats'),
+                        maxItems: MAX_TESTIMONIAL_STATS,
+                        newItem: () => ({ value: '', label: '' }),
+                        labels: {
+                            add: t('admin.homeSections.fields.statAdd'),
+                            item: (position) =>
+                                t('admin.homeSections.fields.statItem', {
+                                    position,
+                                }),
+                        },
+                        itemFields: [
+                            {
+                                type: 'text',
+                                name: 'value',
+                                label: t('admin.homeSections.fields.statValue'),
+                                hint: t(
+                                    'admin.homeSections.fields.statValueHint',
+                                ),
+                                required: true,
+                            },
+                            {
+                                type: 'text',
+                                name: 'label',
+                                label: t('admin.homeSections.fields.statLabel'),
+                                required: true,
+                            },
+                        ],
+                    },
                     {
                         type: 'repeater',
                         name: 'items',

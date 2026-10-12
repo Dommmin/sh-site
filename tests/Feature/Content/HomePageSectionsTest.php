@@ -206,6 +206,21 @@ test('actions are resolved to URLs of the locale and unavailable ones are droppe
         );
 });
 
+test('a portfolio action links to the portfolio section of the same page', function () {
+    HomeSection::factory()->ofType(HomeSectionType::Cta)->enabled()->create([
+        'content' => new CtaContentData(
+            title: 'CTA',
+            primaryAction: new HomeActionData(label: 'Our work', target: HomeLinkTarget::Portfolio),
+        ),
+    ]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertInertia(fn (Assert $inertia) => $inertia
+            ->where('sections.0.content.primaryAction', ['label' => 'Our work', 'url' => '#portfolio'])
+        );
+});
+
 test('guest-only actions follow the viewer: log in for guests, the panel for its users, nothing for others', function () {
     HomeSection::factory()->ofType(HomeSectionType::Cta)->enabled()->create([
         'content' => new CtaContentData(
