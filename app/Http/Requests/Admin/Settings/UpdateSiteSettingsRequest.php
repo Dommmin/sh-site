@@ -33,6 +33,9 @@ class UpdateSiteSettingsRequest extends FormRequest
      */
     private const string CONTROL_CHARACTERS = '/\p{Cc}/u';
 
+    /** Contact form recipients the settings accept. */
+    public const int MAX_RECIPIENTS = 5;
+
     /**
      * The route checks `update`; the request repeats it so it stays safe
      * when reused elsewhere.
@@ -83,6 +86,9 @@ class UpdateSiteSettingsRequest extends FormRequest
             'map_url' => ['nullable', 'string', 'max:500', $singleLine, 'starts_with:https://', 'url:https'],
             'google_site_verification' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_\-]+$/'],
             'opening_hours' => ['nullable', 'array:'.implode(',', array_column(Weekday::cases(), 'value'))],
+            'contact_recipients' => ['nullable', 'array', 'list', 'max:'.self::MAX_RECIPIENTS],
+            'contact_recipients.*' => ['required', 'string', 'max:254', $singleLine, 'email:rfc,strict', 'distinct:ignore_case'],
+            'contact_auto_reply' => ['required', 'boolean'],
         ];
 
         foreach (Weekday::cases() as $day) {
@@ -103,6 +109,7 @@ class UpdateSiteSettingsRequest extends FormRequest
             $rules["{$prefix}.footer_text"] = ['nullable', 'string', 'max:500'];
             $rules["{$prefix}.seo_title"] = ['nullable', 'string', 'max:70', $singleLine];
             $rules["{$prefix}.seo_description"] = ['nullable', 'string', 'max:320'];
+            $rules["{$prefix}.auto_reply_text"] = ['nullable', 'string', 'max:1000'];
         }
 
         return $rules;
@@ -147,6 +154,7 @@ class UpdateSiteSettingsRequest extends FormRequest
                 footerText: self::text($translation['footer_text'] ?? null),
                 seoTitle: self::text($translation['seo_title'] ?? null),
                 seoDescription: self::text($translation['seo_description'] ?? null),
+                autoReplyText: self::text($translation['auto_reply_text'] ?? null),
             );
         }
 
@@ -171,6 +179,11 @@ class UpdateSiteSettingsRequest extends FormRequest
             mapUrl: self::text($validated['map_url'] ?? null),
             openingHours: self::openingHours($validated['opening_hours'] ?? null),
             googleSiteVerification: self::text($validated['google_site_verification'] ?? null),
+            contactRecipients: array_values(array_map(
+                fn (mixed $email): string => trim((string) $email),
+                (array) ($validated['contact_recipients'] ?? []),
+            )),
+            contactAutoReply: (bool) $validated['contact_auto_reply'],
         );
     }
 

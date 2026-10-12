@@ -130,6 +130,21 @@ export default function AdminContactShow() {
                                 ? formatDate(contactMessage.sentAt)
                                 : null,
                         },
+                        ...(contactMessage.webhookStatus
+                            ? [
+                                  {
+                                      id: 'webhook',
+                                      label: t('admin.contact.fields.webhook'),
+                                      value: t('admin.contact.webhookStatus', {
+                                          status: t(
+                                              `admin.contact.webhookStatuses.${contactMessage.webhookStatus}`,
+                                          ),
+                                          attempts:
+                                              contactMessage.webhookAttempts,
+                                      }),
+                                  },
+                              ]
+                            : []),
                         {
                             id: 'message',
                             label: t('admin.contact.fields.message'),

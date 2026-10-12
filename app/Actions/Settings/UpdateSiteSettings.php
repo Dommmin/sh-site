@@ -62,9 +62,10 @@ class UpdateSiteSettings
         'google_site_verification',
         'coming_soon',
         'noindex',
+        'contact_auto_reply',
     ];
 
-    private const array TRANSLATION_FIELDS = ['tagline', 'footer_text', 'seo_title', 'seo_description'];
+    private const array TRANSLATION_FIELDS = ['tagline', 'footer_text', 'seo_title', 'seo_description', 'auto_reply_text'];
 
     public function __construct(
         private readonly RecordAuditEvent $audit,
@@ -99,7 +100,10 @@ class UpdateSiteSettings
                 'postal_code' => $input->postalCode,
                 'city' => $input->city,
                 'country_code' => $input->countryCode,
-                'contact_recipient_email' => $input->contactRecipientEmail,
+                // The first listed recipient also fills the single fallback column.
+                'contact_recipient_email' => $input->contactRecipients[0] ?? $input->contactRecipientEmail,
+                'contact_recipients' => $input->contactRecipients === [] ? null : $input->contactRecipients,
+                'contact_auto_reply' => $input->contactAutoReply,
                 'social_links' => $this->orderedSocialLinks($input->socialLinks),
                 'accent' => $input->accent,
                 'typography' => $input->typography,
@@ -223,8 +227,10 @@ class UpdateSiteSettings
             }
         }
 
-        if ($settings->isDirty('contact_recipient_email')) {
-            $changes['contact_recipient_email'] = RecordAuditEvent::redacted();
+        foreach (['contact_recipient_email', 'contact_recipients'] as $field) {
+            if ($settings->isDirty($field)) {
+                $changes[$field] = RecordAuditEvent::redacted();
+            }
         }
 
         return $changes;
@@ -264,6 +270,7 @@ class UpdateSiteSettings
                 'footer_text' => $input->footerText,
                 'seo_title' => $input->seoTitle,
                 'seo_description' => $input->seoDescription,
+                'auto_reply_text' => $input->autoReplyText,
             ]);
 
             foreach (self::TRANSLATION_FIELDS as $field) {

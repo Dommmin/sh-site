@@ -30,6 +30,8 @@ class SiteSettingFactory extends Factory
             'city' => fake()->city(),
             'country_code' => 'PL',
             'contact_recipient_email' => null,
+            'contact_recipients' => null,
+            'contact_auto_reply' => false,
             'social_links' => null,
             'accent' => null,
             'typography' => null,

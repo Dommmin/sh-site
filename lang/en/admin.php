@@ -737,6 +737,16 @@ return [
     ],
 
     'contact' => [
+        'export' => 'Export CSV',
+        'exportFilename' => 'contact-messages-:date.csv',
+        'exportTooLarge' => 'The export is limited to :max messages; narrow the filters.',
+        'columnId' => 'ID',
+        'webhookStatus' => ':status (attempts: :attempts)',
+        'webhookStatuses' => [
+            'pending' => 'Pending',
+            'delivered' => 'Delivered',
+            'failed' => 'Failed',
+        ],
         'title' => 'Contact messages',
         'navLabel' => 'Contact',
         'description' => 'Messages sent through the public contact form and their delivery status.',
@@ -777,6 +787,7 @@ return [
         'deleteConfirm' => 'Delete message',
         'cancel' => 'Cancel',
         'fields' => [
+            'webhook' => 'Webhook',
             'name' => 'Name',
             'email' => 'Email',
             'message' => 'Message',
@@ -926,6 +937,14 @@ return [
             'closes' => ':day — closes',
             'googleVerification' => 'Google Search Console token',
             'googleVerificationHelp' => 'Only the content value of the google-site-verification meta tag, without the tag itself.',
+            'recipients' => 'Contact form recipients',
+            'recipientsHelp' => 'Up to 5 addresses; every message goes to all of them. When empty, the address from the server configuration is used.',
+            'recipientAdd' => 'Add recipient',
+            'recipientItem' => 'Recipient :position',
+            'autoReply' => 'Automatic reply to the sender',
+            'autoReplyHelp' => 'Sends the text from the “Texts” section in the sender’s language. The reply never repeats the submitted message.',
+            'autoReplyText' => 'Automatic reply text',
+            'autoReplyTextHelp' => 'Sent to the sender when the automatic reply is on. Up to 1000 characters; the fallback language is used when empty.',
         ],
         'image' => [
             'choose' => 'Choose image',

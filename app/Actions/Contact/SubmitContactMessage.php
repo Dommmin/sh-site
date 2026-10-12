@@ -3,13 +3,19 @@
 namespace App\Actions\Contact;
 
 use App\Enums\ContactMessageStatus;
+use App\Enums\ContactWebhookStatus;
+use App\Jobs\DeliverContactWebhook;
+use App\Jobs\SendContactAutoReply;
 use App\Jobs\SendContactMessage;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Store a contact message as `pending` and queue its delivery once the
- * record is committed, so a lost job can be recovered from the database.
+ * Store a contact message as `pending` and, once the record is committed,
+ * queue its delivery to the owner, the webhook (when configured) and the
+ * auto-reply to the sender. Each runs as its own job, so a failing webhook
+ * or auto-reply never loses the message; a lost job can be recovered from
+ * the database.
  */
 class SubmitContactMessage
 {
@@ -21,9 +27,15 @@ class SubmitContactMessage
             'message' => $message,
             'locale' => $locale,
             'status' => ContactMessageStatus::Pending,
+            'webhook_status' => DeliverContactWebhook::isConfigured() ? ContactWebhookStatus::Pending : null,
         ]));
 
         SendContactMessage::dispatch($contactMessage->id)->afterCommit();
+        SendContactAutoReply::dispatch($contactMessage->id)->afterCommit();
+
+        if (DeliverContactWebhook::isConfigured()) {
+            DeliverContactWebhook::dispatch($contactMessage->id)->afterCommit();
+        }
 
         return $contactMessage;
     }

@@ -737,6 +737,16 @@ return [
     ],
 
     'contact' => [
+        'export' => 'Eksport CSV',
+        'exportFilename' => 'wiadomosci-kontaktowe-:date.csv',
+        'exportTooLarge' => 'Eksport obejmuje najwyżej :max wiadomości; zawęź filtry.',
+        'columnId' => 'ID',
+        'webhookStatus' => ':status (próby: :attempts)',
+        'webhookStatuses' => [
+            'pending' => 'Oczekuje',
+            'delivered' => 'Dostarczony',
+            'failed' => 'Nieudany',
+        ],
         'title' => 'Wiadomości kontaktowe',
         'navLabel' => 'Kontakt',
         'description' => 'Wiadomości wysłane przez publiczny formularz kontaktowy i status ich dostarczenia.',
@@ -779,6 +789,7 @@ return [
         'deleteConfirm' => 'Usuń wiadomość',
         'cancel' => 'Anuluj',
         'fields' => [
+            'webhook' => 'Webhook',
             'name' => 'Imię i nazwisko',
             'email' => 'E-mail',
             'message' => 'Wiadomość',
@@ -928,6 +939,14 @@ return [
             'closes' => ':day — zamknięcie',
             'googleVerification' => 'Token Google Search Console',
             'googleVerificationHelp' => 'Tylko wartość content z meta tagu google-site-verification, bez samego tagu.',
+            'recipients' => 'Odbiorcy formularza kontaktowego',
+            'recipientsHelp' => 'Do 5 adresów; każda wiadomość trafia do wszystkich. Bez adresów używany jest adres z konfiguracji serwera.',
+            'recipientAdd' => 'Dodaj odbiorcę',
+            'recipientItem' => 'Odbiorca :position',
+            'autoReply' => 'Automatyczna odpowiedź do nadawcy',
+            'autoReplyHelp' => 'Wysyła tekst z sekcji „Teksty” w języku nadawcy. Odpowiedź nigdy nie powtarza treści wysłanej wiadomości.',
+            'autoReplyText' => 'Treść automatycznej odpowiedzi',
+            'autoReplyTextHelp' => 'Wysyłana nadawcy, gdy automatyczna odpowiedź jest włączona. Do 1000 znaków; pusta = język zapasowy.',
         ],
         'image' => [
             'choose' => 'Wybierz obraz',

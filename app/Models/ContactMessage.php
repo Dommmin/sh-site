@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ContactMessageStatus;
+use App\Enums\ContactWebhookStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\ContactMessageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -23,10 +24,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $attempts
  * @property string|null $last_error
  * @property CarbonImmutable|null $sent_at
+ * @property ContactWebhookStatus|null $webhook_status Null when no webhook is configured.
+ * @property int $webhook_attempts
+ * @property CarbonImmutable|null $webhook_delivered_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable(['name', 'email', 'message', 'locale', 'status', 'attempts', 'last_error', 'sent_at'])]
+#[Fillable(['name', 'email', 'message', 'locale', 'status', 'attempts', 'last_error', 'sent_at', 'webhook_status'])]
 class ContactMessage extends Model
 {
     /** @use HasFactory<ContactMessageFactory> */
@@ -38,6 +42,7 @@ class ContactMessage extends Model
     protected $attributes = [
         'status' => 'pending',
         'attempts' => 0,
+        'webhook_attempts' => 0,
     ];
 
     /**
@@ -51,6 +56,9 @@ class ContactMessage extends Model
             'status' => ContactMessageStatus::class,
             'attempts' => 'integer',
             'sent_at' => 'datetime',
+            'webhook_status' => ContactWebhookStatus::class,
+            'webhook_attempts' => 'integer',
+            'webhook_delivered_at' => 'datetime',
         ];
     }
 }

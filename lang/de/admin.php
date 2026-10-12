@@ -737,6 +737,16 @@ return [
     ],
 
     'contact' => [
+        'export' => 'CSV exportieren',
+        'exportFilename' => 'kontaktnachrichten-:date.csv',
+        'exportTooLarge' => 'Der Export ist auf :max Nachrichten begrenzt; grenzen Sie die Filter ein.',
+        'columnId' => 'ID',
+        'webhookStatus' => ':status (Versuche: :attempts)',
+        'webhookStatuses' => [
+            'pending' => 'Ausstehend',
+            'delivered' => 'Zugestellt',
+            'failed' => 'Fehlgeschlagen',
+        ],
         'title' => 'Kontaktnachrichten',
         'navLabel' => 'Kontakt',
         'description' => 'Über das öffentliche Kontaktformular gesendete Nachrichten und ihr Zustellstatus.',
@@ -777,6 +787,7 @@ return [
         'deleteConfirm' => 'Nachricht löschen',
         'cancel' => 'Abbrechen',
         'fields' => [
+            'webhook' => 'Webhook',
             'name' => 'Name',
             'email' => 'E-Mail',
             'message' => 'Nachricht',
@@ -926,6 +937,14 @@ return [
             'closes' => ':day — schließt',
             'googleVerification' => 'Google-Search-Console-Token',
             'googleVerificationHelp' => 'Nur der content-Wert des Meta-Tags google-site-verification, ohne das Tag selbst.',
+            'recipients' => 'Empfänger des Kontaktformulars',
+            'recipientsHelp' => 'Bis zu 5 Adressen; jede Nachricht geht an alle. Ohne Adresse gilt die Adresse aus der Serverkonfiguration.',
+            'recipientAdd' => 'Empfänger hinzufügen',
+            'recipientItem' => 'Empfänger :position',
+            'autoReply' => 'Automatische Antwort an den Absender',
+            'autoReplyHelp' => 'Sendet den Text aus dem Abschnitt „Texte“ in der Sprache des Absenders. Die Antwort wiederholt nie die gesendete Nachricht.',
+            'autoReplyText' => 'Text der automatischen Antwort',
+            'autoReplyTextHelp' => 'Wird gesendet, wenn die automatische Antwort aktiv ist. Bis zu 1000 Zeichen; leer = Ersatzsprache.',
         ],
         'image' => [
             'choose' => 'Bild auswählen',

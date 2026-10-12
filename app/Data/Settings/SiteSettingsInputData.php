@@ -20,6 +20,7 @@ class SiteSettingsInputData extends Data
      * @param  array<string, string>  $socialLinks  SocialNetwork value => https URL; networks without a link are omitted.
      * @param  array<string, SiteSettingTranslationInputData>  $translations  Keyed by public locale; missing locales lose their translation.
      * @param  list<OpeningHoursDayData>|null  $openingHours  Seven days Monday first, or null when no hours are published.
+     * @param  list<string>  $contactRecipients  Up to five distinct addresses; empty = the configured fallback.
      */
     public function __construct(
         public string $siteName,
@@ -42,5 +43,7 @@ class SiteSettingsInputData extends Data
         public ?string $mapUrl = null,
         public ?array $openingHours = null,
         public ?string $googleSiteVerification = null,
+        public array $contactRecipients = [],
+        public bool $contactAutoReply = false,
     ) {}
 }

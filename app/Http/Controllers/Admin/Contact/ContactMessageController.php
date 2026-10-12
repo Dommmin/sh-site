@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Contact;
 
+use App\Actions\Audit\RecordAuditEvent;
 use App\Actions\Contact\DeleteContactMessages;
 use App\Actions\Contact\RetryContactMessage;
 use App\Data\Admin\Contact\ContactMessageAbilitiesData;
@@ -12,6 +13,7 @@ use App\Data\Admin\Contact\ContactMessageListFiltersData;
 use App\Data\Admin\Contact\ContactMessageListItemData;
 use App\Data\Admin\Contact\ContactMessageShowData;
 use App\Data\Listing\ListPaginationData;
+use App\Enums\AuditAction;
 use App\Enums\ContactMessageStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Contact\DestroyContactMessagesRequest;
@@ -19,10 +21,14 @@ use App\Http\Requests\Admin\Contact\ListContactMessagesRequest;
 use App\Models\ContactMessage;
 use App\Models\User;
 use App\Repositories\Contact\ContactMessageRepository;
+use App\Support\Csv\CsvCell;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Contact messages in the panel. Authorization: `can` middleware on every
@@ -30,6 +36,9 @@ use Inertia\Response;
  */
 class ContactMessageController extends Controller
 {
+    /** Default row limit of the CSV export (`exports.contact.max_rows`). */
+    private const int EXPORT_MAX_ROWS = 5000;
+
     public function __construct(private readonly ContactMessageRepository $contactMessages) {}
 
     /**
@@ -55,8 +64,73 @@ class ContactMessageController extends Controller
             // authorized again when the selection is deleted.
             can: new ContactMessageListAbilitiesData(
                 delete: $request->user()?->isAdmin() ?? false,
+                export: $request->user()?->can('export', ContactMessage::class) ?? false,
             ),
+            exportMaxRows: config()->integer('exports.contact.max_rows', self::EXPORT_MAX_ROWS),
         ));
+    }
+
+    /**
+     * Download the filtered list as CSV (administrators only), newest first,
+     * at most `exports.contact.max_rows` rows; the export is audited without
+     * the search text.
+     */
+    public function export(ListContactMessagesRequest $request, RecordAuditEvent $recordAuditEvent): HttpResponse|StreamedResponse
+    {
+        $listQuery = $request->listQuery();
+        $validated = $request->validated();
+        $maxRows = config()->integer('exports.contact.max_rows', self::EXPORT_MAX_ROWS);
+
+        $query = $listQuery->apply($this->contactMessages->adminListQuery()->addSelect('message'), $validated);
+        $rows = (clone $query)->reorder()->count();
+
+        if ($rows > $maxRows) {
+            return response(__('admin.contact.exportTooLarge', ['max' => $maxRows]), 422)
+                ->header('Content-Type', 'text/plain; charset=UTF-8');
+        }
+
+        $filters = $listQuery->filtersPayload($validated);
+        $recordAuditEvent->handle(AuditAction::ResourceExported, new ContactMessage, $request->user(), [
+            'module' => RecordAuditEvent::change(null, 'contact'),
+            'rows' => RecordAuditEvent::change(null, $rows),
+            'filters' => RecordAuditEvent::change(null, Arr::except($filters, ['search'])),
+            ...($filters['search'] === '' ? [] : ['search' => RecordAuditEvent::redacted()]),
+        ]);
+
+        return response()->streamDownload(function () use ($query, $maxRows): void {
+            $output = fopen('php://output', 'w');
+            if ($output === false) {
+                return;
+            }
+
+            fwrite($output, "\u{FEFF}");
+            fputcsv($output, [
+                __('admin.contact.columnId'),
+                __('admin.contact.fields.createdAt'),
+                __('admin.contact.fields.name'),
+                __('admin.contact.fields.email'),
+                __('admin.contact.fields.locale'),
+                __('admin.contact.fields.status'),
+                __('admin.contact.fields.message'),
+            ], escape: '');
+
+            foreach ($query->lazy(500)->take($maxRows) as $contactMessage) {
+                /** @var ContactMessage $contactMessage */
+                fputcsv($output, [
+                    $contactMessage->id,
+                    CsvCell::safe($contactMessage->created_at?->toIso8601String()),
+                    CsvCell::safe($contactMessage->name),
+                    CsvCell::safe($contactMessage->email),
+                    CsvCell::safe($contactMessage->locale),
+                    CsvCell::safe(__("admin.contact.statuses.{$contactMessage->status->value}")),
+                    CsvCell::safe($contactMessage->message),
+                ], escape: '');
+            }
+
+            fclose($output);
+        }, __('admin.contact.exportFilename', ['date' => now()->format('Y-m-d')]), [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     /**

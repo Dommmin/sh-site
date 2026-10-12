@@ -161,6 +161,10 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::get('/contact', [ContactMessageController::class, 'index'])
             ->name('contact.index')
             ->can('viewAny', ContactMessage::class);
+        Route::get('/contact/export', [ContactMessageController::class, 'export'])
+            ->name('contact.export')
+            ->can('export', ContactMessage::class)
+            ->middleware('throttle:10,1');
         Route::delete('/contact', [ContactMessageController::class, 'destroyMany'])
             ->name('contact.destroy-many')
             ->can('viewAny', ContactMessage::class);

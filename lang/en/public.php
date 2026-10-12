@@ -101,6 +101,10 @@ return [
         'description' => 'Our new website is almost ready. Please come back in a few days.',
         'contact' => 'Questions? Write to :email.',
     ],
+    'contactAutoReply' => [
+        'subject' => 'Thank you for your message — :site',
+        'automatic' => 'This is an automatic reply; we will get back to you personally.',
+    ],
     'site' => [
         'defaultTitle' => 'Punkt Startowy — Websites and web apps for small businesses',
         'defaultDescription' => 'Punkt Startowy designs and builds clear, fast websites and simple web apps for small businesses.',
