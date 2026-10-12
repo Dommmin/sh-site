@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import {
     CircleHelp,
+    ClipboardList,
     Newspaper,
     Palette,
     FileText,
@@ -29,6 +30,7 @@ import { index as adminIndex } from '@/routes/admin';
 import { index as articlesIndex } from '@/routes/admin/articles';
 import { index as auditIndex } from '@/routes/admin/audit';
 import { index as contactIndex } from '@/routes/admin/contact';
+import { index as contactFormsIndex } from '@/routes/admin/contact-forms';
 import { index as faqsIndex } from '@/routes/admin/faqs';
 import { index as homeSectionsIndex } from '@/routes/admin/home-sections';
 import { index as mediaIndex } from '@/routes/admin/media';
@@ -132,6 +134,16 @@ export default function AdminLayout({
                     contactIndex(),
                     Mail,
                 ),
+                ...(auth.can.manageSiteSettings
+                    ? [
+                          section(
+                              'contact-forms',
+                              t('admin.contactForms.navLabel'),
+                              contactFormsIndex(),
+                              ClipboardList,
+                          ),
+                      ]
+                    : []),
             ],
         },
         {

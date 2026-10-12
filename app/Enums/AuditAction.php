@@ -35,6 +35,9 @@ enum AuditAction: string
     case HomeSectionUpdated = 'home_section.updated';
     case HomeSectionToggled = 'home_section.toggled';
     case HomeSectionsReordered = 'home_section.reordered';
+    case ContactFormCreated = 'contact_form.created';
+    case ContactFormUpdated = 'contact_form.updated';
+    case ContactFormDeleted = 'contact_form.deleted';
 
     /**
      * @return list<string>
