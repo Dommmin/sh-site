@@ -3,13 +3,19 @@
 namespace App\Repositories\Settings;
 
 use App\Data\Media\MediaImageData;
+use App\Data\Settings\OpeningHoursDayData;
+use App\Data\Settings\SiteAppearanceData;
 use App\Data\Settings\SiteContactData;
 use App\Data\Settings\SiteSettingsData;
 use App\Data\Settings\SiteSocialLinkData;
+use App\Enums\AccentColor;
 use App\Enums\SocialNetwork;
+use App\Enums\ThemePreference;
+use App\Enums\TypographyPreset;
 use App\Models\MediaAsset;
 use App\Models\SiteSetting;
 use App\Services\Localization\LocalizationConfig;
+use App\Services\Media\ImageVariantGenerator;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
@@ -42,11 +48,21 @@ use Throwable;
  *     recipient: string|null,
  *     social_links: array<string, string>,
  *     translations: array<string, TranslationRow>,
+ *     accent: string|null,
+ *     typography: string|null,
+ *     default_theme: string,
+ *     favicon: array{url: string, type: string}|null,
+ *     tax_id: string|null,
+ *     map_url: string|null,
+ *     opening_hours: list<array{day: string, opens: string|null, closes: string|null}>|null,
+ *     google_site_verification: string|null,
+ *     coming_soon: bool,
+ *     noindex: bool,
  * }
  */
 class SiteSettingsRepository
 {
-    public const string CACHE_KEY = 'site_settings:v1';
+    public const string CACHE_KEY = 'site_settings:v2';
 
     /**
      * Snapshot memoized for the current process (one cache read per request).
@@ -84,6 +100,9 @@ class SiteSettingsRepository
                 email: $snapshot['contact_email'],
                 phone: $snapshot['contact_phone'],
                 address: $this->address($snapshot),
+                taxId: $snapshot['tax_id'],
+                mapUrl: $snapshot['map_url'],
+                openingHours: OpeningHoursDayData::week($snapshot['opening_hours']),
             ),
             social: $social,
         );
@@ -142,6 +161,90 @@ class SiteSettingsRepository
         $configured = config('seo.default_image');
 
         return is_string($configured) && $configured !== '' ? url($configured) : null;
+    }
+
+    /**
+     * Appearance of the document: saved presets, otherwise `APP_ACCENT`,
+     * the default typography and the system theme.
+     */
+    public function appearance(): SiteAppearanceData
+    {
+        $snapshot = $this->snapshot();
+
+        return new SiteAppearanceData(
+            accent: AccentColor::tryFrom((string) $snapshot['accent'])
+                ?? AccentColor::tryFrom((string) config('app.accent'))
+                ?? AccentColor::Default,
+            typography: TypographyPreset::tryFrom((string) $snapshot['typography']) ?? TypographyPreset::Default,
+            defaultTheme: ThemePreference::tryFrom($snapshot['default_theme']) ?? ThemePreference::System,
+            faviconUrl: $snapshot['favicon']['url'] ?? null,
+            faviconType: $snapshot['favicon']['type'] ?? null,
+            googleSiteVerification: $snapshot['google_site_verification'],
+        );
+    }
+
+    /**
+     * Schema.org description of the business for the home page JSON-LD:
+     * `LocalBusiness` when a street address and opening hours are saved,
+     * `Organization` otherwise. Empty values are omitted.
+     *
+     * @return array<string, mixed>
+     */
+    public function organizationSchema(): array
+    {
+        $snapshot = $this->snapshot();
+        $configuredUrl = config('seo.organization.url');
+        $configuredLogo = config('seo.organization.logo');
+        $week = OpeningHoursDayData::week($snapshot['opening_hours']) ?? [];
+        $openDays = array_values(array_filter($week, fn (OpeningHoursDayData $day): bool => $day->isOpen()));
+        $isLocal = $snapshot['address_line'] !== null && $snapshot['city'] !== null && $openDays !== [];
+
+        $address = array_filter([
+            '@type' => 'PostalAddress',
+            'streetAddress' => $snapshot['address_line'],
+            'postalCode' => $snapshot['postal_code'],
+            'addressLocality' => $snapshot['city'],
+            'addressCountry' => $snapshot['country_code'],
+        ], fn (?string $value): bool => $value !== null && $value !== '');
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => $isLocal ? 'LocalBusiness' : 'Organization',
+            'name' => $this->siteName(),
+            'url' => is_string($configuredUrl) && $configuredUrl !== '' ? url($configuredUrl) : url('/'),
+            'logo' => $snapshot['logo']['src'] ?? (is_string($configuredLogo) && $configuredLogo !== '' ? url($configuredLogo) : null),
+            'email' => $snapshot['contact_email'],
+            'telephone' => $snapshot['contact_phone'],
+            'address' => count($address) > 1 ? $address : null,
+            'taxID' => $snapshot['tax_id'],
+            'hasMap' => $snapshot['map_url'],
+            'openingHoursSpecification' => $openDays === [] ? null : array_map(fn (OpeningHoursDayData $day): array => [
+                '@type' => 'OpeningHoursSpecification',
+                'dayOfWeek' => $day->day->schemaName(),
+                'opens' => $day->opens,
+                'closes' => $day->closes,
+            ], $openDays),
+            'sameAs' => array_values($snapshot['social_links']) ?: null,
+        ];
+
+        return array_filter($schema, fn (mixed $value): bool => $value !== null && $value !== '');
+    }
+
+    /**
+     * Whether guests see the coming soon page instead of the public site.
+     */
+    public function isComingSoon(): bool
+    {
+        return $this->snapshot()['coming_soon'];
+    }
+
+    /**
+     * Whether the whole site asks search engines not to index it (also
+     * true while the coming soon page is on).
+     */
+    public function isNoindex(): bool
+    {
+        return $this->snapshot()['noindex'] || $this->snapshot()['coming_soon'];
     }
 
     /**
@@ -213,7 +316,7 @@ class SiteSettingsRepository
     private function load(): array
     {
         $settings = SiteSetting::query()
-            ->with(['translations', 'logo', 'ogImage'])
+            ->with(['translations', 'logo', 'ogImage', 'favicon'])
             ->find(SiteSetting::SINGLETON_ID);
 
         if ($settings === null) {
@@ -244,6 +347,16 @@ class SiteSettingsRepository
             'recipient' => $settings->contact_recipient_email,
             'social_links' => $settings->social_links ?? [],
             'translations' => $translations,
+            'accent' => $settings->accent?->value,
+            'typography' => $settings->typography?->value,
+            'default_theme' => $settings->default_theme->value,
+            'favicon' => $this->favicon($settings->favicon),
+            'tax_id' => $settings->tax_id,
+            'map_url' => $settings->map_url,
+            'opening_hours' => $settings->opening_hours,
+            'google_site_verification' => $settings->google_site_verification,
+            'coming_soon' => $settings->coming_soon,
+            'noindex' => $settings->noindex,
         ];
     }
 
@@ -268,6 +381,16 @@ class SiteSettingsRepository
             'recipient' => null,
             'social_links' => [],
             'translations' => [],
+            'accent' => null,
+            'typography' => null,
+            'default_theme' => ThemePreference::System->value,
+            'favicon' => null,
+            'tax_id' => null,
+            'map_url' => null,
+            'opening_hours' => null,
+            'google_site_verification' => null,
+            'coming_soon' => false,
+            'noindex' => false,
         ];
     }
 
@@ -276,6 +399,34 @@ class SiteSettingsRepository
         $value = __("public.site.{$key}", [], $locale);
 
         return is_string($value) && $value !== "public.site.{$key}" ? $value : null;
+    }
+
+    /**
+     * Smallest PNG or JPEG variant of a clean image, used as the favicon.
+     *
+     * @return array{url: string, type: string}|null
+     */
+    private function favicon(?MediaAsset $asset): ?array
+    {
+        if ($asset === null || ! $asset->hasPassedScan() || ! $asset->isImage()) {
+            return null;
+        }
+
+        $candidates = array_values(array_filter(
+            $asset->variants ?? [],
+            fn (array $variant): bool => in_array($variant['format'], ['png', 'jpeg'], true),
+        ));
+
+        if ($candidates === []) {
+            return null;
+        }
+
+        usort($candidates, fn (array $a, array $b): int => $a['width'] <=> $b['width']);
+
+        return [
+            'url' => ImageVariantGenerator::publicDisk()->url($candidates[0]['path']),
+            'type' => 'image/'.$candidates[0]['format'],
+        ];
     }
 
     private function image(?MediaAsset $asset): ?MediaImageData

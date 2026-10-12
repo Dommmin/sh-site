@@ -31,6 +31,16 @@ class SiteSettingFactory extends Factory
             'country_code' => 'PL',
             'contact_recipient_email' => null,
             'social_links' => null,
+            'accent' => null,
+            'typography' => null,
+            'default_theme' => 'system',
+            'favicon_media_id' => null,
+            'tax_id' => null,
+            'map_url' => null,
+            'opening_hours' => null,
+            'google_site_verification' => null,
+            'coming_soon' => false,
+            'noindex' => false,
             'updated_by' => null,
         ];
     }

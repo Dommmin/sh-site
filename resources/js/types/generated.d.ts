@@ -512,6 +512,19 @@ declare namespace App {
                         string,
                         App.Data.Admin.Settings.SiteSettingTranslationFormData
                     >;
+                    accent: App.Enums.AccentColor | null;
+                    typography: App.Enums.TypographyPreset | null;
+                    defaultTheme: App.Enums.ThemePreference;
+                    faviconMediaId: number | null;
+                    taxId: string | null;
+                    mapUrl: string | null;
+                    openingHours: {
+                        [day in App.Enums.Weekday]: {
+                            opens: string;
+                            closes: string;
+                        };
+                    };
+                    googleSiteVerification: string | null;
                 };
                 export type SocialNetworkOptionData = {
                     network: App.Enums.SocialNetwork;
@@ -613,6 +626,7 @@ declare namespace App {
             export type WelcomePageData = {
                 contactForm: App.Data.Contact.ContactFormData;
                 sections: App.Data.Home.HomeSectionData[];
+                organizationJsonLd: Record<string, unknown>;
             };
         }
         namespace Errors {
@@ -882,6 +896,7 @@ declare namespace App {
                 defaultTitle: string;
                 defaultDescription: string | null;
                 organization: App.Data.Seo.SeoOrganizationData;
+                noindex: boolean;
             };
             export type SeoOrganizationData = {
                 name: string;
@@ -890,10 +905,18 @@ declare namespace App {
             };
         }
         namespace Settings {
+            export type OpeningHoursDayData = {
+                day: App.Enums.Weekday;
+                opens: string | null;
+                closes: string | null;
+            };
             export type SiteContactData = {
                 email: string | null;
                 phone: string | null;
                 address: string | null;
+                taxId: string | null;
+                mapUrl: string | null;
+                openingHours: App.Data.Settings.OpeningHoursDayData[] | null;
             };
             export type SiteSettingsData = {
                 name: string;
@@ -1008,7 +1031,17 @@ declare namespace App {
             | 'youtube'
             | 'tiktok'
             | 'github';
+        export type ThemePreference = 'light' | 'dark' | 'system';
+        export type TypographyPreset = 'default' | 'classic';
         export type UserRole = 'admin' | 'editor';
+        export type Weekday =
+            | 'monday'
+            | 'tuesday'
+            | 'wednesday'
+            | 'thursday'
+            | 'friday'
+            | 'saturday'
+            | 'sunday';
     }
 }
 declare namespace Illuminate {

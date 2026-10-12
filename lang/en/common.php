@@ -66,6 +66,10 @@ return [
         'links' => 'Information',
         'contact' => 'Contact',
         'social' => 'Social media',
+        'map' => 'Show on map',
+        'taxId' => 'Tax ID: :taxId',
+        'openingHours' => 'Opening hours',
+        'closed' => 'closed',
     ],
     'orderable' => [
         'moveUp' => 'Move :label up',
@@ -80,6 +84,24 @@ return [
     ],
     'language' => [
         'label' => 'Language',
+    ],
+    'weekdays' => [
+        'monday' => 'Monday',
+        'tuesday' => 'Tuesday',
+        'wednesday' => 'Wednesday',
+        'thursday' => 'Thursday',
+        'friday' => 'Friday',
+        'saturday' => 'Saturday',
+        'sunday' => 'Sunday',
+    ],
+    'weekdaysShort' => [
+        'monday' => 'Mon',
+        'tuesday' => 'Tue',
+        'wednesday' => 'Wed',
+        'thursday' => 'Thu',
+        'friday' => 'Fri',
+        'saturday' => 'Sat',
+        'sunday' => 'Sun',
     ],
     'actions' => [
         'save' => 'Save',

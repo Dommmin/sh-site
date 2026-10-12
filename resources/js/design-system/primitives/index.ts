@@ -56,6 +56,7 @@ export * from './mobile-nav';
 export * from './nav-item';
 export * from './not-found';
 export * from './numbered-list';
+export * from './opening-hours';
 export * from './notify';
 export * from './number-field';
 export * from './offline-banner';

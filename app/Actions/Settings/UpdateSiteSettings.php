@@ -3,6 +3,7 @@
 namespace App\Actions\Settings;
 
 use App\Actions\Audit\RecordAuditEvent;
+use App\Data\Settings\OpeningHoursDayData;
 use App\Data\Settings\SiteSettingsInputData;
 use App\Data\Settings\SiteSettingTranslationInputData;
 use App\Enums\AuditAction;
@@ -49,6 +50,14 @@ class UpdateSiteSettings
         'city',
         'country_code',
         'social_links',
+        'accent',
+        'typography',
+        'default_theme',
+        'favicon_media_id',
+        'tax_id',
+        'map_url',
+        'opening_hours',
+        'google_site_verification',
     ];
 
     private const array TRANSLATION_FIELDS = ['tagline', 'footer_text', 'seo_title', 'seo_description'];
@@ -88,6 +97,16 @@ class UpdateSiteSettings
                 'country_code' => $input->countryCode,
                 'contact_recipient_email' => $input->contactRecipientEmail,
                 'social_links' => $this->orderedSocialLinks($input->socialLinks),
+                'accent' => $input->accent,
+                'typography' => $input->typography,
+                'default_theme' => $input->defaultTheme,
+                'favicon_media_id' => $input->faviconMediaId,
+                'tax_id' => $input->taxId,
+                'map_url' => $input->mapUrl,
+                'opening_hours' => $input->openingHours === null
+                    ? null
+                    : array_map(fn (OpeningHoursDayData $day): array => $day->toRow(), $input->openingHours),
+                'google_site_verification' => $input->googleSiteVerification,
             ]);
 
             return [
