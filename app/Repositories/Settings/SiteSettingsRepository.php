@@ -33,7 +33,7 @@ use Throwable;
  * locale, then the defaults in `lang/{locale}/public.php` (`site.*`) or the
  * site name.
  *
- * @phpstan-type TranslationRow array{tagline: string|null, footer_text: string|null, seo_title: string|null, seo_description: string|null}
+ * @phpstan-type TranslationRow array{tagline: string|null, footer_text: string|null, seo_title: string|null, seo_description: string|null, auto_reply_text: string|null}
  * @phpstan-type Snapshot array{
  *     exists: bool,
  *     site_name: string|null,
@@ -46,6 +46,8 @@ use Throwable;
  *     city: string|null,
  *     country_code: string|null,
  *     recipient: string|null,
+ *     recipients: list<string>,
+ *     auto_reply: bool,
  *     social_links: array<string, string>,
  *     translations: array<string, TranslationRow>,
  *     accent: string|null,
@@ -62,7 +64,7 @@ use Throwable;
  */
 class SiteSettingsRepository
 {
-    public const string CACHE_KEY = 'site_settings:v2';
+    public const string CACHE_KEY = 'site_settings:v3';
 
     /**
      * Snapshot memoized for the current process (one cache read per request).
@@ -270,7 +272,35 @@ class SiteSettingsRepository
      */
     public function contactRecipient(): string
     {
-        return $this->snapshot()['recipient'] ?? (string) config('contact.recipient');
+        return $this->contactRecipients()[0];
+    }
+
+    /**
+     * Every address that receives contact form messages: the saved list,
+     * then the single saved recipient, then `contact.recipient`.
+     * Server-side only.
+     *
+     * @return non-empty-list<string>
+     */
+    public function contactRecipients(): array
+    {
+        $snapshot = $this->snapshot();
+
+        if ($snapshot['recipients'] !== []) {
+            return $snapshot['recipients'];
+        }
+
+        return [$snapshot['recipient'] ?? (string) config('contact.recipient')];
+    }
+
+    /**
+     * Text of the automatic reply to the sender in the given locale (then
+     * the public fallback locale); null when the auto-reply is off or has
+     * no text.
+     */
+    public function autoReplyText(string $locale): ?string
+    {
+        return $this->snapshot()['auto_reply'] ? $this->translated('auto_reply_text', $locale) : null;
     }
 
     /**
@@ -338,6 +368,7 @@ class SiteSettingsRepository
                 'footer_text' => $translation->footer_text,
                 'seo_title' => $translation->seo_title,
                 'seo_description' => $translation->seo_description,
+                'auto_reply_text' => $translation->auto_reply_text,
             ];
         }
 
@@ -353,6 +384,8 @@ class SiteSettingsRepository
             'city' => $settings->city,
             'country_code' => $settings->country_code,
             'recipient' => $settings->contact_recipient_email,
+            'recipients' => $settings->contact_recipients ?? [],
+            'auto_reply' => $settings->contact_auto_reply,
             'social_links' => $settings->social_links ?? [],
             'translations' => $translations,
             'accent' => $settings->accent?->value,
@@ -387,6 +420,8 @@ class SiteSettingsRepository
             'city' => null,
             'country_code' => null,
             'recipient' => null,
+            'recipients' => [],
+            'auto_reply' => false,
             'social_links' => [],
             'translations' => [],
             'accent' => null,
@@ -443,7 +478,7 @@ class SiteSettingsRepository
     }
 
     /**
-     * @param  'tagline'|'footer_text'|'seo_title'|'seo_description'  $field
+     * @param  'tagline'|'footer_text'|'seo_title'|'seo_description'|'auto_reply_text'  $field
      */
     private function translated(string $field, string $locale): ?string
     {

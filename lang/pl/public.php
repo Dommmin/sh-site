@@ -101,6 +101,10 @@ return [
         'description' => 'Nasza nowa strona jest prawie gotowa. Zajrzyj do nas za kilka dni.',
         'contact' => 'Masz pytania? Napisz na :email.',
     ],
+    'contactAutoReply' => [
+        'subject' => 'Dziękujemy za wiadomość — :site',
+        'automatic' => 'To automatyczna odpowiedź; odezwiemy się do Ciebie osobiście.',
+    ],
     'site' => [
         'defaultTitle' => 'Punkt Startowy — Strony i aplikacje dla małych firm',
         'defaultDescription' => 'Punkt Startowy projektuje i buduje czytelne, szybkie strony oraz proste aplikacje internetowe dla małych firm.',

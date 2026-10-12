@@ -41,6 +41,7 @@ function siteSettingsPayload(array $overrides = []): array
             'github' => '',
         ],
         'default_theme' => 'system',
+        'contact_auto_reply' => false,
         'translations' => [
             'en' => [
                 'tagline' => 'We build things',
@@ -195,7 +196,34 @@ test('invalid settings are rejected without saving anything', function (Closure 
     'closing before opening' => [fn () => ['opening_hours' => ['monday' => ['opens' => '17:00', 'closes' => '09:00']]], 'opening_hours.monday.closes'],
     'opening without closing' => [fn () => ['opening_hours' => ['monday' => ['opens' => '09:00', 'closes' => null]]], 'opening_hours.monday.closes'],
     'malformed time' => [fn () => ['opening_hours' => ['monday' => ['opens' => '9am', 'closes' => '17:00']]], 'opening_hours.monday.opens'],
+    'too many recipients' => [fn () => ['contact_recipients' => ['a@acme.test', 'b@acme.test', 'c@acme.test', 'd@acme.test', 'e@acme.test', 'f@acme.test']], 'contact_recipients'],
+    'duplicate recipient' => [fn () => ['contact_recipients' => ['a@acme.test', 'A@acme.test']], 'contact_recipients.1'],
+    'invalid recipient' => [fn () => ['contact_recipients' => ['not-an-email']], 'contact_recipients.0'],
+    'header injection in a recipient' => [fn () => ['contact_recipients' => ["a@acme.test\r\nBcc: x@evil.test"]], 'contact_recipients.0'],
+    'too long auto-reply' => [fn () => ['translations' => ['en' => ['auto_reply_text' => str_repeat('a', 1001)]]], 'translations.en.auto_reply_text'],
 ]);
+
+test('recipients and the auto-reply are saved, the recipients audited without their addresses', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->put(route('admin.site-settings.update'), siteSettingsPayload([
+            'contact_recipients' => ['one@acme.test', 'two@acme.test'],
+            'contact_auto_reply' => true,
+            'translations' => ['en' => ['auto_reply_text' => 'Thanks, we reply within a day.']],
+        ]))
+        ->assertSessionHasNoErrors();
+
+    $settings = SiteSetting::query()->sole();
+    expect($settings->contact_recipients)->toBe(['one@acme.test', 'two@acme.test'])
+        ->and($settings->contact_recipient_email)->toBe('one@acme.test')
+        ->and($settings->contact_auto_reply)->toBeTrue()
+        ->and($settings->translations()->where('locale', 'en')->value('auto_reply_text'))->toBe('Thanks, we reply within a day.');
+
+    $changes = AuditLog::query()->sole()->changes;
+    expect($changes['contact_recipients'])->toBe(['redacted' => true])
+        ->and(json_encode($changes))->not->toContain('two@acme.test');
+});
 
 test('appearance and company details are saved, audited and shown in the form', function () {
     $admin = User::factory()->admin()->create();

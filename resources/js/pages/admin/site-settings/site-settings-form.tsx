@@ -8,6 +8,7 @@ import {
     Stack,
     Tabs,
     type ImagePickerFieldLabels,
+    type ResourceFormRepeaterItem,
     type ResourceFormSection,
 } from '@/design-system/primitives';
 import { useMediaImagePicker } from '@/hooks/use-media-image-picker';
@@ -69,6 +70,7 @@ const TRANSLATION_FIELDS = [
     'footer_text',
     'seo_title',
     'seo_description',
+    'auto_reply_text',
 ] as const;
 
 type SharedField = (typeof SHARED_FIELDS)[number];
@@ -81,19 +83,36 @@ type SiteSettingsFormState = Record<SharedField, string> & {
     social_links: Record<SocialNetwork, string>;
     translations: Record<string, TranslationState>;
     opening_hours: OpeningHoursState;
+    contact_recipients: ResourceFormRepeaterItem[];
+    contact_auto_reply: boolean;
 };
+
+/** Contact form recipients the settings accept (UpdateSiteSettingsRequest). */
+const MAX_RECIPIENTS = 5;
 
 /**
  * Values of one language tab: the shared settings, one `social_links.{network}`
  * entry per network and the texts of the tab's language.
  */
-type TabValues = Record<string, string>;
+type TextKey =
+    | SharedField
+    | TranslationField
+    | `social_links.${SocialNetwork}`
+    | `opening_hours.${Weekday}.${'opens' | 'closes'}`;
 
-function socialField(network: SocialNetwork): string {
+type TabValues = Record<TextKey, string> & {
+    contact_recipients: ResourceFormRepeaterItem[];
+    contact_auto_reply: boolean;
+};
+
+function socialField(network: SocialNetwork): `social_links.${SocialNetwork}` {
     return `social_links.${network}`;
 }
 
-function hoursField(day: Weekday, edge: 'opens' | 'closes'): string {
+function hoursField(
+    day: Weekday,
+    edge: 'opens' | 'closes',
+): `opening_hours.${Weekday}.${'opens' | 'closes'}` {
     return `opening_hours.${day}.${edge}`;
 }
 
@@ -111,6 +130,7 @@ function toTranslationState(
         footer_text: translation?.footerText ?? '',
         seo_title: translation?.seoTitle ?? '',
         seo_description: translation?.seoDescription ?? '',
+        auto_reply_text: translation?.autoReplyText ?? '',
     };
 }
 
@@ -159,6 +179,10 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
         map_url: settings.mapUrl ?? '',
         google_site_verification: settings.googleSiteVerification ?? '',
         opening_hours: { ...settings.openingHours },
+        contact_recipients: settings.contactRecipients.map((email) => ({
+            email,
+        })),
+        contact_auto_reply: settings.contactAutoReply,
         social_links: { ...settings.socialLinks },
         translations: Object.fromEntries(
             locales.available.map((locale) => [
@@ -185,6 +209,11 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
             TRANSLATION_FIELDS.map(
                 (field) => `${translationPrefix(locale.code)}${field}`,
             ),
+        ),
+        'contact_recipients',
+        'contact_auto_reply',
+        ...form.data.contact_recipients.map(
+            (_, position) => `contact_recipients.${position}`,
         ),
     ]);
 
@@ -217,7 +246,27 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
         });
     }, [form.isDirty, t]);
 
-    function handleChange(code: string, name: string, value: string) {
+    function handleChange(
+        code: string,
+        name: string,
+        value: TabValues[keyof TabValues],
+    ) {
+        if (name === 'contact_recipients' && Array.isArray(value)) {
+            form.setData('contact_recipients', value);
+
+            return;
+        }
+
+        if (name === 'contact_auto_reply' && typeof value === 'boolean') {
+            form.setData('contact_auto_reply', value);
+
+            return;
+        }
+
+        if (typeof value !== 'string') {
+            return;
+        }
+
         if (name.startsWith('opening_hours.')) {
             const [, day, edge] = name.split('.') as [
                 string,
@@ -276,6 +325,10 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
             city: nullable(data.city),
             country_code: nullable(data.country_code),
             contact_recipient_email: nullable(data.contact_recipient_email),
+            contact_recipients: data.contact_recipients
+                .map((item) => (item.email ?? '').trim())
+                .filter((email) => email !== ''),
+            contact_auto_reply: data.contact_auto_reply,
             accent: nullable(data.accent),
             typography: nullable(data.typography),
             default_theme: data.default_theme,
@@ -598,7 +651,7 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                         name: 'seo_title',
                         label: t('admin.siteSettings.fields.seoTitle'),
                         hint: t('admin.siteSettings.fields.seoTitleCounter', {
-                            length: values.seo_title.length,
+                            length: String(values.seo_title).length,
                         }),
                     },
                     {
@@ -608,8 +661,15 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                         label: t('admin.siteSettings.fields.seoDescription'),
                         hint: t(
                             'admin.siteSettings.fields.seoDescriptionCounter',
-                            { length: values.seo_description.length },
+                            { length: String(values.seo_description).length },
                         ),
+                    },
+                    {
+                        type: 'textarea',
+                        name: 'auto_reply_text',
+                        rows: 4,
+                        label: t('admin.siteSettings.fields.autoReplyText'),
+                        hint: t('admin.siteSettings.fields.autoReplyTextHelp'),
                     },
                 ],
             },
@@ -621,12 +681,33 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                 ),
                 fields: [
                     {
-                        type: 'text',
-                        name: 'contact_recipient_email',
-                        inputType: 'email',
-                        autoComplete: 'off',
-                        label: t('admin.siteSettings.fields.recipient'),
-                        hint: t('admin.siteSettings.fields.recipientHelp'),
+                        type: 'repeater',
+                        name: 'contact_recipients',
+                        label: t('admin.siteSettings.fields.recipients'),
+                        hint: t('admin.siteSettings.fields.recipientsHelp'),
+                        maxItems: MAX_RECIPIENTS,
+                        newItem: () => ({ email: '' }),
+                        labels: {
+                            add: t('admin.siteSettings.fields.recipientAdd'),
+                            item: (position) =>
+                                t('admin.siteSettings.fields.recipientItem', {
+                                    position,
+                                }),
+                        },
+                        itemFields: [
+                            {
+                                type: 'text',
+                                name: 'email',
+                                label: t('admin.siteSettings.fields.recipient'),
+                                required: true,
+                            },
+                        ],
+                    },
+                    {
+                        type: 'switch',
+                        name: 'contact_auto_reply',
+                        label: t('admin.siteSettings.fields.autoReply'),
+                        hint: t('admin.siteSettings.fields.autoReplyHelp'),
                     },
                 ],
             },
@@ -690,7 +771,9 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                             ]),
                         ),
                         ...form.data.translations[code],
-                    };
+                        contact_recipients: form.data.contact_recipients,
+                        contact_auto_reply: form.data.contact_auto_reply,
+                    } as TabValues;
 
                     return {
                         value: code,
@@ -703,6 +786,18 @@ export function SiteSettingsForm({ editor }: SiteSettingsFormProps) {
                                 values={values}
                                 errors={{
                                     ...errors,
+                                    // The request validates plain addresses;
+                                    // the repeater reads `<name>.<index>.email`.
+                                    ...Object.fromEntries(
+                                        form.data.contact_recipients.map(
+                                            (_, position) => [
+                                                `contact_recipients.${position}.email`,
+                                                errors[
+                                                    `contact_recipients.${position}`
+                                                ],
+                                            ],
+                                        ),
+                                    ),
                                     ...Object.fromEntries(
                                         TRANSLATION_FIELDS.map((field) => [
                                             field,

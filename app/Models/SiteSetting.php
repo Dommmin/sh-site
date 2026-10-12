@@ -31,7 +31,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $postal_code
  * @property string|null $city
  * @property string|null $country_code
- * @property string|null $contact_recipient_email
+ * @property string|null $contact_recipient_email Fallback recipient (first of `contact_recipients`).
+ * @property list<string>|null $contact_recipients Up to five contact form recipients.
+ * @property bool $contact_auto_reply
  * @property array<string, string>|null $social_links Keyed by SocialNetwork value.
  * @property AccentColor|null $accent Null: `APP_ACCENT` applies.
  * @property TypographyPreset|null $typography Null: the default preset.
@@ -81,6 +83,8 @@ class SiteSetting extends Model
             'city' => 'string',
             'country_code' => 'string',
             'contact_recipient_email' => 'string',
+            'contact_recipients' => 'array',
+            'contact_auto_reply' => 'boolean',
             'social_links' => 'array',
             'accent' => AccentColor::class,
             'typography' => TypographyPreset::class,

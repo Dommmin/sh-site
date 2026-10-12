@@ -96,15 +96,19 @@ declare namespace App {
                     lastError: string | null;
                     sentAt: string | null;
                     createdAt: string | null;
+                    webhookStatus: App.Enums.ContactWebhookStatus | null;
+                    webhookAttempts: number;
                 };
                 export type ContactMessageIndexData = {
                     items: App.Data.Admin.Contact.ContactMessageListItemData[];
                     pagination: App.Data.Listing.ListPaginationData;
                     filters: App.Data.Admin.Contact.ContactMessageListFiltersData;
                     can: App.Data.Admin.Contact.ContactMessageListAbilitiesData;
+                    exportMaxRows: number;
                 };
                 export type ContactMessageListAbilitiesData = {
                     delete: boolean;
+                    export: boolean;
                 };
                 export type ContactMessageListFiltersData = {
                     search: string;
@@ -487,6 +491,7 @@ declare namespace App {
                     footerText: string | null;
                     seoTitle: string | null;
                     seoDescription: string | null;
+                    autoReplyText: string | null;
                 };
                 export type SiteSettingsEditorData = {
                     settings: App.Data.Admin.Settings.SiteSettingsFormData;
@@ -525,6 +530,8 @@ declare namespace App {
                         };
                     };
                     googleSiteVerification: string | null;
+                    contactRecipients: string[];
+                    contactAutoReply: boolean;
                 };
                 export type SocialNetworkOptionData = {
                     network: App.Enums.SocialNetwork;
@@ -987,6 +994,7 @@ declare namespace App {
             | 'home_section.reordered';
         export type ConsentCategory = 'analytics' | 'marketing';
         export type ContactMessageStatus = 'pending' | 'sent' | 'failed';
+        export type ContactWebhookStatus = 'pending' | 'delivered' | 'failed';
         export type ContentPreviewState = 'draft' | 'scheduled' | 'published';
         export type HealthCheckStatus = 'ok' | 'fail' | 'skipped';
         export type HealthStatus = 'ok' | 'degraded' | 'fail';
