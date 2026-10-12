@@ -57,6 +57,20 @@ class ContactMessageSeeder extends Seeder
         'de' => ['Bitte um ein Angebot für eine Firmenwebsite.', 'Wir brauchen einen Onlineshop für etwa 300 Produkte.', 'Bieten Sie WCAG-Audits an?', 'Wir suchen ein Buchungssystem für Termine.'],
     ];
 
+    /** Address pattern of the generated enquiries, e.g. `lead-007@example.org`. */
+    public const string STREAM_EMAIL_PATTERN = '/^lead-\d{3}@example\.org$/';
+
+    /**
+     * Whether the message is one of the generated enquiries: its sample
+     * address and its text both come from this seeder, so a real message
+     * never matches.
+     */
+    public static function isStreamMessage(ContactMessage $message): bool
+    {
+        return preg_match(self::STREAM_EMAIL_PATTERN, $message->email) === 1
+            && in_array($message->message, self::STREAM_MESSAGES[$message->locale] ?? [], true);
+    }
+
     public function run(): void
     {
         $this->seedSamples();
