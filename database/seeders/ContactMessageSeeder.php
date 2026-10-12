@@ -99,17 +99,21 @@ class ContactMessageSeeder extends Seeder
                 $locale = $locales[mt_rand(0, count($locales) - 1)];
                 $failed = mt_rand(1, 10) === 1;
                 $createdAt = $date->copy()->setTime(mt_rand(8, 19), mt_rand(0, 59));
+                $messages = self::STREAM_MESSAGES[$locale];
+                // Draw every value before skipping, so a re-run consumes the
+                // same random sequence and seeds no extra enquiries.
+                $name = $names[mt_rand(0, count($names) - 1)];
+                $text = $messages[mt_rand(0, count($messages) - 1)];
 
                 if ($createdAt->isFuture() || ContactMessage::query()->where('email', $email)->exists()) {
                     continue;
                 }
 
-                $messages = self::STREAM_MESSAGES[$locale];
                 $message = new ContactMessage;
                 $message->forceFill([
-                    'name' => $names[mt_rand(0, count($names) - 1)],
+                    'name' => $name,
                     'email' => $email,
-                    'message' => $messages[mt_rand(0, count($messages) - 1)],
+                    'message' => $text,
                     'locale' => $locale,
                     'status' => $failed ? ContactMessageStatus::Failed : ContactMessageStatus::Sent,
                     'attempts' => $failed ? (int) config('contact.max_total_attempts') : 1,
