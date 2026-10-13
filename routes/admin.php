@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\Articles\ArticleController;
 use App\Http\Controllers\Admin\Audit\AuditLogController;
 use App\Http\Controllers\Admin\Contact\ContactMessageController;
+use App\Http\Controllers\Admin\ContactForms\ContactFormController;
 use App\Http\Controllers\Admin\Content\ContentPreviewController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faqs\FaqController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Admin\Users\UserController;
 use App\Http\Middleware\EnsureCanAccessAdminPanel;
 use App\Models\Article;
 use App\Models\AuditLog;
+use App\Models\ContactForm;
 use App\Models\ContactMessage;
 use App\Models\Faq;
 use App\Models\HomeSection;
@@ -161,6 +163,24 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::get('/contact', [ContactMessageController::class, 'index'])
             ->name('contact.index')
             ->can('viewAny', ContactMessage::class);
+        Route::get('/contact-forms', [ContactFormController::class, 'index'])
+            ->name('contact-forms.index')
+            ->can('viewAny', ContactForm::class);
+        Route::get('/contact-forms/create', [ContactFormController::class, 'create'])
+            ->name('contact-forms.create')
+            ->can('create', ContactForm::class);
+        Route::post('/contact-forms', [ContactFormController::class, 'store'])
+            ->name('contact-forms.store')
+            ->can('create', ContactForm::class);
+        Route::get('/contact-forms/{contactForm}/edit', [ContactFormController::class, 'edit'])
+            ->name('contact-forms.edit')
+            ->can('update', 'contactForm');
+        Route::put('/contact-forms/{contactForm}', [ContactFormController::class, 'update'])
+            ->name('contact-forms.update')
+            ->can('update', 'contactForm');
+        Route::delete('/contact-forms/{contactForm}', [ContactFormController::class, 'destroy'])
+            ->name('contact-forms.destroy')
+            ->can('delete', 'contactForm');
         Route::get('/contact/export', [ContactMessageController::class, 'export'])
             ->name('contact.export')
             ->can('export', ContactMessage::class)

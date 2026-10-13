@@ -103,6 +103,10 @@ return [
         'saturday' => 'Sat',
         'sunday' => 'Sun',
     ],
+    'answers' => [
+        'yes' => 'Yes',
+        'no' => 'No',
+    ],
     'actions' => [
         'save' => 'Save',
         'cancel' => 'Cancel',
