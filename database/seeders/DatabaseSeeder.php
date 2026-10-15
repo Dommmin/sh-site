@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
                 DemoMediaSeeder::class,
                 PageSeeder::class,
                 ArticleSeeder::class,
+                TagSeeder::class,
                 FaqSeeder::class,
                 ContactMessageSeeder::class,
                 SiteSettingsSeeder::class,

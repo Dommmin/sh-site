@@ -133,6 +133,7 @@ const sections: Section[] = [
                     publishedAt: null,
                     cover: null,
                     coverAlt: '',
+                    tags: [],
                 },
             ],
             listUrl: '/articles',

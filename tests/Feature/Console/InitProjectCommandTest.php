@@ -18,6 +18,7 @@ use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\SiteSetting;
+use App\Models\Tag;
 use App\Models\User;
 use App\Notifications\AccountInvitation;
 use App\Support\Env\EnvFileEditor;
@@ -30,6 +31,7 @@ use Database\Seeders\HomeSectionSeeder;
 use Database\Seeders\LegalPageSeeder;
 use Database\Seeders\NavigationMenuSeeder;
 use Database\Seeders\PageSeeder;
+use Database\Seeders\TagSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -557,4 +559,17 @@ test('--remove-demo keeps sample media still used by kept content or the site se
         ->and(MediaAsset::query()->pluck('id')->sort()->values()->all())->toBe(collect([$cover, $logo, $inBody])->sort()->values()->all())
         ->and(Article::query()->value('cover_media_id'))->toBe($cover)
         ->and(SiteSetting::query()->value('logo_media_id'))->toBe($logo);
+});
+
+test('--remove-demo deletes the sample tags with an audit entry and keeps a renamed one', function () {
+    seedDemo();
+    test()->seed(TagSeeder::class);
+    $this->travel(1)->minutes();
+    Tag::query()->where('slug', 'news')->sole()->update(['name' => ['en' => 'Company news']]);
+
+    [$exitCode] = runInit(['--remove-demo' => true]);
+
+    expect($exitCode)->toBe(0)
+        ->and(Tag::query()->pluck('slug')->all())->toBe(['news'])
+        ->and(AuditLog::query()->where('action', AuditAction::TagDeleted)->count())->toBe(count(TagSeeder::TAGS) - 1);
 });

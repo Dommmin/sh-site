@@ -96,6 +96,7 @@ export * from './stat-tile';
 export * from './surface';
 export * from './switch-field';
 export * from './tabs';
+export * from './tag-list';
 export * from './text';
 export * from './text-field';
 export * from './textarea-field';

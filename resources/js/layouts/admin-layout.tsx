@@ -14,6 +14,7 @@ import {
     Settings,
     ServerCog,
     SlidersHorizontal,
+    Tags,
     Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -38,6 +39,7 @@ import { index as navigationIndex } from '@/routes/admin/navigation';
 import { index as pagesIndex } from '@/routes/admin/pages';
 import { edit as siteSettingsEdit } from '@/routes/admin/site-settings';
 import { index as systemIndex } from '@/routes/admin/system';
+import { index as tagsIndex } from '@/routes/admin/tags';
 import { index as usersIndex } from '@/routes/admin/users';
 import { edit as editProfile } from '@/routes/profile';
 import type { BreadcrumbItem } from '@/types';
@@ -97,6 +99,7 @@ export default function AdminLayout({
                     articlesIndex(),
                     Newspaper,
                 ),
+                section('tags', t('admin.tags.navLabel'), tagsIndex(), Tags),
                 section(
                     'media',
                     t('admin.media.navLabel'),

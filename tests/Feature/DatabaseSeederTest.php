@@ -18,6 +18,7 @@ use App\Models\Page;
 use App\Models\PageSlugRedirect;
 use App\Models\PageTranslation;
 use App\Models\SiteSetting;
+use App\Models\Tag;
 use App\Models\User;
 use Database\Seeders\ArticleSeeder;
 use Database\Seeders\DatabaseSeeder;
@@ -27,6 +28,7 @@ use Database\Seeders\LegalPageSeeder;
 use Database\Seeders\PageSeeder;
 use Database\Seeders\SiteSettingsSeeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +43,8 @@ function seededCounts(): array
         'media' => MediaAsset::query()->count(),
         'pages' => Page::query()->count(),
         'articles' => Article::query()->count(),
+        'tags' => Tag::query()->count(),
+        'article tags' => DB::table('article_tag')->count(),
         'faqs' => Faq::query()->count(),
         'contact messages' => ContactMessage::query()->count(),
         'menu items' => MenuItem::query()->count(),

@@ -161,6 +161,7 @@ function LandingSection() {
                               publishedAt: '2026-09-30T08:00:00Z',
                               cover: demoMediaImage,
                               coverAlt: '',
+                              tags: [],
                           },
                           {
                               title: longName,
@@ -169,6 +170,7 @@ function LandingSection() {
                               publishedAt: null,
                               cover: null,
                               coverAlt: '',
+                              tags: [],
                           },
                       ],
             },
