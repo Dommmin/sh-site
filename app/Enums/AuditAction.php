@@ -38,6 +38,9 @@ enum AuditAction: string
     case ContactFormCreated = 'contact_form.created';
     case ContactFormUpdated = 'contact_form.updated';
     case ContactFormDeleted = 'contact_form.deleted';
+    case TagCreated = 'tag.created';
+    case TagUpdated = 'tag.updated';
+    case TagDeleted = 'tag.deleted';
 
     /**
      * @return list<string>

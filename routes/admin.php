@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\Pages\PageController;
 use App\Http\Controllers\Admin\Settings\SitePublicationController;
 use App\Http\Controllers\Admin\Settings\SiteSettingsController;
 use App\Http\Controllers\Admin\SystemStatusController;
+use App\Http\Controllers\Admin\Tags\TagController;
 use App\Http\Controllers\Admin\UserIndexController;
 use App\Http\Controllers\Admin\Users\UserController;
 use App\Http\Middleware\EnsureCanAccessAdminPanel;
@@ -27,6 +28,7 @@ use App\Models\MediaAsset;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\SiteSetting;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -115,6 +117,25 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])
             ->name('articles.destroy')
             ->can('delete', 'article');
+
+        Route::get('/tags', [TagController::class, 'index'])
+            ->name('tags.index')
+            ->can('viewAny', Tag::class);
+        Route::get('/tags/create', [TagController::class, 'create'])
+            ->name('tags.create')
+            ->can('create', Tag::class);
+        Route::post('/tags', [TagController::class, 'store'])
+            ->name('tags.store')
+            ->can('create', Tag::class);
+        Route::get('/tags/{tag}/edit', [TagController::class, 'edit'])
+            ->name('tags.edit')
+            ->can('update', 'tag');
+        Route::put('/tags/{tag}', [TagController::class, 'update'])
+            ->name('tags.update')
+            ->can('update', 'tag');
+        Route::delete('/tags/{tag}', [TagController::class, 'destroy'])
+            ->name('tags.destroy')
+            ->can('delete', 'tag');
 
         Route::get('/faqs', [FaqController::class, 'index'])
             ->name('faqs.index')

@@ -12,6 +12,8 @@ declare namespace App {
                     locales: App.Data.Content.ContentLocalesData;
                     can: App.Data.Admin.Articles.ArticleAbilitiesData;
                     previewUrls: Record<string, string>;
+                    tagOptions: App.Data.Listing.RecordOptionData[];
+                    maxTags: number;
                 };
                 export type ArticleFormData = {
                     id: number | null;
@@ -21,6 +23,7 @@ declare namespace App {
                         string,
                         App.Data.Admin.Articles.ArticleTranslationFormData
                     >;
+                    tagIds: number[];
                 };
                 export type ArticleIndexData = {
                     items: App.Data.Admin.Articles.ArticleListItemData[];
@@ -596,6 +599,29 @@ declare namespace App {
                     testMailRecipient: string;
                 };
             }
+            namespace Tags {
+                export type TagEditorData = {
+                    tag: App.Data.Admin.Tags.TagFormData;
+                    locales: App.Data.Content.ContentLocalesData;
+                    canDelete: boolean;
+                };
+                export type TagFormData = {
+                    id: number | null;
+                    updatedAt: string | null;
+                    slug: string;
+                    name: Record<string, string>;
+                };
+                export type TagIndexData = {
+                    items: App.Data.Admin.Tags.TagListItemData[];
+                    canCreate: boolean;
+                };
+                export type TagListItemData = {
+                    id: number;
+                    slug: string;
+                    name: string;
+                    articlesCount: number;
+                };
+            }
             namespace Users {
                 export type UserAbilitiesData = {
                     delete: boolean;
@@ -661,6 +687,7 @@ declare namespace App {
                 publishedAt: string | null;
                 cover: App.Data.Media.MediaImageData | null;
                 coverAlt: string;
+                tags: App.Data.Content.PublicTagData[];
             };
             export type ComingSoonPageData = {
                 contactEmail: string | null;
@@ -693,11 +720,15 @@ declare namespace App {
                 listUrl: string;
                 alternates: Record<string, string>;
                 preview: App.Data.Content.ContentPreviewData | null;
+                tags: App.Data.Content.PublicTagData[];
             };
             export type PublicArticleListData = {
                 items: App.Data.Content.ArticleSummaryData[];
                 pagination: App.Data.Listing.ListPaginationData;
                 locale: string;
+                listUrl: string;
+                tags: App.Data.Content.PublicTagData[];
+                activeTag: App.Data.Content.PublicTagData | null;
             };
             export type PublicPageData = {
                 title: string;
@@ -707,6 +738,11 @@ declare namespace App {
                 publishedAt: string | null;
                 alternates: Record<string, string>;
                 preview: App.Data.Content.ContentPreviewData | null;
+            };
+            export type PublicTagData = {
+                slug: string;
+                name: string;
+                url: string;
             };
             export type WelcomePageData = {
                 contactForm: App.Data.Contact.ContactFormData;
@@ -1058,7 +1094,10 @@ declare namespace App {
             | 'home_section.reordered'
             | 'contact_form.created'
             | 'contact_form.updated'
-            | 'contact_form.deleted';
+            | 'contact_form.deleted'
+            | 'tag.created'
+            | 'tag.updated'
+            | 'tag.deleted';
         export type ConsentCategory = 'analytics' | 'marketing';
         export type ContactFieldType =
             | 'text'

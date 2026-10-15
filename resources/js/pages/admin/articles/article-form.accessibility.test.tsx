@@ -112,11 +112,14 @@ function makeEditor(
             updatedAt: null,
             coverMediaId: null,
             translations: { en: blankTranslation(), de: blankTranslation() },
+            tagIds: [],
             ...article,
         },
         locales,
         can: { create: true, publish: true, delete: false, ...can },
         previewUrls: {},
+        tagOptions: [],
+        maxTags: 10,
     };
 }
 
