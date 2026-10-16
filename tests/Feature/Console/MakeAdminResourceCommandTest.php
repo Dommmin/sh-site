@@ -751,6 +751,47 @@ test('a hasMany relation adds the relation, a tab of related records and its tes
         ->toContain("Product::factory()->count(2)->create(['category_id' => \$category->id]);");
 });
 
+test('a hasMany tab never lists an --owned resource, whichever is generated first', function () {
+    $this->artisan('app:make-resource', [
+        'name' => 'Category',
+        '--fields' => 'name:string:required',
+        '--no-format' => true,
+    ])->assertSuccessful();
+    $this->artisan('app:make-resource', [
+        'name' => 'Product',
+        '--fields' => 'name:string:required,category:belongsTo(Category.name)',
+        '--owned' => true,
+        '--no-format' => true,
+    ])->assertSuccessful();
+    $before = sandboxSnapshot($this->files, $this->sandbox);
+
+    $this->artisan('app:make-resource', [
+        'name' => 'Shelf',
+        '--fields' => 'name:string:required,products:hasMany(Product.name)',
+        '--no-format' => true,
+    ])->expectsOutputToContain('is an --owned resource; a hasMany tab would list other users\' records')->assertFailed();
+
+    expect(sandboxSnapshot($this->files, $this->sandbox))->toBe($before);
+});
+
+test('an --owned resource cannot be generated for a parent that lists it in a hasMany tab', function () {
+    $this->artisan('app:make-resource', [
+        'name' => 'Category',
+        '--fields' => 'name:string:required,products:hasMany(Product.name)',
+        '--no-format' => true,
+    ])->assertSuccessful();
+    $before = sandboxSnapshot($this->files, $this->sandbox);
+
+    $this->artisan('app:make-resource', [
+        'name' => 'Product',
+        '--fields' => 'name:string:required,category:belongsTo(Category.name)',
+        '--owned' => true,
+        '--no-format' => true,
+    ])->expectsOutputToContain('lists Product records in a hasMany tab, which an --owned resource does not support.')->assertFailed();
+
+    expect(sandboxSnapshot($this->files, $this->sandbox))->toBe($before);
+});
+
 test('enum badge tones are parsed per value and default to neutral', function () {
     $status = ResourceBlueprint::parse('Product', 'status:enum(draft|published:success|archived:danger)')->field('status');
 

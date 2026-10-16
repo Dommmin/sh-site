@@ -155,6 +155,12 @@ final class ResourceGenerator
                 continue;
             }
 
+            if ($this->isOwned($model)) {
+                $errors[] = "Field [{$field->name}]: App\\Models\\{$model} is an --owned resource; a hasMany tab would list other users' records, so it is not supported.";
+
+                continue;
+            }
+
             $attributes = self::modelAttributes($this->files->get($this->path($relative)));
             $foreignKey = $field->foreignKey($resource->model);
 
@@ -167,7 +173,31 @@ final class ResourceGenerator
             }
         }
 
+        // An --owned resource must not appear in another resource's hasMany
+        // tab, which lists records regardless of their owner.
+        if ($resource->owned) {
+            foreach ($resource->fieldsOfType('belongsTo') as $field) {
+                $parent = $this->path('app/Models/'.$field->relatedClass().'.php');
+
+                if ($this->files->exists($parent) && str_contains($this->files->get($parent), "hasMany({$resource->model}::class")) {
+                    $errors[] = "Field [{$field->name}]: App\\Models\\{$field->relatedClass()} lists {$resource->model} records in a hasMany tab, which an --owned resource does not support.";
+                }
+            }
+        }
+
         return $errors;
+    }
+
+    /**
+     * Whether the generated policy of the model limits records to their
+     * owner (`--owned`).
+     */
+    private function isOwned(string $model): bool
+    {
+        $policy = $this->path("app/Policies/{$model}Policy.php");
+
+        return $this->files->exists($policy)
+            && str_contains($this->files->get($policy), '$user->id === $');
     }
 
     /**
