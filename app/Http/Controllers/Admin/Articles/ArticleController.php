@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Articles;
 
+use App\Actions\Audit\ShareRecordHistory;
 use App\Actions\Content\CreateArticle;
 use App\Actions\Content\DeleteArticle;
 use App\Actions\Content\UpdateArticle;
@@ -102,8 +103,10 @@ class ArticleController extends Controller
     /**
      * Show the form for editing the article.
      */
-    public function edit(Request $request, Article $article): Response
+    public function edit(Request $request, Article $article, ShareRecordHistory $recordHistory): Response
     {
+        $recordHistory->handle($request->user(), $article);
+
         $article = $this->articles->forEditor($article);
 
         return Inertia::render('admin/articles/edit', new ArticleEditorData(

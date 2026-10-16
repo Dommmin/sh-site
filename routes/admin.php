@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\HomeSections\HomeSectionController;
 use App\Http\Controllers\Admin\Media\MediaAssetController;
 use App\Http\Controllers\Admin\Navigation\MenuItemController;
 use App\Http\Controllers\Admin\Pages\PageController;
+use App\Http\Controllers\Admin\Search\AdminSearchController;
 use App\Http\Controllers\Admin\Settings\SitePublicationController;
 use App\Http\Controllers\Admin\Settings\SiteSettingsController;
 use App\Http\Controllers\Admin\SystemStatusController;
@@ -37,6 +38,9 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
     ->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/search', AdminSearchController::class)
+            ->name('search')
+            ->middleware('throttle:60,1');
         Route::get('/system', [SystemStatusController::class, 'index'])
             ->name('system.index')
             ->can('view', SiteSetting::class);
