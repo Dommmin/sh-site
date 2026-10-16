@@ -83,6 +83,10 @@ declare namespace App {
                     subjectId: number | null;
                     changedFields: string[];
                 };
+                export type RecordHistoryData = {
+                    entries: App.Data.Admin.Audit.AuditLogListItemData[];
+                    limit: number;
+                };
             }
             namespace Contact {
                 export type ContactMessageAbilitiesData = {
