@@ -3,6 +3,7 @@
 namespace App\Support\ResourceGenerator;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 use ParseError;
 use RuntimeException;
 use Throwable;
@@ -141,6 +142,28 @@ final class ResourceGenerator
 
             if (preg_match('/\$table\s*=|#\[Table\(/', $source) === 1) {
                 $errors[] = "Field [{$field->name}]: App\\Models\\{$model} uses a custom table name, which the generated foreign key does not support.";
+            }
+        }
+
+        foreach ($resource->hasManyRelations as $field) {
+            $model = (string) $field->relatedModel;
+            $relative = "app/Models/{$model}.php";
+
+            // The related resource is usually generated afterwards, with
+            // belongsTo pointing back here; check it only when it exists.
+            if (! $this->files->exists($this->path($relative))) {
+                continue;
+            }
+
+            $attributes = self::modelAttributes($this->files->get($this->path($relative)));
+            $foreignKey = $field->foreignKey($resource->model);
+
+            if (! in_array($foreignKey, $attributes, true)) {
+                $errors[] = "Field [{$field->name}]: App\\Models\\{$model} has no [{$foreignKey}] attribute; give it a belongsTo({$resource->model}.<label>) field named ".Str::snake($resource->model).'.';
+            }
+
+            if (! in_array((string) $field->relatedLabel, $attributes, true)) {
+                $errors[] = "Field [{$field->name}]: column [{$field->relatedLabel}] is not a fillable or documented attribute of App\\Models\\{$model}.";
             }
         }
 
