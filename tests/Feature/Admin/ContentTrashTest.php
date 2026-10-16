@@ -32,6 +32,7 @@ test('a deleted article goes to the trash and disappears from the website and th
     $this->actingAs($admin)->get(route('admin.articles.index'))
         ->assertInertia(fn (Assert $page) => $page->has('items', 0));
     $this->actingAs($admin)->get(route('admin.articles.edit', $article))->assertNotFound();
+    $this->actingAs($admin)->getJson(route('admin.search', ['q' => 'hello']))->assertJsonCount(0, 'results');
 });
 
 test('the slug of a trashed article stays taken', function () {

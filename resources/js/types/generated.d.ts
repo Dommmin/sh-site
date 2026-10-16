@@ -84,6 +84,10 @@ declare namespace App {
                     subjectId: number | null;
                     changedFields: string[];
                 };
+                export type RecordHistoryData = {
+                    entries: App.Data.Admin.Audit.AuditLogListItemData[];
+                    limit: number;
+                };
             }
             namespace Contact {
                 export type ContactMessageAbilitiesData = {
@@ -542,6 +546,25 @@ declare namespace App {
                     publishedAt: string | null;
                 };
             }
+            namespace Search {
+                export type AdminSearchData = {
+                    query: string;
+                    results: App.Data.Admin.Search.AdminSearchResultData[];
+                };
+                export type AdminSearchResultData = {
+                    type:
+                        | 'pages'
+                        | 'articles'
+                        | 'tags'
+                        | 'faqs'
+                        | 'media'
+                        | 'users';
+                    id: number;
+                    label: string;
+                    description: string | null;
+                    url: string;
+                };
+            }
             namespace Settings {
                 export type SiteSettingTranslationFormData = {
                     tagline: string | null;
@@ -994,6 +1017,17 @@ declare namespace App {
             export type RecordOptionData = {
                 id: number;
                 label: string;
+            };
+            export type RelatedRecordData = {
+                id: number;
+                label: string;
+                url: string;
+            };
+            export type RelatedRecordsData = {
+                relation: string;
+                total: number;
+                items: App.Data.Listing.RelatedRecordData[];
+                listUrl: string;
             };
         }
         namespace Media {

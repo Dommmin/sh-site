@@ -25,6 +25,7 @@ import type {
     AdminNavGroup,
     AdminNavItem,
 } from '@/design-system/primitives';
+import { useAdminSearch } from '@/hooks/use-admin-search';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/i18n';
 import { logout } from '@/routes';
@@ -56,6 +57,7 @@ export default function AdminLayout({
     children: ReactNode;
 }) {
     const { t } = useTranslation();
+    const commandSearch = useAdminSearch();
     const { auth, site, designSystemUrl } = usePage().props;
     const { currentUrl, isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
 
@@ -262,6 +264,7 @@ export default function AdminLayout({
             }}
             profileHref={editProfile()}
             logoutHref={logout()}
+            commandSearch={commandSearch}
         >
             {children}
         </AdminShell>
