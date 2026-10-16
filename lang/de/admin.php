@@ -729,6 +729,11 @@ return [
                 'updated' => 'Kontaktformular geändert',
                 'deleted' => 'Kontaktformular gelöscht',
             ],
+            'tag' => [
+                'created' => 'Tag erstellt',
+                'updated' => 'Tag geändert',
+                'deleted' => 'Tag gelöscht',
+            ],
             'home_section' => [
                 'updated' => 'Startseitenabschnitt geändert',
                 'toggled' => 'Startseitenabschnitt ein- oder ausgeblendet',
@@ -744,7 +749,17 @@ return [
             'sitesetting' => 'Website-Einstellungen',
             'menuitem' => 'Menüeintrag',
             'homesection' => 'Startseitenabschnitt',
+            'tag' => 'Tag',
         ],
+    ],
+
+    'history' => [
+        'title' => 'Änderungsverlauf',
+        'empty' => 'Für diesen Datensatz sind noch keine Änderungen erfasst.',
+        'entry' => ':actor · :action',
+        'fields' => 'Geänderte Felder: :fields',
+        'limit' => 'Die letzten :limit Änderungen.',
+        'all' => 'Gesamtes Audit-Log',
     ],
 
     'tags' => [

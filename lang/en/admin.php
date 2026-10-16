@@ -729,6 +729,11 @@ return [
                 'updated' => 'Contact form updated',
                 'deleted' => 'Contact form deleted',
             ],
+            'tag' => [
+                'created' => 'Tag created',
+                'updated' => 'Tag updated',
+                'deleted' => 'Tag deleted',
+            ],
             'home_section' => [
                 'updated' => 'Home page section updated',
                 'toggled' => 'Home page section shown or hidden',
@@ -744,7 +749,17 @@ return [
             'sitesetting' => 'Site settings',
             'menuitem' => 'Menu item',
             'homesection' => 'Home page section',
+            'tag' => 'Tag',
         ],
+    ],
+
+    'history' => [
+        'title' => 'Change history',
+        'empty' => 'No changes recorded for this record yet.',
+        'entry' => ':actor · :action',
+        'fields' => 'Changed fields: :fields',
+        'limit' => 'The last :limit changes.',
+        'all' => 'Full audit log',
     ],
 
     'tags' => [

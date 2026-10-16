@@ -729,6 +729,11 @@ return [
                 'updated' => 'Zmieniono formularz kontaktowy',
                 'deleted' => 'Usunięto formularz kontaktowy',
             ],
+            'tag' => [
+                'created' => 'Tag utworzony',
+                'updated' => 'Tag zmieniony',
+                'deleted' => 'Tag usunięty',
+            ],
             'home_section' => [
                 'updated' => 'Zmieniono sekcję strony głównej',
                 'toggled' => 'Pokazano lub ukryto sekcję strony głównej',
@@ -744,7 +749,17 @@ return [
             'sitesetting' => 'Ustawienia strony',
             'menuitem' => 'Pozycja menu',
             'homesection' => 'Sekcja strony głównej',
+            'tag' => 'Tag',
         ],
+    ],
+
+    'history' => [
+        'title' => 'Historia zmian',
+        'empty' => 'Brak zapisanych zmian tego rekordu.',
+        'entry' => ':actor · :action',
+        'fields' => 'Zmienione pola: :fields',
+        'limit' => 'Ostatnie :limit zmian.',
+        'all' => 'Cały dziennik audytu',
     ],
 
     'tags' => [
