@@ -4,6 +4,7 @@ declare namespace App {
             namespace Articles {
                 export type ArticleAbilitiesData = {
                     create: boolean;
+                    update: boolean;
                     publish: boolean;
                     delete: boolean;
                 };
@@ -215,6 +216,8 @@ declare namespace App {
                         | null;
                     publishing: App.Data.Admin.Dashboard.PublishingData | null;
                     attention: App.Data.Admin.Dashboard.AttentionData | null;
+                    canCreateArticles: boolean;
+                    canCreatePages: boolean;
                 };
                 export type PublishingData = {
                     recent: number;
@@ -226,6 +229,7 @@ declare namespace App {
             namespace Faqs {
                 export type FaqAbilitiesData = {
                     create: boolean;
+                    update: boolean;
                     delete: boolean;
                 };
                 export type FaqEditorData = {
@@ -419,6 +423,7 @@ declare namespace App {
             namespace Navigation {
                 export type MenuAbilitiesData = {
                     create: boolean;
+                    update: boolean;
                     reorder: boolean;
                     delete: boolean;
                 };
@@ -485,6 +490,7 @@ declare namespace App {
             namespace Pages {
                 export type PageAbilitiesData = {
                     create: boolean;
+                    update: boolean;
                     publish: boolean;
                     delete: boolean;
                 };
@@ -604,6 +610,7 @@ declare namespace App {
                     tag: App.Data.Admin.Tags.TagFormData;
                     locales: App.Data.Content.ContentLocalesData;
                     canDelete: boolean;
+                    canUpdate: boolean;
                 };
                 export type TagFormData = {
                     id: number | null;
@@ -1172,7 +1179,7 @@ declare namespace App {
             | 'github';
         export type ThemePreference = 'light' | 'dark' | 'system';
         export type TypographyPreset = 'default' | 'classic';
-        export type UserRole = 'admin' | 'editor';
+        export type UserRole = 'admin' | 'editor' | 'viewer';
         export type Weekday =
             | 'monday'
             | 'tuesday'

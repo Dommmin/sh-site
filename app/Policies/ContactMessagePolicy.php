@@ -6,9 +6,9 @@ use App\Models\ContactMessage;
 use App\Models\User;
 
 /**
- * Panel roles (admin and editor) read contact messages; only
- * administrators trigger a new delivery, delete a message or export the
- * list (personal data of every sender).
+ * Admins and editors read contact messages; a viewer does not (personal
+ * data of senders). Only administrators trigger a new delivery, delete a
+ * message or export the list.
  */
 class ContactMessagePolicy
 {
@@ -17,7 +17,7 @@ class ContactMessagePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**
@@ -25,7 +25,7 @@ class ContactMessagePolicy
      */
     public function view(User $user, ContactMessage $contactMessage): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**

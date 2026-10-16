@@ -16,5 +16,6 @@ class TagEditorData extends Data
         public TagFormData $tag,
         public ContentLocalesData $locales,
         public bool $canDelete,
+        public bool $canUpdate = true,
     ) {}
 }

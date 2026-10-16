@@ -67,6 +67,7 @@ class TagController extends Controller
         return Inertia::render('admin/tags/edit', $this->editor(
             TagFormData::fromModel($tag, $this->localization->getPublicLocales()),
             canDelete: $request->user()?->can('delete', $tag) ?? false,
+            canUpdate: $request->user()?->can('update', $tag) ?? false,
         ));
     }
 
@@ -98,12 +99,13 @@ class TagController extends Controller
         return to_route('admin.tags.index');
     }
 
-    private function editor(TagFormData $tag, bool $canDelete): TagEditorData
+    private function editor(TagFormData $tag, bool $canDelete, bool $canUpdate = true): TagEditorData
     {
         return new TagEditorData(
             tag: $tag,
             locales: ContentLocalesData::fromConfig($this->localization),
             canDelete: $canDelete,
+            canUpdate: $canUpdate,
         );
     }
 }

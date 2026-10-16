@@ -131,12 +131,16 @@ export default function AdminLayout({
             id: 'communication',
             label: t('admin.nav.communication'),
             items: [
-                section(
-                    'contact',
-                    t('admin.contact.navLabel'),
-                    contactIndex(),
-                    Mail,
-                ),
+                ...(auth.can.viewContactMessages
+                    ? [
+                          section(
+                              'contact',
+                              t('admin.contact.navLabel'),
+                              contactIndex(),
+                              Mail,
+                          ),
+                      ]
+                    : []),
                 ...(auth.can.manageSiteSettings
                     ? [
                           section(

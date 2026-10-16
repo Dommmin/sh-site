@@ -83,7 +83,7 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->can('create', Page::class);
         Route::get('/pages/{page}/edit', [PageController::class, 'edit'])
             ->name('pages.edit')
-            ->can('update', 'page');
+            ->can('view', 'page');
         Route::get('/pages/{page}/preview/{contentLocale}', [ContentPreviewController::class, 'page'])
             ->name('pages.preview')
             ->middleware('signed')
@@ -106,7 +106,7 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->can('create', Article::class);
         Route::get('/articles/{article}/edit', [ArticleController::class, 'edit'])
             ->name('articles.edit')
-            ->can('update', 'article');
+            ->can('view', 'article');
         Route::get('/articles/{article}/preview/{contentLocale}', [ContentPreviewController::class, 'article'])
             ->name('articles.preview')
             ->middleware('signed')
@@ -129,7 +129,7 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->can('create', Tag::class);
         Route::get('/tags/{tag}/edit', [TagController::class, 'edit'])
             ->name('tags.edit')
-            ->can('update', 'tag');
+            ->can('view', 'tag');
         Route::put('/tags/{tag}', [TagController::class, 'update'])
             ->name('tags.update')
             ->can('update', 'tag');
@@ -148,7 +148,7 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->can('create', Faq::class);
         Route::get('/faqs/{faq}/edit', [FaqController::class, 'edit'])
             ->name('faqs.edit')
-            ->can('update', 'faq');
+            ->can('view', 'faq');
         Route::put('/faqs/{faq}', [FaqController::class, 'update'])
             ->name('faqs.update')
             ->can('update', 'faq');
@@ -239,7 +239,7 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->can('reorder', MenuItem::class);
         Route::get('/navigation/{menuItem}/edit', [MenuItemController::class, 'edit'])
             ->name('navigation.edit')
-            ->can('update', 'menuItem');
+            ->can('view', 'menuItem');
         Route::put('/navigation/{menuItem}', [MenuItemController::class, 'update'])
             ->name('navigation.update')
             ->can('update', 'menuItem');
@@ -255,7 +255,7 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::get('/home-sections/{homeSection}/edit', [HomeSectionController::class, 'edit'])
             ->whereNumber('homeSection')
             ->name('home-sections.edit')
-            ->can('update', 'homeSection');
+            ->can('view', 'homeSection');
         Route::put('/home-sections/{homeSection}', [HomeSectionController::class, 'update'])
             ->whereNumber('homeSection')
             ->name('home-sections.update')
