@@ -15,6 +15,7 @@ import {
     ServerCog,
     SlidersHorizontal,
     Tags,
+    Trash2,
     Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -24,6 +25,7 @@ import type {
     AdminNavGroup,
     AdminNavItem,
 } from '@/design-system/primitives';
+import { useAdminSearch } from '@/hooks/use-admin-search';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/i18n';
 import { logout } from '@/routes';
@@ -40,6 +42,7 @@ import { index as pagesIndex } from '@/routes/admin/pages';
 import { edit as siteSettingsEdit } from '@/routes/admin/site-settings';
 import { index as systemIndex } from '@/routes/admin/system';
 import { index as tagsIndex } from '@/routes/admin/tags';
+import { index as trashIndex } from '@/routes/admin/trash';
 import { index as usersIndex } from '@/routes/admin/users';
 import { edit as editProfile } from '@/routes/profile';
 import type { BreadcrumbItem } from '@/types';
@@ -54,6 +57,7 @@ export default function AdminLayout({
     children: ReactNode;
 }) {
     const { t } = useTranslation();
+    const commandSearch = useAdminSearch();
     const { auth, site, designSystemUrl } = usePage().props;
     const { currentUrl, isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
 
@@ -124,6 +128,16 @@ export default function AdminLayout({
                     homeSectionsIndex(),
                     LayoutTemplate,
                 ),
+                ...(auth.can.manageTrash
+                    ? [
+                          section(
+                              'trash',
+                              t('admin.trash.navLabel'),
+                              trashIndex(),
+                              Trash2,
+                          ),
+                      ]
+                    : []),
                 // app:make-resource: new navigation items
             ],
         },
@@ -250,6 +264,7 @@ export default function AdminLayout({
             }}
             profileHref={editProfile()}
             logoutHref={logout()}
+            commandSearch={commandSearch}
         >
             {children}
         </AdminShell>

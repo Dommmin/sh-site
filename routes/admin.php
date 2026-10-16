@@ -11,10 +11,12 @@ use App\Http\Controllers\Admin\HomeSections\HomeSectionController;
 use App\Http\Controllers\Admin\Media\MediaAssetController;
 use App\Http\Controllers\Admin\Navigation\MenuItemController;
 use App\Http\Controllers\Admin\Pages\PageController;
+use App\Http\Controllers\Admin\Search\AdminSearchController;
 use App\Http\Controllers\Admin\Settings\SitePublicationController;
 use App\Http\Controllers\Admin\Settings\SiteSettingsController;
 use App\Http\Controllers\Admin\SystemStatusController;
 use App\Http\Controllers\Admin\Tags\TagController;
+use App\Http\Controllers\Admin\Trash\TrashController;
 use App\Http\Controllers\Admin\UserIndexController;
 use App\Http\Controllers\Admin\Users\UserController;
 use App\Http\Middleware\EnsureCanAccessAdminPanel;
@@ -37,6 +39,9 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
     ->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/search', AdminSearchController::class)
+            ->name('search')
+            ->middleware('throttle:60,1');
         Route::get('/system', [SystemStatusController::class, 'index'])
             ->name('system.index')
             ->can('view', SiteSetting::class);
@@ -117,6 +122,18 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])
             ->name('articles.destroy')
             ->can('delete', 'article');
+
+        Route::get('/trash', [TrashController::class, 'index'])
+            ->name('trash.index')
+            ->can('viewTrashed', Page::class);
+        Route::put('/trash/{type}/{id}/restore', [TrashController::class, 'restore'])
+            ->whereIn('type', ['pages', 'articles'])
+            ->whereNumber('id')
+            ->name('trash.restore');
+        Route::delete('/trash/{type}/{id}', [TrashController::class, 'destroy'])
+            ->whereIn('type', ['pages', 'articles'])
+            ->whereNumber('id')
+            ->name('trash.destroy');
 
         Route::get('/tags', [TagController::class, 'index'])
             ->name('tags.index')

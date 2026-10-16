@@ -15,6 +15,7 @@ declare namespace App {
                     previewUrls: Record<string, string>;
                     tagOptions: App.Data.Listing.RecordOptionData[];
                     maxTags: number;
+                    trashDays: number;
                 };
                 export type ArticleFormData = {
                     id: number | null;
@@ -82,6 +83,10 @@ declare namespace App {
                     subjectType: string;
                     subjectId: number | null;
                     changedFields: string[];
+                };
+                export type RecordHistoryData = {
+                    entries: App.Data.Admin.Audit.AuditLogListItemData[];
+                    limit: number;
                 };
             }
             namespace Contact {
@@ -499,6 +504,7 @@ declare namespace App {
                     locales: App.Data.Content.ContentLocalesData;
                     can: App.Data.Admin.Pages.PageAbilitiesData;
                     previewUrls: Record<string, string>;
+                    trashDays: number;
                 };
                 export type PageFormData = {
                     id: number | null;
@@ -538,6 +544,25 @@ declare namespace App {
                     body: { [key: string]: unknown } | null;
                     status: App.Enums.PublicationStatus;
                     publishedAt: string | null;
+                };
+            }
+            namespace Search {
+                export type AdminSearchData = {
+                    query: string;
+                    results: App.Data.Admin.Search.AdminSearchResultData[];
+                };
+                export type AdminSearchResultData = {
+                    type:
+                        | 'pages'
+                        | 'articles'
+                        | 'tags'
+                        | 'faqs'
+                        | 'media'
+                        | 'users';
+                    id: number;
+                    label: string;
+                    description: string | null;
+                    url: string;
                 };
             }
             namespace Settings {
@@ -627,6 +652,20 @@ declare namespace App {
                     slug: string;
                     name: string;
                     articlesCount: number;
+                };
+            }
+            namespace Trash {
+                export type TrashIndexData = {
+                    items: App.Data.Admin.Trash.TrashItemData[];
+                    retentionDays: number;
+                };
+                export type TrashItemData = {
+                    type: App.Enums.TrashedContentType;
+                    id: number;
+                    title: string | null;
+                    locales: string[];
+                    deletedAt: string | null;
+                    purgeAt: string | null;
                 };
             }
             namespace Users {
@@ -979,6 +1018,17 @@ declare namespace App {
                 id: number;
                 label: string;
             };
+            export type RelatedRecordData = {
+                id: number;
+                label: string;
+                url: string;
+            };
+            export type RelatedRecordsData = {
+                relation: string;
+                total: number;
+                items: App.Data.Listing.RelatedRecordData[];
+                listUrl: string;
+            };
         }
         namespace Media {
             export type MediaImageData = {
@@ -1076,11 +1126,15 @@ declare namespace App {
             | 'page.published'
             | 'page.unpublished'
             | 'page.deleted'
+            | 'page.restored'
+            | 'page.purged'
             | 'article.created'
             | 'article.updated'
             | 'article.published'
             | 'article.unpublished'
             | 'article.deleted'
+            | 'article.restored'
+            | 'article.purged'
             | 'user.created'
             | 'user.updated'
             | 'user.role_changed'
@@ -1178,6 +1232,7 @@ declare namespace App {
             | 'tiktok'
             | 'github';
         export type ThemePreference = 'light' | 'dark' | 'system';
+        export type TrashedContentType = 'pages' | 'articles';
         export type TypographyPreset = 'default' | 'classic';
         export type UserRole = 'admin' | 'editor' | 'viewer';
         export type Weekday =
