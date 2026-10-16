@@ -231,6 +231,7 @@ declare namespace App {
                     create: boolean;
                     update: boolean;
                     delete: boolean;
+                    import: boolean;
                 };
                 export type FaqEditorData = {
                     faq: App.Data.Admin.Faqs.FaqFormData;
@@ -337,6 +338,29 @@ declare namespace App {
                     position: number;
                     title: string | null;
                     updatedAt: string | null;
+                };
+            }
+            namespace Import {
+                export type ImportPreviewData = {
+                    fileName: string;
+                    fileErrors: string[];
+                    rows: App.Data.Admin.Import.ImportRowData[];
+                    total: number;
+                    invalid: number;
+                    token: string | null;
+                };
+                export type ImportRowData = {
+                    line: number;
+                    label: string;
+                    errors: string[];
+                };
+                export type ImportScreenData = {
+                    module: 'faqs' | 'tags';
+                    columns: string[];
+                    requiredColumns: string[];
+                    maxRows: number;
+                    maxKilobytes: number;
+                    preview: App.Data.Admin.Import.ImportPreviewData | null;
                 };
             }
             namespace Media {
@@ -621,6 +645,7 @@ declare namespace App {
                 export type TagIndexData = {
                     items: App.Data.Admin.Tags.TagListItemData[];
                     canCreate: boolean;
+                    canImport: boolean;
                 };
                 export type TagListItemData = {
                     id: number;
@@ -1091,6 +1116,7 @@ declare namespace App {
             | 'media.updated'
             | 'media.deleted'
             | 'resource.exported'
+            | 'resource.imported'
             | 'site_settings.updated'
             | 'navigation.item_created'
             | 'navigation.item_updated'

@@ -5,6 +5,7 @@ import {
     Badge,
     Button,
     ConfirmDialog,
+    Inline,
     Link,
     ResourceTable,
 } from '@/design-system/primitives';
@@ -12,6 +13,7 @@ import { useTranslation } from '@/i18n';
 import { tableSortLabels } from '@/lib/table-sort-labels';
 import { index as adminIndex } from '@/routes/admin';
 import { create, destroy, edit, index } from '@/routes/admin/faqs';
+import { show as importShow } from '@/routes/admin/import';
 
 type Row = App.Data.Admin.Faqs.FaqListItemData;
 type IndexProps = App.Data.Admin.Faqs.FaqIndexData;
@@ -50,11 +52,24 @@ export default function AdminFaqsIndex() {
                 header={{
                     title: t('admin.faqs.title'),
                     description: t('admin.faqs.description'),
-                    actions: can.create ? (
-                        <Button href={create()}>
-                            {t('admin.faqs.create')}
-                        </Button>
-                    ) : undefined,
+                    actions:
+                        can.create || can.import ? (
+                            <Inline gap="tight">
+                                {can.import && (
+                                    <Button
+                                        variant="outline"
+                                        href={importShow('faqs')}
+                                    >
+                                        {t('admin.import.open')}
+                                    </Button>
+                                )}
+                                {can.create && (
+                                    <Button href={create()}>
+                                        {t('admin.faqs.create')}
+                                    </Button>
+                                )}
+                            </Inline>
+                        ) : undefined,
                 }}
                 emptyAction={
                     can.create ? (

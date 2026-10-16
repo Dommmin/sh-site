@@ -40,6 +40,7 @@ class TagController extends Controller
                 fn (Tag $tag): TagListItemData => TagListItemData::fromModel($tag, $locale, $fallback),
             )->all()),
             canCreate: $request->user()?->can('create', Tag::class) ?? false,
+            canImport: $request->user()?->can('import', Tag::class) ?? false,
         ));
     }
 
