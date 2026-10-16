@@ -1,6 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { SavedViewsMenu } from '@/components/admin/saved-views-menu';
 import {
     Badge,
     Button,
@@ -52,24 +53,24 @@ export default function AdminFaqsIndex() {
                 header={{
                     title: t('admin.faqs.title'),
                     description: t('admin.faqs.description'),
-                    actions:
-                        can.create || can.import ? (
-                            <Inline gap="tight">
-                                {can.import && (
-                                    <Button
-                                        variant="outline"
-                                        href={importShow('faqs')}
-                                    >
-                                        {t('admin.import.open')}
-                                    </Button>
-                                )}
-                                {can.create && (
-                                    <Button href={create()}>
-                                        {t('admin.faqs.create')}
-                                    </Button>
-                                )}
-                            </Inline>
-                        ) : undefined,
+                    actions: (
+                        <Inline gap="tight">
+                            <SavedViewsMenu list="admin.faqs.index" />
+                            {can.import && (
+                                <Button
+                                    variant="outline"
+                                    href={importShow('faqs')}
+                                >
+                                    {t('admin.import.open')}
+                                </Button>
+                            )}
+                            {can.create && (
+                                <Button href={create()}>
+                                    {t('admin.faqs.create')}
+                                </Button>
+                            )}
+                        </Inline>
+                    ),
                 }}
                 emptyAction={
                     can.create ? (

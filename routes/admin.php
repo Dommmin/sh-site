@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Import\ImportController;
 use App\Http\Controllers\Admin\Media\MediaAssetController;
 use App\Http\Controllers\Admin\Navigation\MenuItemController;
 use App\Http\Controllers\Admin\Pages\PageController;
+use App\Http\Controllers\Admin\SavedViews\SavedListViewController;
 use App\Http\Controllers\Admin\Search\AdminSearchController;
 use App\Http\Controllers\Admin\Settings\SitePublicationController;
 use App\Http\Controllers\Admin\Settings\SiteSettingsController;
@@ -123,6 +124,14 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
         Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])
             ->name('articles.destroy')
             ->can('delete', 'article');
+
+        Route::get('/saved-views', [SavedListViewController::class, 'index'])
+            ->name('saved-views.index');
+        Route::post('/saved-views', [SavedListViewController::class, 'store'])
+            ->name('saved-views.store')
+            ->middleware('throttle:30,1');
+        Route::delete('/saved-views/{savedListView}', [SavedListViewController::class, 'destroy'])
+            ->name('saved-views.destroy');
 
         Route::get('/import/{module}', [ImportController::class, 'show'])
             ->whereIn('module', ['faqs', 'tags'])

@@ -570,6 +570,17 @@ declare namespace App {
                     publishedAt: string | null;
                 };
             }
+            namespace SavedViews {
+                export type SavedListViewData = {
+                    id: number;
+                    name: string;
+                    url: string;
+                };
+                export type SavedListViewsData = {
+                    views: App.Data.Admin.SavedViews.SavedListViewData[];
+                    max: number;
+                };
+            }
             namespace Search {
                 export type AdminSearchData = {
                     query: string;

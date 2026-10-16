@@ -768,6 +768,23 @@ return [
         ],
     ],
 
+    'savedViews' => [
+        'open' => 'Views',
+        'title' => 'Saved views',
+        'description' => 'Your sets of search, filters and sorting for this list. Only you see them.',
+        'loading' => 'Loading…',
+        'loadError' => 'The views could not be loaded.',
+        'empty' => 'You have no saved views of this list yet.',
+        'remove' => 'Remove view :name',
+        'nameLabel' => 'Name of the current view',
+        'nameHint' => 'Saves the current search, filters and sorting. The same name replaces the view.',
+        'save' => 'Save current view',
+        'errors' => [
+            'list' => 'This list cannot be saved as a view.',
+            'max' => 'You can keep at most :max views of one list.',
+        ],
+    ],
+
     'import' => [
         'open' => 'Import CSV',
         'titles' => [
