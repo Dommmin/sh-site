@@ -35,3 +35,9 @@ Schedule::command('ops:check-backup')
 Schedule::command('horizon:snapshot')
     ->everyFiveMinutes()
     ->onOneServer();
+
+Schedule::command('demo:reset')
+    ->hourly()
+    ->onOneServer()
+    ->withoutOverlapping()
+    ->when(fn (): bool => (bool) config('demo.enabled'));

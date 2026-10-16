@@ -92,6 +92,7 @@ class HandleInertiaRequests extends Middleware
             ...$this->publicNavigation($i18n['area'], $i18n['locale']),
             ...$this->cookieConsent($request, $i18n['area'], $i18n['locale']),
             ...$this->designSystemShowcase($i18n['area']),
+            ...(config('demo.enabled') ? ['demo' => true] : []),
         ];
     }
 

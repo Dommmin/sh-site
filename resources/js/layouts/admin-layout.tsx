@@ -18,7 +18,7 @@ import {
     Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { AdminShell } from '@/design-system/primitives';
+import { Alert, AdminShell, Stack } from '@/design-system/primitives';
 import type {
     AdminBreadcrumb,
     AdminNavGroup,
@@ -54,7 +54,7 @@ export default function AdminLayout({
     children: ReactNode;
 }) {
     const { t } = useTranslation();
-    const { auth, site, designSystemUrl } = usePage().props;
+    const { auth, site, designSystemUrl, demo } = usePage().props;
     const { currentUrl, isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
 
     const section = (
@@ -251,7 +251,14 @@ export default function AdminLayout({
             profileHref={editProfile()}
             logoutHref={logout()}
         >
-            {children}
+            {demo ? (
+                <Stack gap="default">
+                    <Alert tone="neutral" title={t('demo.banner')} />
+                    {children}
+                </Stack>
+            ) : (
+                children
+            )}
         </AdminShell>
     );
 }
