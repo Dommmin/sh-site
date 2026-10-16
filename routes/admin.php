@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\Settings\SitePublicationController;
 use App\Http\Controllers\Admin\Settings\SiteSettingsController;
 use App\Http\Controllers\Admin\SystemStatusController;
 use App\Http\Controllers\Admin\Tags\TagController;
+use App\Http\Controllers\Admin\Trash\TrashController;
 use App\Http\Controllers\Admin\UserIndexController;
 use App\Http\Controllers\Admin\Users\UserController;
 use App\Http\Middleware\EnsureCanAccessAdminPanel;
@@ -130,6 +131,18 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->middleware('throttle:30,1');
         Route::delete('/saved-views/{savedListView}', [SavedListViewController::class, 'destroy'])
             ->name('saved-views.destroy');
+
+        Route::get('/trash', [TrashController::class, 'index'])
+            ->name('trash.index')
+            ->can('viewTrashed', Page::class);
+        Route::put('/trash/{type}/{id}/restore', [TrashController::class, 'restore'])
+            ->whereIn('type', ['pages', 'articles'])
+            ->whereNumber('id')
+            ->name('trash.restore');
+        Route::delete('/trash/{type}/{id}', [TrashController::class, 'destroy'])
+            ->whereIn('type', ['pages', 'articles'])
+            ->whereNumber('id')
+            ->name('trash.destroy');
 
         Route::get('/tags', [TagController::class, 'index'])
             ->name('tags.index')

@@ -23,6 +23,11 @@ Schedule::command('contact:prune')
     ->onOneServer()
     ->withoutOverlapping();
 
+Schedule::command('content:purge-trash')
+    ->daily()
+    ->onOneServer()
+    ->withoutOverlapping();
+
 Schedule::command('ops:heartbeat')
     ->everyMinute()
     ->onOneServer();
