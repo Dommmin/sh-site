@@ -1,12 +1,14 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { SavedViewsMenu } from '@/components/admin/saved-views-menu';
 import {
     Badge,
     Button,
     ConfirmDialog,
     Link,
     ResourceTable,
+    Inline,
 } from '@/design-system/primitives';
 import { useTranslation } from '@/i18n';
 import { tableSortLabels } from '@/lib/table-sort-labels';
@@ -50,11 +52,16 @@ export default function AdminFaqsIndex() {
                 header={{
                     title: t('admin.faqs.title'),
                     description: t('admin.faqs.description'),
-                    actions: can.create ? (
-                        <Button href={create()}>
-                            {t('admin.faqs.create')}
-                        </Button>
-                    ) : undefined,
+                    actions: (
+                        <Inline gap="tight">
+                            <SavedViewsMenu list="admin.faqs.index" />
+                            {can.create && (
+                                <Button href={create()}>
+                                    {t('admin.faqs.create')}
+                                </Button>
+                            )}
+                        </Inline>
+                    ),
                 }}
                 emptyAction={
                     can.create ? (

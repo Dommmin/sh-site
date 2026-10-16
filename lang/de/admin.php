@@ -747,6 +747,23 @@ return [
         ],
     ],
 
+    'savedViews' => [
+        'open' => 'Ansichten',
+        'title' => 'Gespeicherte Ansichten',
+        'description' => 'Ihre Kombinationen aus Suche, Filtern und Sortierung dieser Liste. Nur Sie sehen sie.',
+        'loading' => 'Wird geladen…',
+        'loadError' => 'Die Ansichten konnten nicht geladen werden.',
+        'empty' => 'Sie haben noch keine gespeicherten Ansichten dieser Liste.',
+        'remove' => 'Ansicht :name entfernen',
+        'nameLabel' => 'Name der aktuellen Ansicht',
+        'nameHint' => 'Speichert die aktuelle Suche, Filter und Sortierung. Derselbe Name ersetzt die Ansicht.',
+        'save' => 'Aktuelle Ansicht speichern',
+        'errors' => [
+            'list' => 'Diese Liste kann nicht als Ansicht gespeichert werden.',
+            'max' => 'Sie können höchstens :max Ansichten einer Liste behalten.',
+        ],
+    ],
+
     'tags' => [
         'title' => 'Tags',
         'navLabel' => 'Tags',

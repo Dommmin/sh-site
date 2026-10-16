@@ -747,6 +747,23 @@ return [
         ],
     ],
 
+    'savedViews' => [
+        'open' => 'Widoki',
+        'title' => 'Zapisane widoki',
+        'description' => 'Twoje zestawy wyszukiwania, filtrów i sortowania tej listy. Widzisz je tylko Ty.',
+        'loading' => 'Wczytywanie…',
+        'loadError' => 'Nie udało się wczytać widoków.',
+        'empty' => 'Nie masz jeszcze zapisanych widoków tej listy.',
+        'remove' => 'Usuń widok :name',
+        'nameLabel' => 'Nazwa bieżącego widoku',
+        'nameHint' => 'Zapisze obecne wyszukiwanie, filtry i sortowanie. Ta sama nazwa nadpisze widok.',
+        'save' => 'Zapisz bieżący widok',
+        'errors' => [
+            'list' => 'Tej listy nie można zapisać jako widoku.',
+            'max' => 'Możesz mieć najwyżej :max widoków jednej listy.',
+        ],
+    ],
+
     'tags' => [
         'title' => 'Tagi',
         'navLabel' => 'Tagi',
