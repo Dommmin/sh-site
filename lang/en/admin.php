@@ -188,13 +188,23 @@ return [
 
     'command' => [
         'title' => 'Search and commands',
-        'placeholder' => 'Jump to a module…',
+        'placeholder' => 'Jump to a module or search…',
         'results' => 'Results',
         'navigation' => 'Navigation',
         'empty' => 'No results for “:query”',
         'hintSelect' => 'select',
         'hintOpen' => 'open',
         'hintClose' => 'close',
+        'searching' => 'Searching…',
+        'searchError' => 'Search is unavailable. The modules in the list still work.',
+        'groups' => [
+            'pages' => 'Pages',
+            'articles' => 'Articles',
+            'tags' => 'Tags',
+            'faqs' => 'FAQ',
+            'media' => 'Media',
+            'users' => 'Users',
+        ],
     ],
 
     'users' => [
@@ -729,6 +739,11 @@ return [
                 'updated' => 'Contact form updated',
                 'deleted' => 'Contact form deleted',
             ],
+            'tag' => [
+                'created' => 'Tag created',
+                'updated' => 'Tag updated',
+                'deleted' => 'Tag deleted',
+            ],
             'home_section' => [
                 'updated' => 'Home page section updated',
                 'toggled' => 'Home page section shown or hidden',
@@ -744,6 +759,7 @@ return [
             'sitesetting' => 'Site settings',
             'menuitem' => 'Menu item',
             'homesection' => 'Home page section',
+            'tag' => 'Tag',
         ],
     ],
 
@@ -762,6 +778,15 @@ return [
             'list' => 'This list cannot be saved as a view.',
             'max' => 'You can keep at most :max views of one list.',
         ],
+    ],
+
+    'history' => [
+        'title' => 'Change history',
+        'empty' => 'No changes recorded for this record yet.',
+        'entry' => ':actor · :action',
+        'fields' => 'Changed fields: :fields',
+        'limit' => 'The last :limit changes.',
+        'all' => 'Full audit log',
     ],
 
     'tags' => [
@@ -1704,6 +1729,12 @@ return [
             'openPalette' => 'Open command palette',
             'openLongPalette' => 'Open palette with a long item',
             'paletteEmpty' => 'Type a phrase with no matches (e.g. “zzz”) in the palette — a no-results message appears.',
+            'searchDetail' => 'Record search: type at least 2 characters',
+            'openSearchPalette' => 'Open the palette with search',
+            'searchFoundGroup' => 'Pages (demo)',
+            'searchFoundLabel' => 'Page matching “:query”',
+            'searchLoading' => '200 ms after the last keystroke the palette shows “Searching…”; the modules in the list stay available.',
+            'searchErrorState' => 'Type “error” in the palette with search: an error message, the modules in the list keep working.',
             'paletteKeyboard' => '⌘K / Ctrl+K opens and closes the palette on every panel page; arrow keys move the selection, Enter navigates, Escape closes and returns focus.',
         ],
         'feedback' => [

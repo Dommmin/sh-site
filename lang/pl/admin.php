@@ -188,13 +188,23 @@ return [
 
     'command' => [
         'title' => 'Wyszukiwanie i polecenia',
-        'placeholder' => 'Przejdź do modułu…',
+        'placeholder' => 'Przejdź do modułu lub szukaj…',
         'results' => 'Wyniki',
         'navigation' => 'Nawigacja',
         'empty' => 'Brak wyników dla „:query”',
         'hintSelect' => 'wybierz',
         'hintOpen' => 'otwórz',
         'hintClose' => 'zamknij',
+        'searching' => 'Szukam…',
+        'searchError' => 'Wyszukiwanie niedostępne. Moduły z listy nadal działają.',
+        'groups' => [
+            'pages' => 'Strony',
+            'articles' => 'Artykuły',
+            'tags' => 'Tagi',
+            'faqs' => 'FAQ',
+            'media' => 'Media',
+            'users' => 'Użytkownicy',
+        ],
     ],
 
     'users' => [
@@ -729,6 +739,11 @@ return [
                 'updated' => 'Zmieniono formularz kontaktowy',
                 'deleted' => 'Usunięto formularz kontaktowy',
             ],
+            'tag' => [
+                'created' => 'Tag utworzony',
+                'updated' => 'Tag zmieniony',
+                'deleted' => 'Tag usunięty',
+            ],
             'home_section' => [
                 'updated' => 'Zmieniono sekcję strony głównej',
                 'toggled' => 'Pokazano lub ukryto sekcję strony głównej',
@@ -744,6 +759,7 @@ return [
             'sitesetting' => 'Ustawienia strony',
             'menuitem' => 'Pozycja menu',
             'homesection' => 'Sekcja strony głównej',
+            'tag' => 'Tag',
         ],
     ],
 
@@ -762,6 +778,15 @@ return [
             'list' => 'Tej listy nie można zapisać jako widoku.',
             'max' => 'Możesz mieć najwyżej :max widoków jednej listy.',
         ],
+    ],
+
+    'history' => [
+        'title' => 'Historia zmian',
+        'empty' => 'Brak zapisanych zmian tego rekordu.',
+        'entry' => ':actor · :action',
+        'fields' => 'Zmienione pola: :fields',
+        'limit' => 'Ostatnie :limit zmian.',
+        'all' => 'Cały dziennik audytu',
     ],
 
     'tags' => [
@@ -1706,6 +1731,12 @@ return [
             'openPalette' => 'Otwórz paletę poleceń',
             'openLongPalette' => 'Otwórz paletę z długą pozycją',
             'paletteEmpty' => 'Wpisz w palecie frazę bez wyników (np. „zzz”) — pojawia się komunikat o braku wyników.',
+            'searchDetail' => 'Wyszukiwanie rekordów: wpisz co najmniej 2 znaki',
+            'openSearchPalette' => 'Otwórz paletę z wyszukiwaniem',
+            'searchFoundGroup' => 'Strony (demo)',
+            'searchFoundLabel' => 'Strona pasująca do „:query”',
+            'searchLoading' => 'Po 200 ms od ostatniego znaku paleta pokazuje „Szukam…”, a moduły z listy zostają dostępne.',
+            'searchErrorState' => 'Wpisz „error” w palecie z wyszukiwaniem: komunikat o błędzie, moduły z listy dalej działają.',
             'paletteKeyboard' => '⌘K / Ctrl+K otwiera i zamyka paletę na każdej stronie panelu; strzałki zmieniają pozycję, Enter przechodzi, Escape zamyka i zwraca fokus.',
         ],
         'feedback' => [
