@@ -1002,6 +1002,17 @@ declare namespace App {
                 id: number;
                 label: string;
             };
+            export type RelatedRecordData = {
+                id: number;
+                label: string;
+                url: string;
+            };
+            export type RelatedRecordsData = {
+                relation: string;
+                total: number;
+                items: App.Data.Listing.RelatedRecordData[];
+                listUrl: string;
+            };
         }
         namespace Media {
             export type MediaImageData = {
