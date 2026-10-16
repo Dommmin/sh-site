@@ -81,6 +81,7 @@ class ArticleController extends Controller
             can: $this->abilities($request, null),
             tagOptions: $this->tagOptions(),
             maxTags: ArticleInputRules::MAX_TAGS,
+            trashDays: (int) config('content.trash_days'),
         ));
     }
 
@@ -113,6 +114,7 @@ class ArticleController extends Controller
             previewUrls: $this->previewLinks->forArticle($article, $this->localization->getPublicLocales()),
             tagOptions: $this->tagOptions(),
             maxTags: ArticleInputRules::MAX_TAGS,
+            trashDays: (int) config('content.trash_days'),
         ));
     }
 

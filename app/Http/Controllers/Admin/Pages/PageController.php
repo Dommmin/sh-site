@@ -74,6 +74,7 @@ class PageController extends Controller
             page: PageFormData::blank($this->localization->getPublicLocales()),
             locales: ContentLocalesData::fromConfig($this->localization),
             can: $this->abilities($request, null),
+            trashDays: (int) config('content.trash_days'),
         ));
     }
 
@@ -104,6 +105,7 @@ class PageController extends Controller
             locales: ContentLocalesData::fromConfig($this->localization),
             can: $this->abilities($request, $page),
             previewUrls: $this->previewLinks->forPage($page, $this->localization->getPublicLocales()),
+            trashDays: (int) config('content.trash_days'),
         ));
     }
 

@@ -8,6 +8,7 @@ use App\Data\Seo\SeoDefaultsData;
 use App\Data\Seo\SeoOrganizationData;
 use App\Models\AuditLog;
 use App\Models\ContactMessage;
+use App\Models\Page;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Repositories\Settings\SiteSettingsRepository;
@@ -81,6 +82,7 @@ class HandleInertiaRequests extends Middleware
                     'manageUsers' => $request->user()?->can('viewAny', User::class) ?? false,
                     'viewAudit' => $request->user()?->can('viewAny', AuditLog::class) ?? false,
                     'manageSiteSettings' => $request->user()?->can('update', SiteSetting::class) ?? false,
+                    'manageTrash' => $request->user()?->can('viewTrashed', Page::class) ?? false,
                     'viewContactMessages' => $request->user()?->can('viewAny', ContactMessage::class) ?? false,
                 ],
             ],
