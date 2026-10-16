@@ -6,14 +6,15 @@ import {
     Badge,
     Button,
     ConfirmDialog,
+    Inline,
     Link,
     ResourceTable,
-    Inline,
 } from '@/design-system/primitives';
 import { useTranslation } from '@/i18n';
 import { tableSortLabels } from '@/lib/table-sort-labels';
 import { index as adminIndex } from '@/routes/admin';
 import { create, destroy, edit, index } from '@/routes/admin/faqs';
+import { show as importShow } from '@/routes/admin/import';
 
 type Row = App.Data.Admin.Faqs.FaqListItemData;
 type IndexProps = App.Data.Admin.Faqs.FaqIndexData;
@@ -55,6 +56,14 @@ export default function AdminFaqsIndex() {
                     actions: (
                         <Inline gap="tight">
                             <SavedViewsMenu list="admin.faqs.index" />
+                            {can.import && (
+                                <Button
+                                    variant="outline"
+                                    href={importShow('faqs')}
+                                >
+                                    {t('admin.import.open')}
+                                </Button>
+                            )}
                             {can.create && (
                                 <Button href={create()}>
                                     {t('admin.faqs.create')}

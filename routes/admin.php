@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Content\ContentPreviewController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Faqs\FaqController;
 use App\Http\Controllers\Admin\HomeSections\HomeSectionController;
+use App\Http\Controllers\Admin\Import\ImportController;
 use App\Http\Controllers\Admin\Media\MediaAssetController;
 use App\Http\Controllers\Admin\Navigation\MenuItemController;
 use App\Http\Controllers\Admin\Pages\PageController;
@@ -131,6 +132,17 @@ Route::middleware(['auth', 'verified', EnsureCanAccessAdminPanel::class])
             ->middleware('throttle:30,1');
         Route::delete('/saved-views/{savedListView}', [SavedListViewController::class, 'destroy'])
             ->name('saved-views.destroy');
+
+        Route::get('/import/{module}', [ImportController::class, 'show'])
+            ->whereIn('module', ['faqs', 'tags'])
+            ->name('import.show');
+        Route::post('/import/{module}/preview', [ImportController::class, 'preview'])
+            ->whereIn('module', ['faqs', 'tags'])
+            ->name('import.preview')
+            ->middleware('throttle:20,1');
+        Route::post('/import/{module}', [ImportController::class, 'store'])
+            ->whereIn('module', ['faqs', 'tags'])
+            ->name('import.store');
 
         Route::get('/trash', [TrashController::class, 'index'])
             ->name('trash.index')
