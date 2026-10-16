@@ -152,7 +152,7 @@ class HomeSectionController extends Controller
         return new HomeSectionAbilitiesData(
             update: $section !== null
                 ? ($user?->can('update', $section) ?? false)
-                : ($user?->canAccessAdminPanel() ?? false),
+                : ($user?->canEditContent() ?? false),
             reorder: $user?->can('reorder', HomeSection::class) ?? false,
         );
     }

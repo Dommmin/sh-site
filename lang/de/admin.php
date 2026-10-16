@@ -236,6 +236,7 @@ return [
         'role' => [
             'admin' => 'Administrator',
             'editor' => 'Redakteur',
+            'viewer' => 'Betrachter (nur lesen)',
             'none' => 'Kein Panelzugriff',
         ],
         'you' => 'Sie',

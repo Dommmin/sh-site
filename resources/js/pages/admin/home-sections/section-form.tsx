@@ -775,6 +775,7 @@ export function SectionForm({ editor }: SectionFormProps) {
                     form.setData((data) => ({ ...data, [name]: value }))
                 }
                 onSubmit={submit}
+                readOnly={!editor.can.update}
                 isPending={form.processing}
                 cancelHref={index({ query: { locale: section.locale } })}
                 labels={{

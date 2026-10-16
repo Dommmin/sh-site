@@ -173,6 +173,9 @@ class ArticleController extends Controller
 
         return new ArticleAbilitiesData(
             create: $user?->can('create', Article::class) ?? false,
+            update: $article !== null
+                ? ($user?->can('update', $article) ?? false)
+                : ($user?->can('create', Article::class) ?? false),
             publish: $user?->can('publish', Article::class) ?? false,
             delete: $article !== null
                 ? ($user?->can('delete', $article) ?? false)

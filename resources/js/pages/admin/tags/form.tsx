@@ -179,6 +179,7 @@ export function TagEditor({ editor }: TagEditorProps) {
                 errors={errors}
                 onChange={(name, value) => change(name, value)}
                 onSubmit={submit}
+                readOnly={!editor.canUpdate}
                 isPending={form.processing}
                 cancelHref={index()}
                 labels={{
