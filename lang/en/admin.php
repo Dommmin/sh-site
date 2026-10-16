@@ -188,13 +188,23 @@ return [
 
     'command' => [
         'title' => 'Search and commands',
-        'placeholder' => 'Jump to a module…',
+        'placeholder' => 'Jump to a module or search…',
         'results' => 'Results',
         'navigation' => 'Navigation',
         'empty' => 'No results for “:query”',
         'hintSelect' => 'select',
         'hintOpen' => 'open',
         'hintClose' => 'close',
+        'searching' => 'Searching…',
+        'searchError' => 'Search is unavailable. The modules in the list still work.',
+        'groups' => [
+            'pages' => 'Pages',
+            'articles' => 'Articles',
+            'tags' => 'Tags',
+            'faqs' => 'FAQ',
+            'media' => 'Media',
+            'users' => 'Users',
+        ],
     ],
 
     'users' => [
@@ -1687,6 +1697,12 @@ return [
             'openPalette' => 'Open command palette',
             'openLongPalette' => 'Open palette with a long item',
             'paletteEmpty' => 'Type a phrase with no matches (e.g. “zzz”) in the palette — a no-results message appears.',
+            'searchDetail' => 'Record search: type at least 2 characters',
+            'openSearchPalette' => 'Open the palette with search',
+            'searchFoundGroup' => 'Pages (demo)',
+            'searchFoundLabel' => 'Page matching “:query”',
+            'searchLoading' => '200 ms after the last keystroke the palette shows “Searching…”; the modules in the list stay available.',
+            'searchErrorState' => 'Type “error” in the palette with search: an error message, the modules in the list keep working.',
             'paletteKeyboard' => '⌘K / Ctrl+K opens and closes the palette on every panel page; arrow keys move the selection, Enter navigates, Escape closes and returns focus.',
         ],
         'feedback' => [
