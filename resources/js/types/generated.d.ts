@@ -540,6 +540,25 @@ declare namespace App {
                     publishedAt: string | null;
                 };
             }
+            namespace Search {
+                export type AdminSearchData = {
+                    query: string;
+                    results: App.Data.Admin.Search.AdminSearchResultData[];
+                };
+                export type AdminSearchResultData = {
+                    type:
+                        | 'pages'
+                        | 'articles'
+                        | 'tags'
+                        | 'faqs'
+                        | 'media'
+                        | 'users';
+                    id: number;
+                    label: string;
+                    description: string | null;
+                    url: string;
+                };
+            }
             namespace Settings {
                 export type SiteSettingTranslationFormData = {
                     tagline: string | null;
