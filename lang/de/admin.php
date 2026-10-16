@@ -188,13 +188,23 @@ return [
 
     'command' => [
         'title' => 'Suche und Befehle',
-        'placeholder' => 'Zu einem Modul springen…',
+        'placeholder' => 'Zu einem Modul springen oder suchen…',
         'results' => 'Ergebnisse',
         'navigation' => 'Navigation',
         'empty' => 'Keine Ergebnisse für „:query“',
         'hintSelect' => 'auswählen',
         'hintOpen' => 'öffnen',
         'hintClose' => 'schließen',
+        'searching' => 'Suche…',
+        'searchError' => 'Die Suche ist nicht verfügbar. Die Module der Liste funktionieren weiterhin.',
+        'groups' => [
+            'pages' => 'Seiten',
+            'articles' => 'Artikel',
+            'tags' => 'Tags',
+            'faqs' => 'FAQ',
+            'media' => 'Medien',
+            'users' => 'Benutzer',
+        ],
     ],
 
     'users' => [
@@ -730,6 +740,11 @@ return [
                 'updated' => 'Kontaktformular geändert',
                 'deleted' => 'Kontaktformular gelöscht',
             ],
+            'tag' => [
+                'created' => 'Tag erstellt',
+                'updated' => 'Tag geändert',
+                'deleted' => 'Tag gelöscht',
+            ],
             'home_section' => [
                 'updated' => 'Startseitenabschnitt geändert',
                 'toggled' => 'Startseitenabschnitt ein- oder ausgeblendet',
@@ -745,6 +760,7 @@ return [
             'sitesetting' => 'Website-Einstellungen',
             'menuitem' => 'Menüeintrag',
             'homesection' => 'Startseitenabschnitt',
+            'tag' => 'Tag',
         ],
     ],
 
@@ -790,6 +806,15 @@ return [
             'expired' => 'Die Prüfung ist abgelaufen. Laden Sie die Datei erneut hoch.',
             'changed' => 'Die Daten haben sich seit der Prüfung geändert. Laden Sie die Datei erneut hoch.',
         ],
+    ],
+
+    'history' => [
+        'title' => 'Änderungsverlauf',
+        'empty' => 'Für diesen Datensatz sind noch keine Änderungen erfasst.',
+        'entry' => ':actor · :action',
+        'fields' => 'Geänderte Felder: :fields',
+        'limit' => 'Die letzten :limit Änderungen.',
+        'all' => 'Gesamtes Audit-Log',
     ],
 
     'tags' => [
@@ -1732,6 +1757,12 @@ return [
             'openPalette' => 'Befehlspalette öffnen',
             'openLongPalette' => 'Palette mit langem Eintrag öffnen',
             'paletteEmpty' => 'Geben Sie in der Palette einen Begriff ohne Treffer ein (z. B. „zzz“) — es erscheint ein Hinweis auf keine Ergebnisse.',
+            'searchDetail' => 'Datensatzsuche: mindestens 2 Zeichen eingeben',
+            'openSearchPalette' => 'Palette mit Suche öffnen',
+            'searchFoundGroup' => 'Seiten (Demo)',
+            'searchFoundLabel' => 'Seite passend zu „:query“',
+            'searchLoading' => '200 ms nach der letzten Eingabe zeigt die Palette „Suche…“; die Module der Liste bleiben verfügbar.',
+            'searchErrorState' => 'Geben Sie „error“ in der Palette mit Suche ein: eine Fehlermeldung, die Module der Liste funktionieren weiter.',
             'paletteKeyboard' => '⌘K / Strg+K öffnet und schließt die Palette auf jeder Panel-Seite; Pfeiltasten wechseln den Eintrag, Enter navigiert, Escape schließt und gibt den Fokus zurück.',
         ],
         'feedback' => [
