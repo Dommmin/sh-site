@@ -15,6 +15,7 @@ declare namespace App {
                     previewUrls: Record<string, string>;
                     tagOptions: App.Data.Listing.RecordOptionData[];
                     maxTags: number;
+                    trashDays: number;
                 };
                 export type ArticleFormData = {
                     id: number | null;
@@ -527,6 +528,7 @@ declare namespace App {
                     locales: App.Data.Content.ContentLocalesData;
                     can: App.Data.Admin.Pages.PageAbilitiesData;
                     previewUrls: Record<string, string>;
+                    trashDays: number;
                 };
                 export type PageFormData = {
                     id: number | null;
@@ -675,6 +677,20 @@ declare namespace App {
                     slug: string;
                     name: string;
                     articlesCount: number;
+                };
+            }
+            namespace Trash {
+                export type TrashIndexData = {
+                    items: App.Data.Admin.Trash.TrashItemData[];
+                    retentionDays: number;
+                };
+                export type TrashItemData = {
+                    type: App.Enums.TrashedContentType;
+                    id: number;
+                    title: string | null;
+                    locales: string[];
+                    deletedAt: string | null;
+                    purgeAt: string | null;
                 };
             }
             namespace Users {
@@ -1135,11 +1151,15 @@ declare namespace App {
             | 'page.published'
             | 'page.unpublished'
             | 'page.deleted'
+            | 'page.restored'
+            | 'page.purged'
             | 'article.created'
             | 'article.updated'
             | 'article.published'
             | 'article.unpublished'
             | 'article.deleted'
+            | 'article.restored'
+            | 'article.purged'
             | 'user.created'
             | 'user.updated'
             | 'user.role_changed'
@@ -1238,6 +1258,7 @@ declare namespace App {
             | 'tiktok'
             | 'github';
         export type ThemePreference = 'light' | 'dark' | 'system';
+        export type TrashedContentType = 'pages' | 'articles';
         export type TypographyPreset = 'default' | 'classic';
         export type UserRole = 'admin' | 'editor' | 'viewer';
         export type Weekday =
