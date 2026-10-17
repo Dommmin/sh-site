@@ -25,7 +25,8 @@ use Spatie\LaravelData\Data;
 /**
  * Turn the local demo into the software house showcase: placeholder images,
  * blog articles ({@see SoftwareHouseArticleSeeder}), FAQs
- * ({@see SoftwareHouseFaqSeeder}), home sections in the showcase order ({@see SoftwareHouseContent}, Polish,
+ * ({@see SoftwareHouseFaqSeeder}), the "what you get" page
+ * ({@see SoftwareHouseOfferPageSeeder}), home sections in the showcase order ({@see SoftwareHouseContent}, Polish,
  * English and German copy) and a header menu of section anchors in every
  * public locale.
  *
@@ -49,7 +50,7 @@ class SoftwareHouseSeeder extends Seeder
             throw new RuntimeException('SoftwareHouseSeeder seeds placeholder media without a malware scan and runs only in the local environment.');
         }
 
-        $this->call([SoftwareHouseMediaSeeder::class, SoftwareHouseArticleSeeder::class, SoftwareHouseFaqSeeder::class]);
+        $this->call([SoftwareHouseMediaSeeder::class, SoftwareHouseArticleSeeder::class, SoftwareHouseFaqSeeder::class, SoftwareHouseOfferPageSeeder::class]);
         $ensure->handle();
 
         $imageId = fn (string $key): ?int => SoftwareHouseMediaSeeder::assetId($key);
@@ -90,9 +91,9 @@ class SoftwareHouseSeeder extends Seeder
     }
 
     /**
-     * Footer menu of one locale: link groups of the showcase (offer and
-     * company, which ends with the privacy policy when its page exists in
-     * the locale).
+     * Footer menu of one locale: link groups of the showcase (offer, which
+     * ends with the "what you get" page, and company, which ends with the
+     * privacy policy; each page only when it exists in the locale).
      *
      * @return list<array{label: string, children: list<array{type: MenuItemType, label?: string, anchor?: string, page_id?: int}>}>
      */
@@ -101,15 +102,17 @@ class SoftwareHouseSeeder extends Seeder
         $t = fn (string $polish, string $english, string $german): string => SoftwareHouseContent::pick($locale, $polish, $english, $german);
         $anchor = fn (HomeSectionAnchor $anchor, string $label): array => ['type' => MenuItemType::Anchor, 'anchor' => $anchor->value, 'label' => $label];
         $privacyPageId = NavigationMenuSeeder::privacyPolicyPageId();
-        $legal = $privacyPageId !== null && PageTranslation::query()->where('page_id', $privacyPageId)->where('locale', $locale)->exists()
-            ? [['type' => MenuItemType::Page, 'page_id' => $privacyPageId]]
+        $page = fn (?int $pageId): array => $pageId !== null && PageTranslation::query()->where('page_id', $pageId)->where('locale', $locale)->exists()
+            ? [['type' => MenuItemType::Page, 'page_id' => $pageId]]
             : [];
+        $legal = $page($privacyPageId);
 
         return [
             ['label' => $t('Oferta', 'Offer', 'Angebot'), 'children' => [
                 $anchor(HomeSectionAnchor::Features, $t('Usługi', 'Services', 'Leistungen')),
                 $anchor(HomeSectionAnchor::Portfolio, 'Portfolio'),
                 $anchor(HomeSectionAnchor::Pricing, $t('Cennik', 'Pricing', 'Preise')),
+                ...$page(SoftwareHouseOfferPageSeeder::pageId()),
             ]],
             ['label' => $t('Firma', 'Company', 'Unternehmen'), 'children' => [
                 $anchor(HomeSectionAnchor::Team, $t('Zespół', 'Team', 'Team')),

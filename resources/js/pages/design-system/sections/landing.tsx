@@ -2,14 +2,18 @@ import { Rocket, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { HomeSections } from '@/components/home/home-sections';
 import {
+    AppearancePreview,
     Button,
     CTA,
     FeatureGrid,
+    Heading,
     Hero,
     Image,
+    Inline,
     Stack,
     StatList,
     Text,
+    TypographyPreview,
     type FeatureGridItem,
     type StatListItem,
 } from '@/design-system/primitives';
@@ -159,6 +163,7 @@ function LandingSection() {
                               publishedAt: '2026-09-30T08:00:00Z',
                               cover: demoMediaImage,
                               coverAlt: '',
+                              tags: [],
                           },
                           {
                               title: longName,
@@ -167,6 +172,7 @@ function LandingSection() {
                               publishedAt: null,
                               cover: null,
                               coverAlt: '',
+                              tags: [],
                           },
                       ],
             },
@@ -175,6 +181,68 @@ function LandingSection() {
 
     return (
         <Stack gap="default">
+            <ShowcaseComponent
+                name="TypographyPreview · --font-heading"
+                layout="wide"
+                notApplicable={['loading', 'empty', 'error', 'disabled']}
+            >
+                {(['default', 'classic'] as const).map((preset) => (
+                    <ShowcaseState
+                        key={preset}
+                        state={preset === 'default' ? 'default' : 'variants'}
+                        detail={demo(`typography.${preset}`)}
+                    >
+                        <TypographyPreview preset={preset}>
+                            <Stack gap="tight">
+                                <Heading level={3} variant="section">
+                                    {demo('typography.heading')}
+                                </Heading>
+                                <Text variant="figure">128</Text>
+                                <Text tone="muted">
+                                    {demo('typography.body')}
+                                </Text>
+                            </Stack>
+                        </TypographyPreview>
+                    </ShowcaseState>
+                ))}
+            </ShowcaseComponent>
+
+            <ShowcaseComponent
+                name="AppearancePreview · data-accent + data-typography"
+                layout="wide"
+                notApplicable={['loading', 'empty', 'error', 'disabled']}
+            >
+                {(
+                    [
+                        ['blue', 'classic'],
+                        ['green', 'default'],
+                    ] as const
+                ).map(([accent, typography]) => (
+                    <ShowcaseState
+                        key={accent}
+                        state={accent === 'blue' ? 'default' : 'variants'}
+                        detail={`accent=${accent} typography=${typography}`}
+                    >
+                        <AppearancePreview
+                            accent={accent}
+                            typography={typography}
+                            label={demo('typography.heading')}
+                        >
+                            <Stack gap="tight">
+                                <Heading level={3} variant="section">
+                                    {demo('typography.heading')}
+                                </Heading>
+                                <Inline gap="tight">
+                                    <Button variant="primary">
+                                        {demo('primaryAction')}
+                                    </Button>
+                                </Inline>
+                            </Stack>
+                        </AppearancePreview>
+                    </ShowcaseState>
+                ))}
+            </ShowcaseComponent>
+
             <ShowcaseComponent
                 name="Hero"
                 layout="full"
@@ -351,7 +419,7 @@ function LandingSection() {
                     </Stack>
                     <HomeSections
                         sections={homeSections}
-                        contactForm={{ token: '' }}
+                        contactForm={{ token: '', form: null }}
                         fallbackTitle={demo('homeFallbackTitle')}
                     />
                 </ShowcaseState>

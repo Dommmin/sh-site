@@ -6,8 +6,8 @@ use App\Models\Faq;
 use App\Models\User;
 
 /**
- * Faqs are managed by the panel roles (admin and editor); only
- * administrators may delete them.
+ * Faqs are managed by admins and editors; a viewer lists and opens them
+ * read-only. Only administrators may delete them.
  */
 class FaqPolicy
 {
@@ -20,11 +20,20 @@ class FaqPolicy
     }
 
     /**
+     * Determine whether the user can open the faq editor (read-only without
+     * `update`).
+     */
+    public function view(User $user, Faq $faq): bool
+    {
+        return $user->canAccessAdminPanel();
+    }
+
+    /**
      * Determine whether the user can create faqs.
      */
     public function create(User $user): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**
@@ -32,13 +41,22 @@ class FaqPolicy
      */
     public function update(User $user, Faq $faq): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**
      * Determine whether the user can permanently delete the faq.
      */
     public function delete(User $user, Faq $faq): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine whether the user can import faqs from CSV (administrators;
+     * an import writes many records at once).
+     */
+    public function import(User $user): bool
     {
         return $user->isAdmin();
     }

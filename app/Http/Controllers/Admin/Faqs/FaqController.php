@@ -121,9 +121,13 @@ class FaqController extends Controller
 
         return new FaqAbilitiesData(
             create: $user?->can('create', Faq::class) ?? false,
+            update: $faq !== null
+                ? ($user?->can('update', $faq) ?? false)
+                : ($user?->can('create', Faq::class) ?? false),
             delete: $faq !== null
                 ? ($user?->can('delete', $faq) ?? false)
                 : ($user?->isAdmin() ?? false),
+            import: $user?->can('import', Faq::class) ?? false,
         );
     }
 }

@@ -7,6 +7,8 @@ use App\Data\Navigation\NavigationData;
 use App\Data\Seo\SeoDefaultsData;
 use App\Data\Seo\SeoOrganizationData;
 use App\Models\AuditLog;
+use App\Models\ContactMessage;
+use App\Models\Page;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Repositories\Settings\SiteSettingsRepository;
@@ -80,6 +82,8 @@ class HandleInertiaRequests extends Middleware
                     'manageUsers' => $request->user()?->can('viewAny', User::class) ?? false,
                     'viewAudit' => $request->user()?->can('viewAny', AuditLog::class) ?? false,
                     'manageSiteSettings' => $request->user()?->can('update', SiteSetting::class) ?? false,
+                    'manageTrash' => $request->user()?->can('viewTrashed', Page::class) ?? false,
+                    'viewContactMessages' => $request->user()?->can('viewAny', ContactMessage::class) ?? false,
                 ],
             ],
             'locale' => app()->getLocale(),
@@ -90,6 +94,7 @@ class HandleInertiaRequests extends Middleware
             ...$this->publicNavigation($i18n['area'], $i18n['locale']),
             ...$this->cookieConsent($request, $i18n['area'], $i18n['locale']),
             ...$this->designSystemShowcase($i18n['area']),
+            ...(config('demo.enabled') ? ['demo' => true] : []),
         ];
     }
 
@@ -214,6 +219,7 @@ class HandleInertiaRequests extends Middleware
                     ? $siteLogo->src
                     : (is_string($organizationLogo) && $organizationLogo !== '' ? url($organizationLogo) : null),
             ),
+            noindex: $this->siteSettings->isNoindex(),
         );
     }
 }

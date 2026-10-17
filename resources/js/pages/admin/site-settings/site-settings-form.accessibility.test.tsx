@@ -27,8 +27,15 @@ vi.mock('@inertiajs/react', async () => {
             processing: false,
             recentlySuccessful: false,
             isDirty: false,
-            setData: (key: keyof Data, value: unknown) =>
-                setDataState((current) => ({ ...current, [key]: value })),
+            setData: (
+                key: keyof Data | ((current: Data) => Data),
+                value?: unknown,
+            ) =>
+                setDataState((current) =>
+                    typeof key === 'function'
+                        ? key(current)
+                        : { ...current, [key]: value },
+                ),
             transform: (callback: (value: Data) => unknown) => {
                 transformRef.current = callback;
             },
@@ -86,6 +93,7 @@ function blankTranslation(): App.Data.Admin.Settings.SiteSettingTranslationFormD
         footerText: null,
         seoTitle: null,
         seoDescription: null,
+        autoReplyText: null,
     };
 }
 
@@ -115,6 +123,24 @@ function makeEditor(
                 github: '',
             },
             translations: { en: blankTranslation(), pl: blankTranslation() },
+            accent: null,
+            typography: null,
+            defaultTheme: 'system',
+            faviconMediaId: null,
+            taxId: null,
+            mapUrl: null,
+            openingHours: {
+                monday: { opens: '', closes: '' },
+                tuesday: { opens: '', closes: '' },
+                wednesday: { opens: '', closes: '' },
+                thursday: { opens: '', closes: '' },
+                friday: { opens: '', closes: '' },
+                saturday: { opens: '', closes: '' },
+                sunday: { opens: '', closes: '' },
+            },
+            googleSiteVerification: null,
+            contactRecipients: [],
+            contactAutoReply: false,
             ...settings,
         },
         locales: {
@@ -214,7 +240,19 @@ describe('SiteSettingsForm', () => {
         expect(field(container, 'site_name').value).toBe('Starter');
         expect(field(container, 'social_links.facebook')).not.toBeNull();
         expect(field(container, 'social_links.linkedin')).not.toBeNull();
-        expect(field(container, 'contact_recipient_email').type).toBe('email');
+        expect(field(container, 'auto_reply_text')).not.toBeNull();
+        expect(
+            [...container.querySelectorAll('button')].some(
+                (button) =>
+                    button.textContent ===
+                    'admin.siteSettings.fields.recipientAdd',
+            ),
+        ).toBe(true);
+        expect(
+            container.querySelector(
+                '[role="switch"][id$="contact_auto_reply"]',
+            ),
+        ).not.toBeNull();
         expect(field(container, 'seo_title')).not.toBeNull();
         expect(container.querySelectorAll('[role="tab"]')).toHaveLength(2);
     });
@@ -294,5 +332,38 @@ describe('SiteSettingsForm', () => {
             '[role="tabpanel"] textarea[name="seo_description"]',
         )!;
         expect(describedByTexts(description)).toContain('Too long.');
+    });
+
+    it('applies a skin to the accent and typography fields and saves it with the form', async () => {
+        editorProps = makeEditor({ accent: 'default', typography: null });
+        const container = await render(<AdminSiteSettingsEdit />);
+
+        expect(
+            container.querySelectorAll('[data-appearance-preview][inert]'),
+        ).toHaveLength(3);
+        expect(
+            container.querySelectorAll(
+                'button[aria-label="admin.siteSettings.skins.applyNamed"]',
+            ),
+        ).toHaveLength(2);
+
+        await act(async () => {
+            container
+                .querySelectorAll<HTMLButtonElement>(
+                    'button[aria-label="admin.siteSettings.skins.applyNamed"]',
+                )[0]
+                .click();
+        });
+        await submit(container);
+
+        expect(submitMock.mock.lastCall![1]).toMatchObject({
+            accent: 'blue',
+            typography: 'classic',
+        });
+        expect(
+            container.querySelectorAll(
+                'button[aria-label="admin.siteSettings.skins.applyNamed"]',
+            ),
+        ).toHaveLength(2);
     });
 });

@@ -11,6 +11,7 @@ use App\Models\ArticleTranslation;
 use App\Models\Faq;
 use App\Models\HomeSection;
 use App\Models\MenuItem;
+use App\Models\PageTranslation;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Services\Media\ImageVariantGenerator;
@@ -19,6 +20,7 @@ use Database\Seeders\DemoContent;
 use Database\Seeders\SoftwareHouseArticleSeeder;
 use Database\Seeders\SoftwareHouseFaqSeeder;
 use Database\Seeders\SoftwareHouseMediaSeeder;
+use Database\Seeders\SoftwareHouseOfferPageSeeder;
 use Database\Seeders\SoftwareHouseSeeder;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -120,8 +122,26 @@ test('the showcase seeder fills the footer menu and the demo site settings', fun
     $settings = SiteSetting::query()->find(SiteSetting::SINGLETON_ID);
 
     expect($groups->pluck('label')->all())->toBe(['Oferta', 'Firma'])
-        ->and($groups->first()?->children->pluck('anchor')->all())->toBe(['features', 'portfolio', 'pricing'])
+        ->and($groups->first()?->children->pluck('anchor')->all())->toBe(['features', 'portfolio', 'pricing', null])
+        ->and($groups->first()?->children->last()?->page_id)->toBe(SoftwareHouseOfferPageSeeder::pageId())
         ->and($settings?->contact_email)->toBe(SoftwareHouseSeeder::CONTACT_EMAIL);
+});
+
+test('the showcase seeder publishes the what you get page once in every showcase language', function () {
+    $this->app['env'] = 'local';
+    $this->seed(DatabaseSeeder::class);
+
+    $this->seed(SoftwareHouseSeeder::class);
+    $this->seed(SoftwareHouseSeeder::class);
+
+    $pageId = SoftwareHouseOfferPageSeeder::pageId();
+
+    expect($pageId)->not->toBeNull()
+        ->and(PageTranslation::query()->where('page_id', $pageId)->orderBy('locale')->pluck('locale')->all())->toBe(['de', 'en', 'pl'])
+        ->and(PageTranslation::query()->where('slug', 'co-dostajesz')->count())->toBe(1);
+
+    $this->get('/pl/co-dostajesz')->assertOk()->assertSee('Co dostajesz');
+    $this->get('/what-you-get')->assertOk()->assertSee('What you get');
 });
 
 test('a real contact e-mail saved by a person keeps the site settings', function () {

@@ -24,6 +24,12 @@ W lokalnym repo są już manifesty i lockfile; pierwotna informacja o ich braku 
 
 Zakres i AC: [03 — commity i Lefthook](03-testing-and-quality.md#commity-i-lefthook--kontrakt-p0-a), zadania 07a–07c w [08](08-implementation-roadmap.md). Audyty sieciowe pozostają w CI; hooki nie pobierają zależności podczas commita.
 
+## Uzupełnienie 2026-10-11: popover dla pola wielokrotnego wyboru
+
+| Narzędzie | Decyzja / uzasadnienie | Kwalifikacja przed wdrożeniem |
+| --- | --- | --- |
+| `@radix-ui/react-popover` `^1.1.23` | Zaakceptowane przez właściciela 2026-10-11 dla `MultiSelectField` (lista opcji z obsługą klawiatury, fokusu i portalu). Ta sama rodzina Radix co istniejące Dialog/Tooltip/Dropdown, licencja MIT, bez własnego positioningu. Alternatywa: własny listbox — odrzucona (a11y i utrzymanie) | Wersja w lockfile; testy dostępności pola w `multi-select-field.accessibility.test.tsx`; używany przez `ResourceForm` w formularzach panelu |
+
 ## Metoda i granice dowodów
 
 Uzupełnienie 2026-09-11: [11 — katalog komponentów](11-component-catalog.md) nie przewiduje zakupu ani adaptacji płatnych zestawów komponentów. Advanced Tables, Custom Dashboards, Relaticle Custom Fields, Shadcn Admin Kit, Shadcnblocks, Tailwind Plus i Shopify Polaris są wyłącznie wzorcami funkcjonalnymi. Własne komponenty powstają w tym repo; nie instalujemy pełnych kitów, nie kopiujemy kodu ani nie uzależniamy publicznego API od tych produktów. Plugin Filament nie jest bezpośrednią zależnością UI React.

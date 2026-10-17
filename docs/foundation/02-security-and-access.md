@@ -16,6 +16,8 @@ Alternatywy: zewnętrzny IdP (mniej odpowiedzialności za auth, koszt i zależno
 
 Status: proponowany. Uprawnienia poprzez Laravel policies, default deny, oddzielne operacje publikacji i zarządzania kontami. Role statyczne P0; Permission dopiero dla dynamicznego RBAC. Zmiana uprawnień od razu unieważnia odpowiedni cache; odebranie dostępu nie czeka na ponowny login. Identyfikatory nie stanowią zabezpieczenia przed IDOR. Administrator nie dostaje automatycznie dostępu do sekretów infrastruktury.
 
+Role panelu (enum `UserRole`, decyzja właściciela 2026-10-16): `admin` — wszystko, w tym użytkownicy, audyt, ustawienia, formularze kontaktowe i usuwanie; `editor` — tworzy, edytuje i publikuje treści, czyta wiadomości kontaktowe; `viewer` — tylko odczyt: dashboard, listy treści i mediów, edytory w trybie tylko do odczytu, podgląd szkiców i pobieranie mediów, bez wiadomości kontaktowych (dane osobowe), użytkowników, audytu i ustawień. `User::canEditContent()` rozdziela zapis od odczytu (`canAccessAdminPanel()`); każda zmiana viewera kończy się 403 bez skutku w danych (`ViewerRoleTest`). Wymóg 2FA obejmuje wszystkie role panelu.
+
 ## Threat model
 
 Zasoby: konta i sesje, treści przed publikacją, dane kontaktowe, przyszłe dokumenty klienta, backupy, obrazy, sekrety deployu i dostępność. Aktorzy: gość, bot, editor, admin, developer, agent AI, dostawca, atakujący z przejętym kontem lub zależnością. Granice zaufania: Internet → proxy → Laravel → DB/queue/storage; aplikacja → mail/monitoring; PR → CI → GHCR → hosting; dokumenty i wyniki narzędzi → agent. Osobne środowiska i osobne projekty klientów nie współdzielą credentiali.
@@ -52,7 +54,7 @@ Stosujemy aktualną edycję [OWASP Top 10:2025](https://owasp.org/Top10/2025/). 
 
 ## Auth, sesje i urządzenia
 
-- Hasła: minimum 15 i maksimum 128 znaków, z małą i wielką literą, cyfrą oraz symbolem; menedżery haseł i wklejanie są dozwolone. Produkcja odrzuca hasło obecne w wycieku przez `Password::uncompromised()`; zapytanie korzysta z modelu k-anonimowości. Nie wymuszać sztucznych cyklicznych zmian; zmiana przy kompromitacji. Używać hashera Laravel, parametry sprawdzić pomiarem obciążenia. Nie implementować własnej kryptografii.
+- Hasła: minimum 8 i maksimum 128 znaków (decyzja właściciela D11 z 2026-10-12, zgodna z `Password::defaults()`), z małą i wielką literą, cyfrą oraz symbolem; menedżery haseł i wklejanie są dozwolone. Produkcja odrzuca hasło obecne w wycieku przez `Password::uncompromised()`; zapytanie korzysta z modelu k-anonimowości. Nie wymuszać sztucznych cyklicznych zmian; zmiana przy kompromitacji. Używać hashera Laravel, parametry sprawdzić pomiarem obciążenia. Nie implementować własnej kryptografii.
 - Rate limiting startowo: login 5 prób/min dla kombinacji znormalizowany identyfikator + IP oraz limit IP; reset 3/15 min dla identyfikatora i limit globalny; TOTP 5/min dla wyzwania/sesji; kontakt 5/10 min/IP plus budżet globalny. To propozycje do testu NAT/DoS, nie domyślne wartości Laravel.
 - Unikać trwałej blokady po kilku próbach, bo umożliwia DoS na cudze konto. Stosować narastające opóźnienie i czasowe ograniczenia; ręczne zawieszenie konta osobną operacją z audytem.
 - Reset/rejestracja zwracają ogólny komunikat i zbliżone zachowanie czasowe dla istniejącego i nieistniejącego adresu. Dostarczenie asynchroniczne nie powinno ujawniać istnienia konta. Token resetu jednorazowy, wygasa; po resecie unieważnienie pozostałych sesji.

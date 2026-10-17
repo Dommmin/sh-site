@@ -66,6 +66,10 @@ return [
         'links' => 'Informacje',
         'contact' => 'Kontakt',
         'social' => 'Media społecznościowe',
+        'map' => 'Pokaż na mapie',
+        'taxId' => 'NIP: :taxId',
+        'openingHours' => 'Godziny otwarcia',
+        'closed' => 'nieczynne',
     ],
     'orderable' => [
         'moveUp' => 'Przesuń :label w górę',
@@ -80,6 +84,28 @@ return [
     ],
     'language' => [
         'label' => 'Język',
+    ],
+    'weekdays' => [
+        'monday' => 'Poniedziałek',
+        'tuesday' => 'Wtorek',
+        'wednesday' => 'Środa',
+        'thursday' => 'Czwartek',
+        'friday' => 'Piątek',
+        'saturday' => 'Sobota',
+        'sunday' => 'Niedziela',
+    ],
+    'weekdaysShort' => [
+        'monday' => 'Pon',
+        'tuesday' => 'Wt',
+        'wednesday' => 'Śr',
+        'thursday' => 'Czw',
+        'friday' => 'Pt',
+        'saturday' => 'Sob',
+        'sunday' => 'Nd',
+    ],
+    'answers' => [
+        'yes' => 'Tak',
+        'no' => 'Nie',
     ],
     'actions' => [
         'save' => 'Zapisz',
@@ -130,5 +156,10 @@ return [
         'sortBy' => 'Sortuj według',
         'sortAscending' => ':column (rosnąco)',
         'sortDescending' => ':column (malejąco)',
+    ],
+
+    'demo' => [
+        'blocked' => 'To jest demo: zmiany są wyłączone.',
+        'banner' => 'Demo: przeglądaj panel do woli. Zmiany są wyłączone, a dane wracają do stanu początkowego co godzinę.',
     ],
 ];
