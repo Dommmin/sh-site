@@ -119,10 +119,15 @@ jobs:
           else
             echo "Brak referencji bazowej dla bramki UI; pomijam kontrolę różnic."
           fi
-      - name: Build frontend assets
-        run: npm run build
+      # build:ssr also runs the client build, so the budget step below still
+      # reads public/build; the SSR smoke catches browser-only APIs at module
+      # level in the SSR entry long before the e2e job.
+      - name: Build frontend and SSR assets
+        run: npm run build:ssr
       - name: Enforce bundle budget
         run: npm run check:budget
+      - name: Smoke test SSR rendering and i18n isolation
+        run: npm run test:ssr
       - name: Run quality checks
         run: composer ci:check
 
