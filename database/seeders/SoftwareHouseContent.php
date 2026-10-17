@@ -43,7 +43,8 @@ final class SoftwareHouseContent
     public static function sections(string $locale, Closure $imageId): array
     {
         $t = fn (string $polish, string $english, string $german): string => self::pick($locale, $polish, $english, $german);
-        $currency = $locale === 'pl' ? 'PLN' : 'EUR';
+        $pl = $locale === 'pl';
+        $currency = $pl ? 'PLN' : 'EUR';
         $askForQuote = $t('Zapytaj o wycenę', 'Ask for a quote', 'Angebot anfragen');
 
         return [
@@ -112,50 +113,59 @@ final class SoftwareHouseContent
             HomeSectionType::Pricing->value => ['enabled' => true, 'content' => new PricingContentData(
                 items: [
                     new PricingPlanData(
-                        name: $t('Wizytówka', 'Starter site', 'Visitenkarte'),
-                        priceMinor: 290000,
+                        name: 'Start',
+                        priceMinor: $pl ? 390000 : 99000,
                         currency: $currency,
                         priceFrom: true,
-                        description: $t('Jedna strona z najważniejszymi informacjami o firmie.', 'A single page with the key facts about your company.', 'Eine Seite mit den wichtigsten Informationen über Ihr Unternehmen.'),
+                        period: $t('start w 1 tydzień', 'live in 1 week', 'online in 1 Woche'),
+                        description: $t('Strona-wizytówka, która od pierwszego dnia zbiera zapytania.', 'A one-page site that collects enquiries from day one.', 'Eine Visitenkarten-Website, die vom ersten Tag an Anfragen sammelt.'),
                         features: self::pick(
                             $locale,
-                            ['Projekt graficzny', 'Do 5 sekcji', 'Formularz kontaktowy', 'Podstawowe SEO'],
-                            ['Visual design', 'Up to 5 sections', 'Contact form', 'Basic SEO'],
-                            ['Grafikdesign', 'Bis zu 5 Abschnitte', 'Kontaktformular', 'Grundlegendes SEO'],
+                            ['Strona główna z sekcji', 'Formularz z automatyczną odpowiedzią', 'Strony prawne i baner cookies', 'Panel do edycji treści', 'Jeden język'],
+                            ['Home page built from sections', 'Contact form with an automatic reply', 'Legal pages and a cookie banner', 'Content panel', 'One language'],
+                            ['Startseite aus Abschnitten', 'Kontaktformular mit automatischer Antwort', 'Rechtsseiten und Cookie-Banner', 'Redaktionspanel', 'Eine Sprache'],
                         ),
                         action: new HomeActionData(label: $askForQuote, target: HomeLinkTarget::Contact),
                     ),
                     new PricingPlanData(
-                        name: $t('Strona firmowa', 'Company website', 'Firmenwebsite'),
-                        priceMinor: 690000,
+                        name: $t('Firma', 'Company', 'Unternehmen'),
+                        priceMinor: $pl ? 790000 : 199000,
                         currency: $currency,
                         priceFrom: true,
-                        description: $t('Rozbudowana strona z blogiem i panelem do edycji treści.', 'A larger site with a blog and a content panel.', 'Eine umfangreichere Website mit Blog und Redaktionspanel.'),
+                        period: $t('start w 2–3 tygodnie', 'live in 2–3 weeks', 'online in 2–3 Wochen'),
+                        description: $t('Strona firmowa z blogiem, wersjami językowymi i obsługą zapytań.', 'A company website with a blog, language versions and enquiry handling.', 'Eine Firmenwebsite mit Blog, Sprachversionen und Anfragenverwaltung.'),
                         features: self::pick(
                             $locale,
-                            ['Wszystko z pakietu Wizytówka', 'Podstrony i blog', 'Panel administracyjny', 'Wersje językowe'],
-                            ['Everything in Starter site', 'Subpages and blog', 'Admin panel', 'Language versions'],
-                            ['Alles aus dem Paket Visitenkarte', 'Unterseiten und Blog', 'Admin-Panel', 'Sprachversionen'],
+                            ['Wszystko z pakietu Start', 'Podstrony i blog z tagami', 'Do trzech języków', 'Biblioteka zdjęć', 'Formularz wyceny i eksport zapytań do CSV'],
+                            ['Everything in Start', 'Subpages and a blog with tags', 'Up to three languages', 'Media library', 'Quote form and CSV export of enquiries'],
+                            ['Alles aus Start', 'Unterseiten und Blog mit Tags', 'Bis zu drei Sprachen', 'Medienbibliothek', 'Angebotsformular und CSV-Export der Anfragen'],
                         ),
                         highlighted: true,
                         action: new HomeActionData(label: $askForQuote, target: HomeLinkTarget::Contact),
                     ),
                     new PricingPlanData(
-                        name: $t('Sklep lub aplikacja', 'Shop or web app', 'Shop oder Web-App'),
+                        name: $t('Aplikacja', 'Application', 'Anwendung'),
+                        priceMinor: $pl ? 1490000 : 390000,
                         currency: $currency,
-                        description: $t('Projekt szyty na miarę Twoich procesów.', 'A project tailored to your processes.', 'Ein Projekt, zugeschnitten auf Ihre Prozesse.'),
+                        priceFrom: true,
+                        period: $t('start w 4–6 tygodni', 'live in 4–6 weeks', 'online in 4–6 Wochen'),
+                        description: $t('Panel lub system skrojony pod Twoje procesy.', 'A portal or system built around your processes.', 'Ein Portal oder System, zugeschnitten auf Ihre Prozesse.'),
                         features: self::pick(
                             $locale,
-                            ['Analiza potrzeb', 'Integracje z systemami', 'Testy i wdrożenie', 'Opieka po starcie'],
-                            ['Needs analysis', 'System integrations', 'Testing and launch', 'Support after launch'],
-                            ['Bedarfsanalyse', 'Systemintegrationen', 'Tests und Launch', 'Betreuung nach dem Start'],
+                            ['Wszystko z pakietu Firma', 'Moduły szyte na miarę', 'Role i historia zmian', 'Import danych z CSV i kosz z przywracaniem', 'Integracje przez webhook'],
+                            ['Everything in Company', 'Custom modules', 'Roles and change history', 'CSV data import and a trash with restore', 'Webhook integrations'],
+                            ['Alles aus Unternehmen', 'Maßgeschneiderte Module', 'Rollen und Änderungsverlauf', 'CSV-Import und Papierkorb mit Wiederherstellung', 'Integrationen per Webhook'],
                         ),
                         action: new HomeActionData(label: $t('Umów rozmowę', 'Book a call', 'Gespräch vereinbaren'), target: HomeLinkTarget::Contact),
                     ),
                 ],
                 title: $t('Cennik', 'Pricing', 'Preise'),
-                description: $t('Orientacyjne ceny, abyś wiedział, czego się spodziewać.', 'Indicative prices so you know what to expect.', 'Richtpreise, damit Sie wissen, womit Sie rechnen können.'),
-                note: $t('Ceny orientacyjne netto. Dokładną wycenę przygotujemy po krótkiej rozmowie.', 'Indicative net prices. We prepare an exact quote after a short call.', 'Richtpreise, netto. Ein genaues Angebot erstellen wir nach einem kurzen Gespräch.'),
+                description: $t('Trzy pakiety na tym samym fundamencie: szybkim, dostępnym i bezpiecznym.', 'Three packages on the same fast, accessible and secure foundation.', 'Drei Pakete auf demselben schnellen, barrierefreien und sicheren Fundament.'),
+                note: $t(
+                    'Ceny netto, orientacyjne. Każdy pakiet obejmuje wdrożenie, SSL, kopie zapasowe i dwa tygodnie poprawek. Opieka po starcie od 390 zł miesięcznie.',
+                    'Indicative net prices. Every package includes deployment, SSL, backups and two weeks of fixes. Support after launch from €99 a month.',
+                    'Richtpreise, netto. Jedes Paket umfasst Bereitstellung, SSL, Backups und zwei Wochen Korrekturen. Betreuung nach dem Start ab 99 € im Monat.',
+                ),
             )],
             HomeSectionType::LatestArticles->value => ['enabled' => true, 'content' => new LatestArticlesContentData(
                 limit: 3,
