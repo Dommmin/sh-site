@@ -8,11 +8,18 @@ import { I18nProvider } from '@/i18n';
 import { documentTitle } from '@/lib/document-title';
 import { loadPage, resolveLayout, syncSurface } from '@/lib/page-resolver';
 
+// Per-request CSP nonce from the root template (SetContentSecurityPolicy);
+// Inertia applies it to the styles it injects (progress bar, error dialog).
+const cspNonce = document.querySelector<HTMLMetaElement>(
+    'meta[property="csp-nonce"]',
+)?.nonce;
+
 void createInertiaApp({
     title: documentTitle,
     resolve: loadPage,
     layout: resolveLayout,
     strictMode: true,
+    nonce: cspNonce,
     withApp(app, { page }) {
         return (
             <TooltipProvider delayDuration={0}>
