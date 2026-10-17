@@ -13,6 +13,8 @@ class FaqAbilitiesData extends Data
 {
     public function __construct(
         public bool $create,
+        public bool $update,
         public bool $delete,
+        public bool $import = false,
     ) {}
 }

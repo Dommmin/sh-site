@@ -2,12 +2,16 @@
 
 namespace App\Repositories\Content;
 
+use App\Contracts\Search\AdminSearchSource;
 use App\Data\Admin\Dashboard\ContentStatusCountsData;
 use App\Data\Admin\Dashboard\PublishingData;
+use App\Data\Admin\Search\AdminSearchResultData;
 use App\Enums\PublicationStatus;
 use App\Models\Article;
 use App\Models\ArticleSlugRedirect;
 use App\Models\ArticleTranslation;
+use App\Models\Tag;
+use App\Support\Search\LikeSearch;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -17,7 +21,7 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * Named read queries of the Content module for articles.
  */
-class ArticleRepository
+class ArticleRepository implements AdminSearchSource
 {
     /**
      * Base query of the admin article list. The list definition in
@@ -33,24 +37,30 @@ class ArticleRepository
     }
 
     /**
-     * Load an article with every translation and its cover for the editor.
+     * Load an article with every translation, its cover and tags for the
+     * editor.
      */
     public function forEditor(Article $article): Article
     {
-        return $article->load(['translations', 'cover']);
+        return $article->load(['translations', 'cover', 'tags']);
     }
 
     /**
-     * Newest visible translations of the given locale for the public list.
+     * Newest visible translations of the given locale for the public list,
+     * optionally only articles with the given tag; with cover and tags.
      *
      * @return LengthAwarePaginator<int, ArticleTranslation>
      */
-    public function publishedPage(string $locale, int $perPage): LengthAwarePaginator
+    public function publishedPage(string $locale, int $perPage, ?Tag $tag = null): LengthAwarePaginator
     {
         return ArticleTranslation::query()
             ->published()
             ->where('locale', $locale)
-            ->with('article.cover')
+            ->when($tag !== null, fn (Builder $query) => $query->whereHas(
+                'article.tags',
+                fn (Builder $tags) => $tags->whereKey($tag?->id),
+            ))
+            ->with(['article.cover', 'article.tags'])
             ->orderByDesc('published_at')
             ->orderByDesc('id')
             ->paginate($perPage);
@@ -84,7 +94,7 @@ class ArticleRepository
     {
         return $article->translations()
             ->where('locale', $locale)
-            ->with('article.cover')
+            ->with(['article.cover', 'article.tags'])
             ->first();
     }
 
@@ -98,7 +108,7 @@ class ArticleRepository
             ->published()
             ->where('locale', $locale)
             ->where('slug', $slug)
-            ->with(['article.cover', 'article.translations' => fn ($query) => $query->published()])
+            ->with(['article.cover', 'article.tags', 'article.translations' => fn ($query) => $query->published()])
             ->first();
     }
 
@@ -210,5 +220,33 @@ class ArticleRepository
             ->where('status', PublicationStatus::Draft->value)
             ->where('updated_at', '<', $now->toImmutable()->subDays($days))
             ->count();
+    }
+
+    public function model(): string
+    {
+        return Article::class;
+    }
+
+    /**
+     * Articles with a translation whose title or slug contains the term,
+     * named by the most recently changed matching translation.
+     */
+    public function search(string $term, int $limit): array
+    {
+        $query = ArticleTranslation::query()->orderByDesc('updated_at')->orderByDesc('id');
+        LikeSearch::apply($query, ['title', 'slug'], $term);
+
+        $results = [];
+        foreach ($query->limit($limit * 4)->get()->unique('article_id')->take($limit) as $translation) {
+            $results[] = new AdminSearchResultData(
+                type: 'articles',
+                id: $translation->article_id,
+                label: $translation->title,
+                description: mb_strtoupper($translation->locale).' · '.$translation->slug,
+                url: route('admin.articles.edit', $translation->article_id),
+            );
+        }
+
+        return $results;
     }
 }

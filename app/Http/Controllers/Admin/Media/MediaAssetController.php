@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Media;
 
+use App\Actions\Audit\ShareRecordHistory;
 use App\Actions\Media\DeleteMediaAsset;
 use App\Actions\Media\StoreMediaAsset;
 use App\Actions\Media\UpdateMediaAsset;
@@ -86,8 +87,10 @@ class MediaAssetController extends Controller
     /**
      * Show the asset details and the alternative text form.
      */
-    public function edit(Request $request, MediaAsset $mediaAsset): Response
+    public function edit(Request $request, MediaAsset $mediaAsset, ShareRecordHistory $recordHistory): Response
     {
+        $recordHistory->handle($request->user(), $mediaAsset);
+
         return Inertia::render('admin/media/edit', new MediaAssetEditorData(
             asset: MediaAssetDetailData::fromModel($this->media->forEditor($mediaAsset)),
             can: $this->abilities($request, $mediaAsset),
@@ -188,7 +191,7 @@ class MediaAssetController extends Controller
             create: $user?->can('create', MediaAsset::class) ?? false,
             update: $asset !== null
                 ? ($user?->can('update', $asset) ?? false)
-                : ($user?->canAccessAdminPanel() ?? false),
+                : ($user?->canEditContent() ?? false),
             delete: $asset !== null
                 ? ($user?->can('delete', $asset) ?? false)
                 : ($user?->isAdmin() ?? false),

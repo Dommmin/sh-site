@@ -438,6 +438,7 @@ export function PageForm({ editor }: PageFormProps) {
                                     handleChange(code, name, value)
                                 }
                                 onSubmit={submit}
+                                readOnly={!can.update}
                                 isPending={form.processing}
                                 cancelHref={pagesIndex()}
                                 labels={{
@@ -553,7 +554,9 @@ export function PageForm({ editor }: PageFormProps) {
                     open={isDeleteOpen}
                     onOpenChange={setIsDeleteOpen}
                     title={t('admin.pages.deleteTitle')}
-                    description={t('admin.pages.deleteDescription')}
+                    description={t('admin.pages.deleteDescription', {
+                        days: editor.trashDays,
+                    })}
                     confirmLabel={t('admin.pages.deleteConfirm')}
                     cancelLabel={t('admin.pages.cancel')}
                     closeLabel={t('actions.close')}

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin\HomeSections;
 
+use App\Actions\Audit\ShareRecordHistory;
 use App\Actions\Home\ReorderHomeSections;
 use App\Actions\Home\ToggleHomeSection;
 use App\Actions\Home\UpdateHomeSection;
+use App\Data\Admin\HomeSections\HomeContactFormOptionData;
 use App\Data\Admin\HomeSections\HomePageOptionData;
 use App\Data\Admin\HomeSections\HomeSectionAbilitiesData;
 use App\Data\Admin\HomeSections\HomeSectionEditorData;
@@ -18,8 +20,10 @@ use App\Http\Requests\Admin\HomeSections\ListHomeSectionsRequest;
 use App\Http\Requests\Admin\HomeSections\ReorderHomeSectionsRequest;
 use App\Http\Requests\Admin\HomeSections\ToggleHomeSectionRequest;
 use App\Http\Requests\Admin\HomeSections\UpdateHomeSectionRequest;
+use App\Models\ContactForm;
 use App\Models\HomeSection;
 use App\Models\User;
+use App\Repositories\Contact\ContactFormRepository;
 use App\Repositories\Content\PageRepository;
 use App\Repositories\Home\HomeSectionRepository;
 use App\Services\Home\HomeLinkResolver;
@@ -67,8 +71,10 @@ class HomeSectionController extends Controller
     /**
      * Show the content form of the section.
      */
-    public function edit(Request $request, HomeSection $homeSection): Response
+    public function edit(Request $request, HomeSection $homeSection, ShareRecordHistory $recordHistory): Response
     {
+        $recordHistory->handle($request->user(), $homeSection);
+
         $pages = [];
         foreach ($this->pages->publishedInLocale($homeSection->locale) as $pageId => $translation) {
             $pages[] = new HomePageOptionData(id: $pageId, title: $translation->title);
@@ -87,6 +93,12 @@ class HomeSectionController extends Controller
             linkTargets: $this->links->availableTargets(),
             pages: $pages,
             can: $this->abilities($request, $homeSection),
+            contactForms: array_values(app(ContactFormRepository::class)->all()->map(
+                fn (ContactForm $form): HomeContactFormOptionData => new HomeContactFormOptionData(
+                    key: $form->key,
+                    title: $form->titleIn($homeSection->locale, $this->localization->getPublicFallback()),
+                ),
+            )->all()),
         ));
     }
 
@@ -143,7 +155,7 @@ class HomeSectionController extends Controller
         return new HomeSectionAbilitiesData(
             update: $section !== null
                 ? ($user?->can('update', $section) ?? false)
-                : ($user?->canAccessAdminPanel() ?? false),
+                : ($user?->canEditContent() ?? false),
             reorder: $user?->can('reorder', HomeSection::class) ?? false,
         );
     }

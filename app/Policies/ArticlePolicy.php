@@ -6,8 +6,9 @@ use App\Models\Article;
 use App\Models\User;
 
 /**
- * Articles are written and published by the panel roles (admin and editor);
- * only administrators may delete an article with all its translations.
+ * Articles are written and published by admins and editors; a viewer
+ * lists, opens (read-only) and previews them. Only administrators may
+ * move an article to the trash, restore it or empty the trash.
  */
 class ArticlePolicy
 {
@@ -20,11 +21,20 @@ class ArticlePolicy
     }
 
     /**
+     * Determine whether the user can open the article editor (read-only
+     * without `update`).
+     */
+    public function view(User $user, Article $article): bool
+    {
+        return $user->canAccessAdminPanel();
+    }
+
+    /**
      * Determine whether the user can create articles.
      */
     public function create(User $user): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**
@@ -32,12 +42,12 @@ class ArticlePolicy
      */
     public function update(User $user, Article $article): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**
      * Determine whether the user can preview saved, also unpublished,
-     * translations of the article (same access as editing).
+     * translations of the article (same access as opening the editor).
      */
     public function preview(User $user, Article $article): bool
     {
@@ -49,13 +59,37 @@ class ArticlePolicy
      */
     public function publish(User $user): bool
     {
-        return $user->canAccessAdminPanel();
+        return $user->canEditContent();
     }
 
     /**
-     * Determine whether the user can permanently delete the article.
+     * Determine whether the user can move the article to the trash.
      */
     public function delete(User $user, Article $article): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine whether the user can see the articles in the trash.
+     */
+    public function viewTrashed(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine whether the user can bring the article back from the trash.
+     */
+    public function restore(User $user, Article $article): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine whether the user can remove the article from the trash for good.
+     */
+    public function forceDelete(User $user, Article $article): bool
     {
         return $user->isAdmin();
     }
