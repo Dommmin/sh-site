@@ -127,11 +127,13 @@ services:
             retries: 20
 
     # Malware scanner for DAM uploads (clamd over TCP 3310 inside the compose
-    # network only; no host port). The first start downloads signatures into
-    # the clamav volume, so the service may need a few minutes to turn
-    # healthy. Tests use a fake scanner and never depend on it.
+    # network only; no host port). Optional, off by default: enable with
+    # COMPOSE_PROFILES=clamav and MEDIA_SCANNER_ENABLED=true in .env. The first
+    # start downloads signatures into the clamav volume, so the service may
+    # need a few minutes to turn healthy. Tests use a fake scanner.
     clamav:
         image: clamav/clamav:1.5.4-debian
+        profiles: [clamav]
         environment:
             CLAMAV_NO_MILTERD: 'true'
             # Accept the 50 MB DAM limit over INSTREAM (default is 25 MB).
