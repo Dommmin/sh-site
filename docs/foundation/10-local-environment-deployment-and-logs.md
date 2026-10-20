@@ -16,7 +16,7 @@ Obrazy mają przypięte linie wersji, a nie digesty; `make build` pobiera aktual
 
 Zero-downtime oznacza brak planowego wyłączenia HTTP podczas kompatybilnej aktualizacji. Nie oznacza HA jednej VM ani gwarancji braku błędów wadliwego release'u w czasie wykrywania regresji. Recepta jest własnym, testowanym rozszerzeniem Deployer: samo użycie bazowej recepty i atomowego symlinka nie zapewnia całego poniższego kontraktu.
 
-Produkcja: natywne Nginx, PHP-FPM, PostgreSQL, Redis, Node SSR i Horizon pod systemd; jeden scheduler. Deployer ma osobne konto bez nieograniczonego sudo. Współdzielone dane/env/logi poza releases, bootstrap/config cache lokalny dla konkretnego release'u. Pięć ukończonych release'ów obejmuje bieżący; dodatkowo nie usuwać wersji używanej przez żywy proces lub wskazanej jako cel rollbacku.
+Produkcja: natywne Nginx, PHP-FPM, MySQL lub PostgreSQL (wg `DB_CONNECTION`), Redis, Node SSR i Horizon pod systemd; jeden scheduler. Deployer ma osobne konto bez nieograniczonego sudo. Współdzielone dane/env/logi poza releases, bootstrap/config cache lokalny dla konkretnego release'u. Pięć ukończonych release'ów obejmuje bieżący; dodatkowo nie usuwać wersji używanej przez żywy proces lub wskazanej jako cel rollbacku.
 
 CI buduje archiwum kodu, vendor oraz bundle klienta/SSR z lockfile na zgodnym Linux/CPU. Manifest zawiera commit SHA, sumę SHA-256 archiwum, wersje runtime i lockfile, migracje oraz poprzedni zgodny release. Staging i produkcja otrzymują to samo archiwum; config cache powstaje osobno na hoście z jego env. Deployer weryfikuje sumę, a nie pobiera ruchomy branch lub przebudowuje zależności. Artefakt nie zawiera sekretów, lokalnych danych ani debug toolingu.
 

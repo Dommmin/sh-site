@@ -52,7 +52,7 @@ test('a clean scan marks the asset clean, audits it and queues image variants', 
 
     $audit = AuditLog::query()->where('action', AuditAction::MediaCleaned)->sole();
     expect($audit->actor_id)->toBeNull()
-        ->and($audit->changes)->toBe(['status' => ['old' => 'quarantine', 'new' => 'clean']]);
+        ->and($audit->changes)->toEqual(['status' => ['old' => 'quarantine', 'new' => 'clean']]);
 });
 
 test('with the scanner disabled the asset is released as clean without a scan and audited as skipped', function () {
