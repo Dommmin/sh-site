@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           cache: npm
@@ -76,13 +76,13 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.5'
           tools: composer:v2
           coverage: none
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           cache: npm
@@ -119,19 +119,54 @@ jobs:
           else
             echo "Brak referencji bazowej dla bramki UI; pomijam kontrolę różnic."
           fi
-      - name: Build frontend assets
-        run: npm run build
+      # build:ssr also runs the client build, so the budget step below still
+      # reads public/build; the SSR smoke catches browser-only APIs at module
+      # level in the SSR entry long before the e2e job.
+      - name: Build frontend and SSR assets
+        run: npm run build:ssr
       - name: Enforce bundle budget
         run: npm run check:budget
+      - name: Smoke test SSR rendering and i18n isolation
+        run: npm run test:ssr
       - name: Run quality checks
         run: composer ci:check
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Supply-chain gate for the committed lockfiles: both audits fail the job
+    # on a known advisory (composer: any; npm: high/critical) in runtime
+    # dependencies. A failure to download the advisory database is a failure,
+    # not a pass. Exceptions need a human-approved, dated justification
+    # (docs/foundation/03-testing-and-quality.md), never a lower threshold.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Audit Composer runtime dependencies from the lockfile
+        run: composer audit --locked --no-dev --format=plain
+      - name: Audit npm runtime dependencies from the lockfile
+        run: npm audit --omit=dev --audit-level=high
 
   tests-pgsql:
     name: tests-pgsql
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # The full Pest suite against PostgreSQL, the production database family,
-    # while `quality` keeps the fast in-memory SQLite run. A service container
+    # The full Pest suite against PostgreSQL, one of the two supported
+    # production engines (DB_CONNECTION), while `quality` keeps the fast
+    # in-memory SQLite run. A service container
     # uses the same image as compose.yaml without building the runtime image;
     # the credentials exist only inside this throwaway container.
     services:
@@ -162,7 +197,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.5'
           extensions: pdo_pgsql, pgsql
@@ -178,6 +213,58 @@ jobs:
       - name: Run Pest on PostgreSQL
         run: php artisan test --compact
 
+  tests-mysql:
+    name: tests-mysql
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The full Pest suite against MySQL 8.4, the default engine of new
+    # projects (.env.example). Same image as compose.yaml; the credentials
+    # exist only inside this throwaway container.
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: starter_testing
+          MYSQL_USER: starter
+          MYSQL_PASSWORD: ci-testing-only
+          MYSQL_ROOT_PASSWORD: ci-root-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -u root -pci-root-only --silent"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 40
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_DATABASE: starter_testing
+      DB_USERNAME: starter
+      DB_PASSWORD: ci-testing-only
+      DB_URL: ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_mysql
+          tools: composer:v2
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Prepare test application
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force --no-interaction
+      # Job-level DB_* variables take precedence over .env.testing (SQLite).
+      - name: Run Pest on MySQL
+        run: php artisan test --compact
+
   generator-smoke:
     name: generator-smoke
     runs-on: ubuntu-latest
@@ -188,13 +275,13 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.5'
           tools: composer:v2
           coverage: none
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           cache: npm
@@ -229,7 +316,7 @@ jobs:
           make deps
       - name: Start database services and migrate
         run: |
-          docker compose up -d --wait postgres redis mailpit
+          docker compose --profile mysql up -d --wait mysql redis mailpit
           make artisan ARGS='key:generate --no-interaction'
           make artisan ARGS='migrate --no-interaction'
           make artisan ARGS='storage:link --no-interaction'
@@ -243,7 +330,7 @@ jobs:
           docker compose -f compose.yaml -f compose.e2e.yaml --profile e2e logs --no-color --tail=150 web app ssr queue || true
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
           path: |
@@ -252,4 +339,4 @@ jobs:
           retention-days: 7
       - name: Stop stack
         if: always()
-        run: docker compose --profile e2e down --volumes --remove-orphans
+        run: docker compose --profile e2e --profile mysql down --volumes --remove-orphans
