@@ -89,9 +89,32 @@ check('Redis i lokalny SMTP', 'php', [
     exit($smtp ? 0 : 1);
 `,
 ]);
-check('ClamAV clamd (PING/PONG)', 'php', [
-    '-r',
-    `
+function scannerEnabled() {
+    try {
+        const value = execFileSync(
+            'php',
+            [
+                '-r',
+                `
+    require 'vendor/autoload.php';
+    $app = require 'bootstrap/app.php';
+    $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap();
+    echo config('media.scanner.enabled') ? '1' : '0';
+`,
+            ],
+            { encoding: 'utf8', timeout: 20000 },
+        );
+
+        return value.trim() === '1';
+    } catch {
+        return true;
+    }
+}
+
+if (scannerEnabled()) {
+    check('ClamAV clamd (PING/PONG)', 'php', [
+        '-r',
+        `
     $socket = @fsockopen(getenv('CLAMAV_HOST') ?: 'clamav', (int) (getenv('CLAMAV_PORT') ?: 3310), $code, $message, 5);
     if ($socket === false) { exit(1); }
     stream_set_timeout($socket, 5);
@@ -99,7 +122,10 @@ check('ClamAV clamd (PING/PONG)', 'php', [
     $reply = (string) fread($socket, 16);
     exit(trim($reply, "\\0\\n") === 'PONG' ? 0 : 1);
 `,
-]);
+    ]);
+} else {
+    console.log('SKIP ClamAV clamd — MEDIA_SCANNER_ENABLED=false');
+}
 check('Horizon (kolejka)', 'php', [
     'artisan',
     'horizon:status',
