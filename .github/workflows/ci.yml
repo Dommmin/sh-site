@@ -119,9 +119,9 @@ jobs:
           else
             echo "Brak referencji bazowej dla bramki UI; pomijam kontrolę różnic."
           fi
-      # New client projects start with sign-up off (app:init-project), and
+      # Sign-up is off by default (.env.example, app:init-project), and
       # Wayfinder then skips the registration routes; the build must not
-      # depend on them. The next step rebuilds with the .env.example default.
+      # depend on them. The next step rebuilds with sign-up switched on.
       - name: Build frontend and SSR assets with registration disabled
         env:
           APP_REGISTRATION_ENABLED: 'false'
@@ -130,6 +130,8 @@ jobs:
       # reads public/build; the SSR smoke catches browser-only APIs at module
       # level in the SSR entry long before the e2e job.
       - name: Build frontend and SSR assets
+        env:
+          APP_REGISTRATION_ENABLED: 'true'
         run: npm run build:ssr
       - name: Enforce bundle budget
         run: npm run check:budget

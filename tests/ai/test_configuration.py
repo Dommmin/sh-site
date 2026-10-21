@@ -814,6 +814,15 @@ class AiConfigurationTest(unittest.TestCase):
         self.assertIn('"$$TEST_DB" = "$$POSTGRES_DB"', makefile)
         self.assertIn("-e DB_DATABASE=$(PGSQL_TEST_DATABASE)", makefile)
 
+    def test_sign_up_is_off_by_default_and_ci_builds_both_variants(self):
+        env = (ROOT / ".env.example").read_text()
+        self.assertIn("\nAPP_REGISTRATION_ENABLED=false\n", env)
+
+        ci = (ROOT / ".github/workflows/ci.yml").read_text()
+        quality = ci[ci.index("\n  quality:\n"):ci.index("\n  tests-pgsql:\n")]
+        self.assertIn("APP_REGISTRATION_ENABLED: 'false'\n        run: npm run build:ssr", quality)
+        self.assertIn("APP_REGISTRATION_ENABLED: 'true'\n        run: npm run build:ssr", quality)
+
     def test_mysql_is_the_default_engine_and_runs_in_ci_and_locally(self):
         env = (ROOT / ".env.example").read_text()
         self.assertIn("\nDB_CONNECTION=mysql\nDB_HOST=mysql\nDB_PORT=3306\n", env)
