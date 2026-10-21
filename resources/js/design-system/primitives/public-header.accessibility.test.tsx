@@ -8,7 +8,7 @@ import { PublicHeader } from './public-header';
 const currentPage = vi.hoisted(() => ({
     url: '/',
     user: null as Record<string, unknown> | null,
-    canRegister: true,
+    registerUrl: '/register' as string | null,
 }));
 
 vi.mock('@inertiajs/react', () => ({
@@ -17,7 +17,7 @@ vi.mock('@inertiajs/react', () => ({
         props: {
             auth: {
                 user: currentPage.user,
-                canRegister: currentPage.canRegister,
+                registerUrl: currentPage.registerUrl,
             },
             i18n: { alternateUrls: {} },
         },
@@ -95,7 +95,7 @@ async function render(node: ReactNode): Promise<HTMLElement> {
 afterEach(async () => {
     currentPage.url = '/';
     currentPage.user = null;
-    currentPage.canRegister = true;
+    currentPage.registerUrl = '/register';
     await act(async () => {
         mountedRoots.splice(0).forEach((root) => root.unmount());
     });
@@ -104,8 +104,8 @@ afterEach(async () => {
 
 describe('PublicHeader', () => {
     it('offers the register action only while sign-up is enabled', async () => {
-        const hasRegister = async (canRegister: boolean) => {
-            currentPage.canRegister = canRegister;
+        const hasRegister = async (registerUrl: string | null) => {
+            currentPage.registerUrl = registerUrl;
             const container = await render(<PublicHeader />);
             const found = Array.from(container.querySelectorAll('a')).some(
                 (link) => link.getAttribute('href') === '/register',
@@ -118,8 +118,8 @@ describe('PublicHeader', () => {
             return found;
         };
 
-        expect(await hasRegister(true)).toBe(true);
-        expect(await hasRegister(false)).toBe(false);
+        expect(await hasRegister('/register')).toBe(true);
+        expect(await hasRegister(null)).toBe(false);
     });
 
     it('keeps the theme and language switchers reachable in the mobile menu without nav items', async () => {

@@ -6,11 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
 import { useTranslation } from '@/i18n';
 import type { User } from '@/types';
-import { login, register } from '@/routes';
-import {
-    login as localizedLogin,
-    register as localizedRegister,
-} from '@/routes/localized';
+import { login } from '@/routes';
+import { login as localizedLogin } from '@/routes/localized';
 import type { BrandLogoImage } from './brand-logo';
 import { Button } from './button';
 import { HeaderUtility } from './header-utility';
@@ -197,10 +194,7 @@ export function PublicHeader({
 
     const loginUrl =
         locale === defaultLocale ? login.url() : localizedLogin.url({ locale });
-    const registerUrl =
-        locale === defaultLocale
-            ? register.url()
-            : localizedRegister.url({ locale });
+    const { registerUrl } = auth;
 
     // Below `md` a guest's sign-in and sign-up move into the menu panel, so
     // the brand keeps one line next to the locale switcher and menu trigger.
@@ -220,7 +214,7 @@ export function PublicHeader({
                 <LogIn className="h-4 w-4" aria-hidden="true" />
                 <span>{t('nav.login')}</span>
             </Button>
-            {auth.canRegister && (
+            {registerUrl !== null && (
                 <Button
                     variant="primary"
                     size="default"
@@ -288,7 +282,7 @@ export function PublicHeader({
                                 <Button variant="outline" href={loginUrl}>
                                     {t('nav.login')}
                                 </Button>
-                                {auth.canRegister && (
+                                {registerUrl !== null && (
                                     <Button
                                         variant="primary"
                                         href={registerUrl}

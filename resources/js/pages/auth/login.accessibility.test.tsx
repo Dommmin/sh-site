@@ -7,13 +7,18 @@ import Login from './login';
 
 vi.mock('@/components/passkey-verify', () => ({ default: () => null }));
 
+/** Shared `auth.registerUrl`; `null` while self-service sign-up is off. */
+const sharedAuth = vi.hoisted(() => ({
+    registerUrl: null as string | null,
+}));
+
 /** Validation errors the mocked server returns after a submit. */
 const serverErrors: Record<string, string> = {};
 
 vi.mock('@inertiajs/react', () => ({
     Head: () => null,
     setLayoutProps: () => {},
-    usePage: () => ({ props: {} }),
+    usePage: () => ({ props: { auth: sharedAuth } }),
     router: { on: () => () => {} },
     Form: ({
         children,
@@ -202,6 +207,27 @@ describe('Login', () => {
 
         expect(labels).toContain('auth.login.demoLogin');
         expect(labels).not.toContain('auth.login.devLogin');
+    });
+
+    it('links to sign-up only while the backend shares its URL', async () => {
+        const signUpHrefs = async () =>
+            Array.from(
+                (await render(<Login canResetPassword />)).querySelectorAll(
+                    'a',
+                ),
+            )
+                .filter((link) => link.textContent === 'auth.login.signUp')
+                .map((link) => link.getAttribute('href'));
+
+        expect(await signUpHrefs()).toEqual([]);
+
+        sharedAuth.registerUrl = '/de/register';
+
+        try {
+            expect(await signUpHrefs()).toEqual(['/de/register']);
+        } finally {
+            sharedAuth.registerUrl = null;
+        }
     });
 
     it('shows no one-click sign-in without a dev or demo URL', async () => {
