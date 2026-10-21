@@ -8,8 +8,8 @@ Stan na 2026-10-12, gałąź `chore/foundation-hygiene-wave2` (develop + scalony
 | --- | --- |
 | Runtime lokalny | Docker Compose + `Makefile`; PHP 8.5 FPM (bookworm), Node 24, MySQL 8.4 (domyślnie) albo PostgreSQL 18 wg `DB_CONNECTION` (ADR-004), Redis 8.2, Nginx 1.28, Mailpit 1.27, ClamAV 1.5.4 (opcjonalny), Playwright 1.63 |
 | Backend | Laravel 13.31, Inertia Laravel 3.3, Fortify 1.39 (2FA, passkeys), Horizon 5.50, Wayfinder 0.1.21, spatie/laravel-data 4.23, Intervention Image 3.11, tiptap-php 2.2; `composer.json` wymaga PHP ^8.3 |
-| Frontend | React 19.3, @inertiajs/react 3.7, TypeScript 5.9, Vite 8.2 (vite-plus 0.3), Tailwind CSS 4.3, Radix (pojedyncze pakiety), TipTap 3.31, lucide-react 0.475 |
-| Jakość | Pest 5.1, Larastan 3.11, Pint, vitest 4.1 (przez vite-plus), Playwright + axe, Lefthook, commitlint, gitleaks, Boost 2.8 |
+| Frontend | React 19.3, @inertiajs/react 3.7, TypeScript 5.9, Vite 8.3 (alias `@voidzero-dev/vite-plus-core` 1.3), Tailwind CSS 4.3, Radix (pojedyncze pakiety), TipTap 3.31, lucide-react 0.475 |
+| Jakość | Pest 5.1, Larastan 3.11, Pint, Vite+ 1.3 (vitest 5.0, oxlint 1.88, oxfmt 0.73), Playwright + axe, Lefthook, commitlint, gitleaks, Boost 2.8 |
 | Deploy | Deployer 8.0, artefakt z manifestem i SHA-256, automatyczny rollback w oknie deployu (ADR-022) |
 
 ## Moduły w kodzie
