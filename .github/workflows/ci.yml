@@ -103,7 +103,7 @@ jobs:
       - name: Check AI and deployment configuration
         run: python3 -m unittest discover -s tests/ai -v
       - name: Test local environment bootstrap
-        run: node --test scripts/dev-environment.test.mjs scripts/starter-sync.test.mjs
+        run: node --test scripts/dev-environment.test.mjs scripts/starter-sync.test.mjs scripts/registration-routes.test.mjs
       - name: Enforce localization catalog contract
         run: composer check:i18n
       - name: Enforce UI contract on changed source
@@ -119,6 +119,13 @@ jobs:
           else
             echo "Brak referencji bazowej dla bramki UI; pomijam kontrolę różnic."
           fi
+      # New client projects start with sign-up off (app:init-project), and
+      # Wayfinder then skips the registration routes; the build must not
+      # depend on them. The next step rebuilds with the .env.example default.
+      - name: Build frontend and SSR assets with registration disabled
+        env:
+          APP_REGISTRATION_ENABLED: 'false'
+        run: npm run build:ssr
       # build:ssr also runs the client build, so the budget step below still
       # reads public/build; the SSR smoke catches browser-only APIs at module
       # level in the SSR entry long before the e2e job.
