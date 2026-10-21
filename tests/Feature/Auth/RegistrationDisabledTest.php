@@ -17,6 +17,9 @@ beforeEach(function () {
     $this->app['db']->connection()->rollBack();
     $this->refreshApplication();
     $this->refreshDatabase();
+    // The fresh application has no Vite fake from TestCase::setUp(): without
+    // it pages need public/build, which the database CI jobs never build.
+    $this->withoutVite();
 });
 
 afterEach(function () {
