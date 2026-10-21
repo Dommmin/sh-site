@@ -139,7 +139,7 @@ test-mysql: local-guard ## Pest na MySQL z compose w osobnej bazie MYSQL_TEST_DA
 		app php artisan test --compact $(ARGS)
 
 test-setup: ## Testy bootstrappingu i ochrony konfiguracji
-	$(RUN) node --test scripts/dev-environment.test.mjs scripts/starter-sync.test.mjs
+	$(RUN) node --test scripts/dev-environment.test.mjs scripts/starter-sync.test.mjs scripts/registration-routes.test.mjs
 
 generator-smoke: ## Smoke generatora CRUD w tymczasowej kopii repo (bez zmian w drzewie roboczym)
 	$(RUN) sh scripts/generator-smoke.sh
