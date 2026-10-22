@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # First-time provisioning of a single Ubuntu 24.04 VM for the starter
 # (native Nginx + PHP-FPM, MySQL 8.4, Redis 8, Node 24 for SSR; doc 10).
-# Run as root on the server from a copy of the repository's deploy/ and
+# Run as root, or through sudo from the image's admin account (then root
+# login is disabled), on a copy of the repository's deploy/ and
 # scripts/server/ directories (same layout), e.g. from your machine:
 #
-#   rsync -a --relative deploy scripts/server root@HOST:/root/starter/
-#   ssh root@HOST 'STARTER_DOMAIN=example.com STARTER_ACME_EMAIL=ops@example.com \
+#   rsync -a --relative deploy scripts/server HOST:starter/
+#   ssh HOST 'sudo STARTER_DOMAIN=example.com STARTER_ACME_EMAIL=ops@example.com \
 #       STARTER_DEPLOY_KEY="ssh-ed25519 AAAA... github-deploy" \
-#       bash /root/starter/scripts/server/provision.sh'
+#       bash starter/scripts/server/provision.sh'
 #
 # After the first successful `dep deploy`:
-#   bash /root/starter/scripts/server/provision.sh start
+#   sudo bash starter/scripts/server/provision.sh start
 #
 # Configuration (environment):
 #   STARTER_DOMAIN       public host name of APP_URL (required; DNS A/AAAA
@@ -55,7 +56,7 @@ env_value() {
 }
 
 preflight() {
-    [[ $EUID -eq 0 ]] || fail 'run as root'
+    [[ $EUID -eq 0 ]] || fail 'run as root (or through sudo)'
     # shellcheck source=/dev/null
     . /etc/os-release
     [[ ${ID:-} == ubuntu && ${VERSION_ID:-} == 24.04 ]] || fail "Ubuntu 24.04 required, found ${PRETTY_NAME:-unknown}"
@@ -76,13 +77,25 @@ preflight() {
     [[ $STARTER_DEPLOY_KEY =~ ^ssh-ed25519\ [A-Za-z0-9+/=]+(\ .*)?$ ]] || fail 'STARTER_DEPLOY_KEY must be one ssh-ed25519 public key'
     [[ $STARTER_SWAP_SIZE =~ ^[0-9]+[MG]$ ]] || fail 'STARTER_SWAP_SIZE like 2G'
 
-    # Key-only SSH is enforced below; refuse before it can lock root out.
-    [[ -s /root/.ssh/authorized_keys ]] || fail 'root has no authorized_keys; add your SSH key first'
+    # Key-only SSH is enforced below; refuse before it can lock the operator
+    # out. Run through sudo, the invoking account (e.g. the cloud image's
+    # `ubuntu`) is the operator and root login is disabled entirely.
+    if [[ -n ${SUDO_USER:-} && $SUDO_USER != root ]]; then
+        OPERATOR_KEYS=$(getent passwd "$SUDO_USER" | cut -d: -f6)/.ssh/authorized_keys
+        ROOT_LOGIN=no
+    else
+        OPERATOR_KEYS=/root/.ssh/authorized_keys
+        ROOT_LOGIN=prohibit-password
+    fi
+    [[ -s $OPERATOR_KEYS ]] || fail "no SSH key in $OPERATOR_KEYS; add your SSH key first"
 }
 
 install_base() {
     log 'Base system, swap, time zone, automatic security updates'
     export DEBIAN_FRONTEND=noninteractive
+    # Our third-party lists are recreated by add_repositories; a stale one
+    # from an earlier run (e.g. an expired key) must not break this update.
+    rm -f /etc/apt/sources.list.d/{nginx,mysql,redis,nodesource}.list
     apt-get update -q
     apt-get upgrade -yq
     apt-get install -yq --no-install-recommends \
@@ -118,7 +131,8 @@ add_repositories() {
     # Prefer nginx.org (>= 1.28, `http2 on;`) over the Ubuntu 1.24 package.
     printf 'Package: *\nPin: origin nginx.org\nPin-Priority: 900\n' > /etc/apt/preferences.d/99nginx
 
-    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor --yes -o /etc/apt/keyrings/mysql.gpg
+    # Same signing key as the 2023 file (B7B3B788A8D3785C), renewed to 2027-10.
+    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o /etc/apt/keyrings/mysql.gpg
     echo 'deb [signed-by=/etc/apt/keyrings/mysql.gpg] http://repo.mysql.com/apt/ubuntu noble mysql-8.4-lts' > /etc/apt/sources.list.d/mysql.list
 
     curl -fsSL https://packages.redis.io/gpg | gpg --dearmor --yes -o /etc/apt/keyrings/redis.gpg
@@ -360,10 +374,10 @@ harden_access() {
     systemctl restart fail2ban
 
     # sshd keeps the first value it reads; 00- precedes 50-cloud-init.conf.
-    cat > /etc/ssh/sshd_config.d/00-starter.conf <<'EOF'
+    cat > /etc/ssh/sshd_config.d/00-starter.conf <<EOF
 PasswordAuthentication no
 KbdInteractiveAuthentication no
-PermitRootLogin prohibit-password
+PermitRootLogin $ROOT_LOGIN
 X11Forwarding no
 MaxAuthTries 3
 EOF

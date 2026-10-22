@@ -251,7 +251,7 @@ class AiConfigurationTest(unittest.TestCase):
                     self.assertNotIn(f"${{{variable}}}", line)
 
         # No lock-out: key-only SSH only after root is known to have a key.
-        self.assertLess(script.index("root has no authorized_keys"), script.index("PasswordAuthentication no"))
+        self.assertLess(script.index("[[ -s $OPERATOR_KEYS ]] || fail"), script.index("PasswordAuthentication no"))
         self.assertIn("sshd -t", script)
         self.assertIn("never overwrites", template)
         self.assertIn('if [[ ! -f $SHARED_ENV ]]', script)
