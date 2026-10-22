@@ -91,6 +91,21 @@ class AiConfigurationTest(unittest.TestCase):
         self.assertIn('DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}', deploy)
         self.assertIn('DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}', deploy)
         self.assertIn('sha256sum -c .release/starter.tar.gz.sha256', deploy)
+        # The git-ignored SSR bundle must ship in the artifact and is checked
+        # on the candidate release before the switch.
+        self.assertIn('cp -R bootstrap/ssr .release/app/bootstrap/ssr', deploy)
+        # No node_modules in the artifact: the SSR bundle carries its packages.
+        vite = (ROOT / "vite.config.ts").read_text()
+        self.assertRegex(vite, r"ssr: \{\s*noExternal: true,\s*\}")
+        deployer = (ROOT / "deploy.php").read_text()
+        smoke = deployer.split("task('deploy:smoke', function", 1)[1].split("});", 1)[0]
+        self.assertIn("bootstrap/ssr/app.js", smoke)
+        # Production is built and deployed only from main.
+        build = deploy.split("  build-release:", 1)[1].split("\n  deploy:", 1)[0]
+        guard = build.split("- name: Require main for production", 1)[1].split("- name:", 1)[0]
+        self.assertIn("inputs.environment == 'production' && github.ref != 'refs/heads/main'", guard)
+        self.assertIn("exit 1", guard)
+        self.assertLess(build.index("Require main for production"), build.index("Checkout approved revision"))
 
     def test_deployer_uses_a_verified_artifact_and_safe_defaults(self):
         deployer = (ROOT / "deploy.php").read_text()
@@ -201,6 +216,45 @@ class AiConfigurationTest(unittest.TestCase):
         for path in ("scripts/backup/backup.sh", "scripts/backup/restore.sh"):
             self.assertTrue(os.access(ROOT / path, os.X_OK), path)
             subprocess.run(["bash", "-n", str(ROOT / path)], check=True)
+
+    def test_server_provisioning_keeps_secrets_on_the_host_and_the_scanner_off(self):
+        script_path = ROOT / "scripts/server/provision.sh"
+        script = script_path.read_text()
+        template = (ROOT / "deploy/env/production.env.example").read_text()
+        self.assertTrue(script.startswith("#!/usr/bin/env bash"))
+        self.assertIn("set -Eeuo pipefail", script)
+        self.assertTrue(os.access(script_path, os.X_OK))
+        subprocess.run(["bash", "-n", str(script_path)], check=True)
+
+        for line in ("APP_ENV=production", "APP_DEBUG=false", "APP_DEMO=false",
+                     "ADMIN_REQUIRE_TWO_FACTOR=true", "SESSION_SECURE_COOKIE=true",
+                     "MEDIA_SCANNER_ENABLED=false", "HEALTH_CHECK_SCANNER=false",
+                     "LOG_STACK=json", "DB_CONNECTION=mysql"):
+            self.assertRegex(template, rf"(?m)^{re.escape(line)}$")
+        self.assertNotIn("clamav", script.lower().replace("clamav is intentionally not installed", ""))
+
+        # Every secret is a placeholder filled on the server, and the script
+        # substitutes each placeholder of the template.
+        for key in ("APP_KEY", "DB_PASSWORD", "HEALTH_TOKEN"):
+            self.assertRegex(template, rf"(?m)^{key}=__{key}__$")
+        placeholders = set(re.findall(r"__([A-Z_]+)__", template))
+        substituted = set(re.findall(r's\|__([A-Z_]+)__\|', script))
+        self.assertEqual(placeholders, substituted)
+        self.assertIn("unreplaced placeholder", script)
+
+        # Generated secrets are written to files only, never printed.
+        for variable in ("app_password", "backup_password", "app_key", "health_token",
+                         "APP_DB_PASSWORD", "BACKUP_DB_PASSWORD"):
+            for line in script.splitlines():
+                if re.match(r"\s*(echo|printf|log)\b", line):
+                    self.assertNotIn(f"${variable}", line)
+                    self.assertNotIn(f"${{{variable}}}", line)
+
+        # No lock-out: key-only SSH only after root is known to have a key.
+        self.assertLess(script.index("[[ -s $OPERATOR_KEYS ]] || fail"), script.index("PasswordAuthentication no"))
+        self.assertIn("sshd -t", script)
+        self.assertIn("never overwrites", template)
+        self.assertIn('if [[ ! -f $SHARED_ENV ]]', script)
 
     def test_manual_skills_resolve_shared_workflows(self):
         for name in ("foundation-fast", "foundation-ui"):
@@ -813,6 +867,15 @@ class AiConfigurationTest(unittest.TestCase):
         self.assertIn("PGSQL_TEST_DATABASE ?= starter_testing", makefile)
         self.assertIn('"$$TEST_DB" = "$$POSTGRES_DB"', makefile)
         self.assertIn("-e DB_DATABASE=$(PGSQL_TEST_DATABASE)", makefile)
+
+    def test_sign_up_is_off_by_default_and_ci_builds_both_variants(self):
+        env = (ROOT / ".env.example").read_text()
+        self.assertIn("\nAPP_REGISTRATION_ENABLED=false\n", env)
+
+        ci = (ROOT / ".github/workflows/ci.yml").read_text()
+        quality = ci[ci.index("\n  quality:\n"):ci.index("\n  tests-pgsql:\n")]
+        self.assertIn("APP_REGISTRATION_ENABLED: 'false'\n        run: npm run build:ssr", quality)
+        self.assertIn("APP_REGISTRATION_ENABLED: 'true'\n        run: npm run build:ssr", quality)
 
     def test_mysql_is_the_default_engine_and_runs_in_ci_and_locally(self):
         env = (ROOT / ".env.example").read_text()
