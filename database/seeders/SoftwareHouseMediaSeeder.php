@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\MediaStatus;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Geometry\Factories\EllipseFactory;
 use Intervention\Image\Geometry\Factories\RectangleFactory;
 use Intervention\Image\ImageManager;
@@ -73,7 +74,7 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
             return parent::placeholder($definition, $width, $height);
         }
 
-        $image = ImageManager::gd()->create($width, $height)->fill($definition['color'] ?? 'e9dfd1');
+        $image = ImageManager::usingDriver(GdDriver::class)->createImage($width, $height)->fill($definition['color'] ?? 'e9dfd1');
         $accent = $mockup['accent'];
         $this->dotGrid($image, $width, $height);
 
@@ -323,7 +324,8 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
 
     private function rect(ImageInterface $image, int $x, int $y, int $width, int $height, string $color): void
     {
-        $image->drawRectangle($x, $y, function (RectangleFactory $rectangle) use ($width, $height, $color): void {
+        $image->drawRectangle(function (RectangleFactory $rectangle) use ($x, $y, $width, $height, $color): void {
+            $rectangle->at($x, $y);
             $rectangle->size(max(1, $width), max(1, $height));
             $rectangle->background($color);
         });
@@ -331,7 +333,8 @@ class SoftwareHouseMediaSeeder extends DemoMediaSeeder
 
     private function dot(ImageInterface $image, float $x, float $y, int $diameter, string $color): void
     {
-        $image->drawEllipse((int) $x, (int) $y, function (EllipseFactory $ellipse) use ($diameter, $color): void {
+        $image->drawEllipse(function (EllipseFactory $ellipse) use ($x, $y, $diameter, $color): void {
+            $ellipse->at((int) $x, (int) $y);
             $ellipse->size($diameter, $diameter);
             $ellipse->background($color);
         });
