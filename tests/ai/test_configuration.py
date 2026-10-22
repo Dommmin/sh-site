@@ -202,6 +202,45 @@ class AiConfigurationTest(unittest.TestCase):
             self.assertTrue(os.access(ROOT / path, os.X_OK), path)
             subprocess.run(["bash", "-n", str(ROOT / path)], check=True)
 
+    def test_server_provisioning_keeps_secrets_on_the_host_and_the_scanner_off(self):
+        script_path = ROOT / "scripts/server/provision.sh"
+        script = script_path.read_text()
+        template = (ROOT / "deploy/env/production.env.example").read_text()
+        self.assertTrue(script.startswith("#!/usr/bin/env bash"))
+        self.assertIn("set -Eeuo pipefail", script)
+        self.assertTrue(os.access(script_path, os.X_OK))
+        subprocess.run(["bash", "-n", str(script_path)], check=True)
+
+        for line in ("APP_ENV=production", "APP_DEBUG=false", "APP_DEMO=false",
+                     "ADMIN_REQUIRE_TWO_FACTOR=true", "SESSION_SECURE_COOKIE=true",
+                     "MEDIA_SCANNER_ENABLED=false", "HEALTH_CHECK_SCANNER=false",
+                     "LOG_STACK=json", "DB_CONNECTION=mysql"):
+            self.assertRegex(template, rf"(?m)^{re.escape(line)}$")
+        self.assertNotIn("clamav", script.lower().replace("clamav is intentionally not installed", ""))
+
+        # Every secret is a placeholder filled on the server, and the script
+        # substitutes each placeholder of the template.
+        for key in ("APP_KEY", "DB_PASSWORD", "HEALTH_TOKEN"):
+            self.assertRegex(template, rf"(?m)^{key}=__{key}__$")
+        placeholders = set(re.findall(r"__([A-Z_]+)__", template))
+        substituted = set(re.findall(r's\|__([A-Z_]+)__\|', script))
+        self.assertEqual(placeholders, substituted)
+        self.assertIn("unreplaced placeholder", script)
+
+        # Generated secrets are written to files only, never printed.
+        for variable in ("app_password", "backup_password", "app_key", "health_token",
+                         "APP_DB_PASSWORD", "BACKUP_DB_PASSWORD"):
+            for line in script.splitlines():
+                if re.match(r"\s*(echo|printf|log)\b", line):
+                    self.assertNotIn(f"${variable}", line)
+                    self.assertNotIn(f"${{{variable}}}", line)
+
+        # No lock-out: key-only SSH only after root is known to have a key.
+        self.assertLess(script.index("root has no authorized_keys"), script.index("PasswordAuthentication no"))
+        self.assertIn("sshd -t", script)
+        self.assertIn("never overwrites", template)
+        self.assertIn('if [[ ! -f $SHARED_ENV ]]', script)
+
     def test_manual_skills_resolve_shared_workflows(self):
         for name in ("foundation-fast", "foundation-ui"):
             with self.subTest(skill=name):
